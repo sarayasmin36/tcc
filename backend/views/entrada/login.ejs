@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrar | VoleiStats</title>
+    <link rel="stylesheet" href="/volei/styles.css">
+</head>
+<body class="auth-mode">
+    <main class="auth-screen">
+        <section class="auth-card">
+            <div class="auth-brand">
+                <div class="brand-logo">🏐</div>
+                <div>
+                    <div class="brand-name">VoleiStats</div>
+                    <div class="brand-sub">Dashboard esportivo</div>
+                </div>
+            </div>
+
+            <div class="auth-tabs">
+                <a class="auth-tab active" href="/login">Entrar</a>
+                <a class="auth-tab" href="/registro">Criar conta</a>
+            </div>
+
+            <% if (erro) { %>
+                <div class="auth-error"><%= erro %></div>
+            <% } %>
+
+            <form method="post" action="/login" class="auth-form">
+                <label class="form-field">
+                    <span>E-mail</span>
+                    <input
+                        type="email"
+                        name="email"
+                        required
+                        placeholder="voce@email.com"
+                    >
+                </label>
+
+                <label class="form-field">
+                    <span>Senha</span>
+                    <input
+                        type="password"
+                        name="senha"
+                        required
+                        placeholder="••••••"
+                    >
+                </label>
+
+                <button class="btn primary auth-submit" type="submit">
+                    Entrar
+                </button>
+            </form>
+
+            <p class="auth-foot">
+                Não tem conta?
+                <a href="/registro">Criar conta</a>
+            </p>
+        </section>
+    </main>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vôlei Gestão</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #f4f7f5;
+            color: #20362b;
+        }
+
+        header {
+            background: #20362b;
+            color: white;
+            padding: 20px 8%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header h1 {
+            font-size: 24px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 14px;
+        }
+
+        nav a:hover {
+            color: #d7f36b;
+        }
+
+        .hero {
+            min-height: 420px;
+            padding: 80px 8%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 40px;
+        }
+
+        .hero-text {
+            max-width: 560px;
+        }
+
+        .hero-text span {
+            color: #6e8b36;
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .hero h2 {
+            margin: 15px 0;
+            font-size: 46px;
+            line-height: 1.1;
+        }
+
+        .hero p {
+            color: #66756c;
+            line-height: 1.7;
+            margin-bottom: 25px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 13px 20px;
+            border-radius: 8px;
+            background: #20362b;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .button:hover {
+            background: #31533e;
+        }
+
+        .ball {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: #d7f36b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 90px;
+            font-weight: bold;
+            color: #20362b;
+            box-shadow: 20px 20px 0 #dfe9df;
+        }
+
+        .cards {
+            padding: 0 8% 60px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid #e1e8e2;
+        }
+
+        .card h3 {
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            color: #718079;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        footer {
+            padding: 25px 8%;
+            color: #718079;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        @media (max-width: 700px) {
+            header,
+            .hero {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            nav a {
+                margin: 15px 15px 0 0;
+                display: inline-block;
+            }
+
+            .hero h2 {
+                font-size: 36px;
+            }
+
+            .ball {
+                width: 150px;
+                height: 150px;
+                font-size: 60px;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Vôlei Gestão</h1>
+
+        <nav>
+            <a href="/">Início</a>
+            <a href="/login">Entrar</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-text">
+                <span>GESTÃO ESPORTIVA</span>
+
+                <h2>Organize sua equipe de vôlei.</h2>
+
+                <p>
+                    Gerencie atletas, equipes, campeonatos, partidas e desempenhos
+                    em um único sistema.
+                </p>
+
+                <a class="button" href="/login">Acessar sistema</a>
+            </div>
+
+            <div class="ball">V</div>
+        </section>
+
+        <section class="cards">
+            <article class="card">
+                <h3>Atletas</h3>
+                <p>
+                    Cadastre jogadores, posições, números de camisa e equipes.
+                </p>
+            </article>
+
+            <article class="card">
+                <h3>Partidas</h3>
+                <p>
+                    Organize o calendário de jogos e acompanhe os placares.
+                </p>
+            </article>
+
+            <article class="card">
+                <h3>Desempenho</h3>
+                <p>
+                    Registre estatísticas individuais e acompanhe a evolução dos atletas.
+                </p>
+            </article>
+        </section>
+    </main>
+
+    <footer>
+        Sistema de gerenciamento de voleibol — Temporada 2026
+    </footer>
+</body>
+</html>
