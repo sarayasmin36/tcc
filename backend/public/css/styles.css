@@ -1,0 +1,617 @@
+/*
+   VoleiStats — CSS simplificado
+   Organizado em: base, layout, componentes, formulários e responsividade.
+*/
+
+/* ====================
+   1. CONFIGURAÇÕES GERAIS
+==================== */
+
+:root {
+    --verde: #ff00cc;
+    --verde-claro: #e8f7eb;
+    --lima: #d7f36b;
+    --fundo: #f6f8f6;
+    --branco: #ffffff;
+    --texto: #14261d;
+    --cinza: #718077;
+    --borda: #e8eee9;
+    --azul-claro: #eaf1ff;
+    --azul: #3671da;
+    --vermelho-claro: #ffe9e9;
+    --vermelho: #a33d3d;
+    --sombra: 0 8px 24px rgba(20, 38, 29, 0.08);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--fundo);
+    color: var(--texto);
+    font-family: Arial, sans-serif;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+button {
+    border: 0;
+    cursor: pointer;
+}
+
+/* ====================
+   2. ESTRUTURA PRINCIPAL
+==================== */
+
+.shell {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 250px;
+    min-height: 100vh;
+    padding: 24px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    background: var(--verde);
+    color: var(--branco);
+}
+
+.main {
+    flex: 1;
+    max-width: 1500px;
+    padding: 32px 5%;
+}
+
+.topbar,
+.section-head,
+.team-row,
+.match-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.topbar {
+    margin-bottom: 28px;
+}
+
+.topbar h1 {
+    margin: 0;
+    font-size: 29px;
+}
+
+.subtitle,
+.muted,
+.hint {
+    color: var(--cinza);
+}
+
+.subtitle {
+    margin: 7px 0 0;
+    font-size: 13px;
+}
+
+.top-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ====================
+   3. MARCA E MENU
+==================== */
+
+.brand,
+.auth-brand,
+.profile-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.brand-logo {
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: var(--lima);
+    color: var(--verde);
+    font-size: 22px;
+}
+
+.brand-name {
+    font-size: 19px;
+    font-weight: bold;
+}
+
+.brand-sub {
+    margin-top: 3px;
+    color: #bdd2c3;
+    font-size: 11px;
+}
+
+.profile-top {
+    padding: 13px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.profile-name {
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.profile-role {
+    margin-top: 3px;
+    color: #bdd2c3;
+    font-size: 11px;
+}
+
+.avatar {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #cfe7d4;
+    color: var(--verde);
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.nav {
+    display: grid;
+    gap: 6px;
+}
+
+.nav a {
+    padding: 11px 13px;
+    border-radius: 8px;
+    color: #c5d3c9;
+    font-size: 13px;
+}
+
+.nav a:hover,
+.nav a.active {
+    background: rgba(215, 243, 107, 0.14);
+    color: var(--lima);
+}
+
+.nav .icon {
+    display: inline-block;
+    width: 23px;
+}
+
+.sidebar-foot {
+    display: grid;
+    gap: 12px;
+    margin-top: auto;
+}
+
+/* ====================
+   4. BOTÕES
+==================== */
+
+.btn {
+    padding: 11px 15px;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.btn.lime {
+    background: var(--lima);
+    color: var(--verde);
+}
+
+.btn.primary {
+    background: var(--verde);
+    color: var(--branco);
+}
+
+.btn.ghost {
+    background: #f0f4f1;
+    color: var(--texto);
+}
+
+.btn.danger {
+    background: #fff0f0;
+    color: #c94b4b;
+}
+
+.btn:hover {
+    opacity: 0.85;
+}
+
+/* ====================
+   5. CARDS E GRIDS
+==================== */
+
+.grid {
+    display: grid;
+    gap: 18px;
+}
+
+.metrics {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.two {
+    grid-template-columns: 1.35fr 1fr;
+}
+
+.three {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.card,
+.section {
+    padding: 20px;
+    border: 1px solid var(--borda);
+    border-radius: 14px;
+    background: var(--branco);
+    box-shadow: var(--sombra);
+}
+
+.section {
+    margin-top: 18px;
+}
+
+.section h2,
+.card h2 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.section h3,
+.card h3 {
+    margin: 0;
+    font-size: 14px;
+}
+
+.metric-label {
+    color: var(--cinza);
+    font-size: 12px;
+}
+
+.metric-value {
+    margin-top: 10px;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.metric-note {
+    margin-top: 8px;
+    color: #4d9b61;
+    font-size: 11px;
+}
+
+/* ====================
+   6. LISTAS, TABELAS E BADGES
+==================== */
+
+.team-row,
+.match-row {
+    padding: 13px 0;
+    border-bottom: 1px solid var(--borda);
+}
+
+.team-row:last-child,
+.match-row:last-child {
+    border-bottom: 0;
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+th,
+td {
+    padding: 13px 10px;
+    border-bottom: 1px solid var(--borda);
+    text-align: left;
+}
+
+th {
+    color: var(--cinza);
+    font-size: 11px;
+    text-transform: uppercase;
+}
+
+.badge {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.badge.green {
+    background: var(--verde-claro);
+    color: #2c8242;
+}
+
+.badge.yellow {
+    background: #fff7d9;
+    color: #9b7410;
+}
+
+.badge.red {
+    background: var(--vermelho-claro);
+    color: var(--vermelho);
+}
+
+.team-id {
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border-radius: 9px;
+    background: var(--azul-claro);
+    color: var(--azul);
+    font-weight: bold;
+}
+
+/* ====================
+   7. FORMULÁRIOS
+==================== */
+
+.form-card {
+    max-width: 680px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.field {
+    display: grid;
+    gap: 7px;
+}
+
+.field.full,
+.form-actions {
+    grid-column: 1 / -1;
+}
+
+.field label {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.field input,
+.field select,
+.field textarea {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    background: var(--branco);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.notice {
+    margin-bottom: 16px;
+    padding: 13px 15px;
+    border-radius: 8px;
+    background: #f2f8df;
+    color: #536c19;
+    font-size: 13px;
+}
+
+/* ====================
+   8. TELAS DE ENTRADA
+==================== */
+
+.auth-page {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 25px;
+    background: #eef5ed;
+}
+
+.auth-card {
+    width: min(460px, 100%);
+    padding: 30px;
+    border: 1px solid var(--borda);
+    border-radius: 18px;
+    background: var(--branco);
+    box-shadow: var(--sombra);
+}
+
+.auth-brand {
+    margin-bottom: 24px;
+}
+
+.auth-tabs {
+    display: flex;
+    margin-bottom: 22px;
+    border-bottom: 1px solid var(--borda);
+}
+
+.auth-tabs a {
+    flex: 1;
+    padding: 12px;
+    color: var(--cinza);
+    font-size: 13px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.auth-tabs a.active {
+    border-bottom: 3px solid var(--lima);
+    color: var(--verde);
+}
+
+.auth-form {
+    display: grid;
+    gap: 16px;
+}
+
+.auth-foot {
+    color: var(--cinza);
+    font-size: 13px;
+    text-align: center;
+}
+
+.auth-foot a {
+    color: var(--verde);
+    font-weight: bold;
+}
+
+/* ====================
+   9. GRÁFICO E OUTROS ELEMENTOS
+==================== */
+
+.bar {
+    height: 8px;
+    overflow: hidden;
+    border-radius: 10px;
+    background: #edf1ed;
+}
+
+.bar span {
+    display: block;
+    height: 100%;
+    border-radius: 10px;
+    background: var(--lima);
+}
+
+.chart {
+    height: 220px;
+    display: flex;
+    align-items: end;
+    gap: 16px;
+    padding: 22px 10px 0;
+}
+
+.column {
+    position: relative;
+    flex: 1;
+    min-height: 25px;
+    border-radius: 8px 8px 0 0;
+    background: var(--lima);
+}
+
+.column small {
+    position: absolute;
+    top: calc(100% + 8px);
+    width: 100%;
+    color: var(--cinza);
+    font-size: 10px;
+    text-align: center;
+}
+
+.role-grid {
+    display: grid;
+    gap: 10px;
+}
+
+.role {
+    padding: 14px;
+    border: 1px solid var(--borda);
+    border-radius: 9px;
+    background: #fbfcfb;
+}
+
+.role strong,
+.role small {
+    display: block;
+}
+
+.role strong {
+    font-size: 13px;
+}
+
+.role small {
+    margin-top: 4px;
+    color: var(--cinza);
+    font-size: 11px;
+}
+
+/* ====================
+   10. RESPONSIVIDADE
+==================== */
+
+@media (max-width: 1000px) {
+    .sidebar {
+        width: 220px;
+    }
+
+    .metrics {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .two,
+    .three {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 700px) {
+    .shell {
+        display: block;
+    }
+
+    .sidebar {
+        width: 100%;
+        min-height: auto;
+    }
+
+    .nav {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .main {
+        padding: 24px 16px;
+    }
+
+    .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .field.full,
+    .form-actions {
+        grid-column: auto;
+    }
+
+    .metrics {
+        grid-template-columns: 1fr 1fr;
+    }
+}

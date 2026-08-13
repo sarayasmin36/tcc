@@ -1,0 +1,91 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de atleta | VoleiStats</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <main class="auth-page">
+        <section class="auth-card">
+            <div class="auth-brand">
+                <div class="brand-logo">🏐</div>
+                <div>
+                    <div class="brand-name">VoleiStats</div>
+                    <div class="brand-sub">Cadastro de atleta</div>
+                </div>
+            </div>
+
+            <div class="auth-tabs">
+                <a href="/login">Entrar</a>
+                <a href="/registro-treinador">Treinador</a>
+                <a class="active" href="/registro-atleta">Atleta</a>
+            </div>
+
+            <% if (erro) { %>
+                <div class="notice"><%= erro %></div>
+            <% } %>
+
+            <div class="notice">
+                Solicite ao seu treinador o código da equipe antes de criar a conta.
+            </div>
+
+            <form class="auth-form" action="/registro-atleta" method="POST">
+                <div class="field">
+                    <label for="nome">Nome completo</label>
+                    <input type="text" id="nome" name="nome" required>
+                </div>
+
+                <div class="field">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+
+                <div class="field">
+                    <label for="senha">Senha</label>
+                    <input type="password" id="senha" name="senha" minlength="6" required>
+                </div>
+
+                <div class="field">
+                    <label for="codigo_convite">Código da equipe</label>
+                    <input
+                        type="text"
+                        id="codigo_convite"
+                        name="codigo_convite"
+                        placeholder="Ex.: VOLEI-3F8A91C2"
+                        maxlength="20"
+                        required
+                    >
+                </div>
+
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="numero_camisa">Número da camisa</label>
+                        <input type="number" id="numero_camisa" name="numero_camisa" min="0" max="99" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="posicao">Posição</label>
+                        <select id="posicao" name="posicao" required>
+                            <option value="">Selecione</option>
+                            <option value="LEVANTADOR">Levantador</option>
+                            <option value="PONTEIRO">Ponteiro</option>
+                            <option value="CENTRAL">Central</option>
+                            <option value="OPOSTO">Oposto</option>
+                            <option value="LIBERO">Líbero</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn lime" type="submit">Criar conta e entrar na equipe</button>
+            </form>
+
+            <p class="auth-foot">
+                Já possui uma conta? <a href="/login">Voltar para o login</a>
+            </p>
+        </section>
+    </main>
+</body>
+</html>

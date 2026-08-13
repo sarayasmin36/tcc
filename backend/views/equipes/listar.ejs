@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equipes | VoleiStats</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <div class="shell">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo">🏐</div>
+                <div>
+                    <div class="brand-name">VoleiStats</div>
+                    <div class="brand-sub">Dashboard esportivo</div>
+                </div>
+            </div>
+
+            <nav class="nav">
+                <a href="/">⌂ Início</a>
+                <a class="active" href="/equipes">◆ Equipes</a>
+                <a href="/atletas">● Atletas</a>
+                <a href="/campeonatos">★ Campeonatos</a>
+                <a href="/partidas">▣ Partidas</a>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div>
+                    <h1>Equipes</h1>
+                    <p class="subtitle">Crie equipes e compartilhe o código com os atletas.</p>
+                </div>
+                <a class="btn lime" href="/equipes/cadastro">Nova equipe</a>
+            </header>
+
+            <% if (mensagem) { %>
+                <div class="notice"><%= mensagem %></div>
+            <% } %>
+
+            <section class="grid three">
+                <% if (equipes && equipes.length) { %>
+                    <% equipes.forEach(equipe => { %>
+                        <article class="card">
+                            <div class="section-head">
+                                <h2><%= equipe.nome %></h2>
+                                <span class="badge green"><%= equipe.categoria %></span>
+                            </div>
+
+                            <p class="muted">Local: <%= equipe.local %></p>
+
+                            <div class="role">
+                                <strong>Código da equipe</strong>
+                                <small>Envie este código aos atletas.</small>
+                                <p><strong><%= equipe.codigo_convite %></strong></p>
+                            </div>
+
+                            <div class="form-actions">
+                                <a class="btn ghost" href="/equipes/<%= equipe.id_equipe %>/atletas">Ver atletas</a>
+                                <form action="/equipes/<%= equipe.id_equipe %>/novo-codigo" method="POST">
+                                    <button class="btn primary" type="submit">Gerar novo código</button>
+                                </form>
+                            </div>
+                        </article>
+                    <% }); %>
+                <% } else { %>
+                    <div class="card">
+                        <h2>Nenhuma equipe encontrada</h2>
+                        <p class="muted">Crie sua primeira equipe para gerar um código de convite.</p>
+                    </div>
+                <% } %>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

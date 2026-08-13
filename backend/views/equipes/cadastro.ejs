@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova equipe | VoleiStats</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <div class="shell">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo">🏐</div>
+                <div>
+                    <div class="brand-name">VoleiStats</div>
+                    <div class="brand-sub">Dashboard esportivo</div>
+                </div>
+            </div>
+
+            <nav class="nav">
+                <a href="/">⌂ Início</a>
+                <a class="active" href="/equipes">◆ Equipes</a>
+                <a href="/atletas">● Atletas</a>
+                <a href="/campeonatos">★ Campeonatos</a>
+                <a href="/partidas">▣ Partidas</a>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div>
+                    <h1>Nova equipe</h1>
+                    <p class="subtitle">O código de convite será gerado automaticamente.</p>
+                </div>
+            </header>
+
+            <% if (erro) { %>
+                <div class="notice"><%= erro %></div>
+            <% } %>
+
+            <section class="card form-card">
+                <form class="form-grid" action="/equipes" method="POST">
+                    <div class="field full">
+                        <label for="nome">Nome da equipe</label>
+                        <input type="text" id="nome" name="nome" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="categoria">Categoria</label>
+                        <input type="text" id="categoria" name="categoria" placeholder="Ex.: Adulto masculino" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="local">Local de treino</label>
+                        <input type="text" id="local" name="local" required>
+                    </div>
+
+                    <div class="form-actions">
+                        <a class="btn ghost" href="/equipes">Cancelar</a>
+                        <button class="btn primary" type="submit">Criar equipe</button>
+                    </div>
+                </form>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
