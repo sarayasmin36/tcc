@@ -1,3 +1,124 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Partidas | VoleiStats</title><link rel="stylesheet" href="/css/styles.css"></head><body><div class="shell"><aside class="sidebar"><div class="brand"><div class="brand-logo">🏐</div><div><div class="brand-name">VoleiStats</div><div class="brand-sub">Dashboard esportivo</div></div></div><div class="profile-top"><div class="avatar">AS</div><div><div class="profile-name">Ana Souza</div><div class="profile-role">Treinadora</div></div></div><nav class="nav"><a href="/" data-page="dashboard"><span class="icon">⌂</span>Início</a><a href="/equipes" data-page="equipes"><span class="icon">◆</span>Equipes</a><a href="/atletas" data-page="atletas"><span class="icon">●</span>Atletas</a><a href="/campeonatos" data-page="campeonatos"><span class="icon">★</span>Campeonatos</a><a href="/partidas" data-page="partidas"><span class="icon">▣</span>Partidas</a><a href="/relatorios" data-page="relatorios"><span class="icon">▤</span>Relatórios</a></nav><div class="sidebar-foot"><a class="profile-bottom" href="/perfil"><div class="avatar">AS</div><div><div class="profile-name">Perfil</div><div class="profile-role">Ver conta</div></div></a><a class="btn danger" href="/login">Sair</a></div></aside><main class="main"><header class="topbar"><div><h1>Partidas</h1><p class="subtitle">Agenda, resultados e registro de placares</p></div><div class="top-actions"><div class="search">Buscar no sistema</div><div class="avatar">AS</div></div></header><div class="section-head"><div></div><button class="btn lime">+ Agendar partida</button></div><section class="section"><div class="table-wrap"><table><thead><tr><th>Data</th><th>Partida</th><th>Campeonato</th><th>Local</th><th>Placar</th><th>Status</th><th>Ações</th></tr></thead><tbody><tr><td>13/08/2026  
-<span class="muted">19:30</span></td><td><strong>Vôlei Clube Azul × Minas Norte</strong></td><td>Copa Regional</td><td>Ginásio Central</td><td>—</td><td><span class="badge yellow">Agendada</span></td><td><button class="btn ghost">Abrir</button></td></tr><tr><td>10/08/2026  
-<span class="muted">16:00</span></td><td><strong>Praia Vôlei × Estrelas do Sul</strong></td><td>Liga Nacional A</td><td>Arena Sul</td><td>3 × 1</td><td><span class="badge green">Encerrada</span></td><td><button class="btn ghost">Scout</button></td></tr></tbody></table></div></section></main></div><script src="/js/interface.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova partida | VoleiStats</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <div class="shell">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo">🏐</div>
+                <div>
+                    <div class="brand-name">VoleiStats</div>
+                    <div class="brand-sub">Dashboard esportivo</div>
+                </div>
+            </div>
+
+            <nav class="nav">
+                <a href="/">⌂ Início</a>
+                <a href="/equipes">◆ Equipes</a>
+                <a href="/atletas">● Atletas</a>
+                <a href="/campeonatos">★ Campeonatos</a>
+                <a class="active" href="/partidas">▣ Partidas</a>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div>
+                    <h1>Nova partida</h1>
+                    <p class="subtitle">Cadastre uma nova partida entre duas equipes.</p>
+                </div>
+            </header>
+
+            <% if (erro) { %>
+                <div class="notice"><%= erro %></div>
+            <% } %>
+
+            <section class="card form-card">
+                <form class="form-grid" action="/partidas" method="POST">
+                    <div class="field">
+                        <label for="equipe_casa_id">Equipe mandante</label>
+                        <select id="equipe_casa_id" name="equipe_casa_id" required>
+                            <option value="">Selecione uma equipe</option>
+
+                            <% equipes.forEach(equipe => { %>
+                                <option value="<%= equipe.id %>">
+                                    <%= equipe.nome %>
+                                </option>
+                            <% }); %>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="equipe_visitante_id">Equipe visitante</label>
+                        <select id="equipe_visitante_id" name="equipe_visitante_id" required>
+                            <option value="">Selecione uma equipe</option>
+
+                            <% equipes.forEach(equipe => { %>
+                                <option value="<%= equipe.id %>">
+                                    <%= equipe.nome %>
+                                </option>
+                            <% }); %>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="campeonato_id">Campeonato</label>
+                        <select id="campeonato_id" name="campeonato_id">
+                            <option value="">Partida amistosa</option>
+
+                            <% campeonatos.forEach(campeonato => { %>
+                                <option value="<%= campeonato.id %>">
+                                    <%= campeonato.nome %>
+                                </option>
+                            <% }); %>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="data_partida">Data da partida</label>
+                        <input
+                            type="date"
+                            id="data_partida"
+                            name="data_partida"
+                            required
+                        >
+                    </div>
+
+                    <div class="field">
+                        <label for="hora_partida">Horário</label>
+                        <input
+                            type="time"
+                            id="hora_partida"
+                            name="hora_partida"
+                            required
+                        >
+                    </div>
+
+                    <div class="field">
+                        <label for="local">Local da partida</label>
+                        <input
+                            type="text"
+                            id="local"
+                            name="local"
+                            placeholder="Ex.: Ginásio Municipal"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-actions">
+                        <a class="btn ghost" href="/partidas">Cancelar</a>
+                        <button class="btn primary" type="submit">
+                            Criar partida
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

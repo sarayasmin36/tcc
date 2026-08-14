@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova partida | VoleiStats</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <div class="shell">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo">🏐</div>
+                <div>
+                    <div class="brand-name">VoleiStats</div>
+                    <div class="brand-sub">Dashboard esportivo</div>
+                </div>
+            </div>
+
+            <nav class="nav">
+                <a href="/">⌂ Início</a>
+                <a href="/equipes">◆ Equipes</a>
+                <a href="/atletas">● Atletas</a>
+                <a href="/campeonatos">★ Campeonatos</a>
+                <a class="active" href="/partidas">▣ Partidas</a>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div>
+                    <h1>Nova partida</h1>
+                    <p class="subtitle">Cadastre uma nova partida.</p>
+                </div>
+            </header>
+
+            <% if (erro) { %>
+                <div class="notice"><%= erro %></div>
+            <% } %>
+
+            <section class="card form-card">
+                <form class="form-grid" action="/partidas" method="POST">
+                    <div class="field">
+                        <label for="equipe_casa_id">Equipe da casa</label>
+                        <select id="equipe_casa_id" name="equipe_casa_id" required>
+                            <option value="">Selecione uma equipe</option>
+                            <% equipes.forEach(equipe => { %>
+                                <option value="<%= equipe.id %>">
+                                    <%= equipe.nome %>
+                                </option>
+                            <% }); %>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="equipe_visitante_id">Equipe visitante</label>
+                        <select id="equipe_visitante_id" name="equipe_visitante_id" required>
+                            <option value="">Selecione uma equipe</option>
+                            <% equipes.forEach(equipe => { %>
+                                <option value="<%= equipe.id %>">
+                                    <%= equipe.nome %>
+                                </option>
+                            <% }); %>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="campeonato_id">Campeonato</label>
+                        <select id="campeonato_id" name="campeonato_id" required>
+                            <option value="">Selecione um campeonato</option>
+                            <% campeonatos.forEach(campeonato => { %>
+                                <option value="<%= campeonato.id %>">
+                                    <%= campeonato.nome %>
+                                </option>
+                            <% }); %>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="data_partida">Data</label>
+                        <input type="date" id="data_partida" name="data_partida" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="hora_partida">Horário</label>
+                        <input type="time" id="hora_partida" name="hora_partida" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="local">Local</label>
+                        <input
+                            type="text"
+                            id="local"
+                            name="local"
+                            required
+                            placeholder="Ex.: Ginásio Municipal"
+                        >
+                    </div>
+
+                    <div class="form-actions full">
+                        <a class="btn ghost" href="/partidas">Cancelar</a>
+                        <button class="btn primary" type="submit">
+                            Cadastrar partida
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
