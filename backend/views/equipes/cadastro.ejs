@@ -1,67 +1,47 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nova equipe | VoleiStats</title>
-    <link rel="stylesheet" href="/css/styles.css">
-</head>
-<body>
-    <div class="shell">
-        <aside class="sidebar">
-            <div class="brand">
-                <div class="brand-logo">🏐</div>
-                <div>
-                    <div class="brand-name">VoleiStats</div>
-                    <div class="brand-sub">Dashboard esportivo</div>
-                </div>
-            </div>
+<%- include('../parciais/cabecalho.ejs', { titulo: 'Nova equipe | VoleiStats' }) %>
+<%- include('../parciais/menu_lateral.ejs') %>
 
-            <nav class="nav">
-                <a href="/">⌂ Início</a>
-                <a class="active" href="/equipes">◆ Equipes</a>
-                <a href="/atletas">● Atletas</a>
-                <a href="/campeonatos">★ Campeonatos</a>
-                <a href="/partidas">▣ Partidas</a>
-            </nav>
-        </aside>
-
-        <main class="main">
-            <header class="topbar">
-                <div>
-                    <h1>Nova equipe</h1>
-                    <p class="subtitle">O código de convite será gerado automaticamente.</p>
-                </div>
-            </header>
-
-            <% if (erro) { %>
-                <div class="notice"><%= erro %></div>
-            <% } %>
-
-            <section class="card form-card">
-                <form class="form-grid" action="/equipes" method="POST">
-                    <div class="field full">
-                        <label for="nome">Nome da equipe</label>
-                        <input type="text" id="nome" name="nome" required>
-                    </div>
-
-                    <div class="field">
-                        <label for="categoria">Categoria</label>
-                        <input type="text" id="categoria" name="categoria" placeholder="Ex.: Adulto masculino" required>
-                    </div>
-
-                    <div class="field">
-                        <label for="local">Local de treino</label>
-                        <input type="text" id="local" name="local" required>
-                    </div>
-
-                    <div class="form-actions">
-                        <a class="btn ghost" href="/equipes">Cancelar</a>
-                        <button class="btn primary" type="submit">Criar equipe</button>
-                    </div>
-                </form>
-            </section>
-        </main>
+<main class="conteudo-principal">
+  <header class="barra-superior">
+    <div>
+      <p class="texto-pequeno">ORGANIZAÇÃO DO ELENCO</p>
+      <h1>Nova equipe</h1>
+      <p class="subtitulo">Cadastre uma equipe para organizar atletas e partidas.</p>
     </div>
-</body>
-</html>
+  </header>
+
+  <% if (typeof erro !== 'undefined' && erro) { %>
+    <div class="aviso erro" role="alert"><%= erro %></div>
+  <% } %>
+
+  <section class="secao">
+    <form class="grade-formulario" action="/equipes" method="post">
+      <div class="campo completo">
+        <label for="nome-equipe">Nome da equipe</label>
+        <input id="nome-equipe" name="nome" type="text" placeholder="Ex.: Volei Clube" required>
+      </div>
+
+      <div class="campo">
+        <label for="categoria-equipe">Categoria</label>
+        <input id="categoria-equipe" name="categoria" type="text" placeholder="Ex.: Adulto feminino" required>
+      </div>
+
+      <div class="campo">
+        <label for="local-equipe">Local de treino</label>
+        <input id="local-equipe" name="local" type="text" placeholder="Ex.: Ginásio municipal" required>
+      </div>
+
+      <div class="campo completo">
+        <label for="descricao-equipe">Descrição</label>
+        <textarea id="descricao-equipe" name="descricao" placeholder="Informações adicionais sobre a equipe"></textarea>
+      </div>
+
+      <div class="acoes-formulario">
+        <a href="/equipes" class="botao secundario">Cancelar</a>
+        <button type="submit" class="botao principal">Criar equipe</button>
+      </div>
+    </form>
+  </section>
+</main>
+
+<%- include('../parciais/rodape.ejs') %>

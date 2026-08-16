@@ -1,125 +1,169 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | VoleiStats</title>
-    <link rel="stylesheet" href="/css/styles.css">
-</head>
-<body>
-    <div class="shell">
-        <aside class="sidebar">
-            <div class="brand">
-                <div class="brand-logo">🏐</div>
-                <div>
-                    <div class="brand-name">VoleiStats</div>
-                    <div class="brand-sub">Dashboard esportivo</div>
-                </div>
-            </div>
+<%- include('parciais/cabecalho.ejs', { titulo: 'Painel | VoleiStats' }) %>
+<%- include('parciais/menu_lateral.ejs') %>
 
-            <div class="profile-top">
-                <div class="avatar">AS</div>
-                <div>
-                    <div class="profile-name"><%= usuario ? usuario.nome : 'Usuário' %></div>
-                    <div class="profile-role"><%= usuario ? usuario.tipo_usuario : 'Visitante' %></div>
-                </div>
-            </div>
-
-            <nav class="nav">
-                <a class="active" href="/">⌂ Início</a>
-                <a href="/equipes">◆ Equipes</a>
-                <a href="/atletas">● Atletas</a>
-                <a href="/campeonatos">★ Campeonatos</a>
-                <a href="/partidas">▣ Partidas</a>
-                <a href="/relatorios">▤ Relatórios</a>
-            </nav>
-
-            <div class="sidebar-foot">
-                <a class="btn danger" href="/logout">Sair</a>
-            </div>
-        </aside>
-
-        <main class="main">
-            <header class="topbar">
-                <div>
-                    <h1>Visão geral</h1>
-                    <p class="subtitle">Acompanhe sua operação esportiva</p>
-                </div>
-                <div class="top-actions">
-                    <div class="avatar">AS</div>
-                </div>
-            </header>
-
-            <section class="grid metrics">
-                <div class="card">
-                    <div class="metric-label">Atletas</div>
-                    <div class="metric-value"><%= totalAtletas || 0 %></div>
-                    <div class="metric-note">Atletas cadastrados</div>
-                </div>
-
-                <div class="card">
-                    <div class="metric-label">Equipes</div>
-                    <div class="metric-value"><%= totalEquipes || 0 %></div>
-                    <div class="metric-note">Equipes ativas</div>
-                </div>
-
-                <div class="card">
-                    <div class="metric-label">Campeonatos</div>
-                    <div class="metric-value"><%= totalCampeonatos || 0 %></div>
-                    <div class="metric-note">Temporadas cadastradas</div>
-                </div>
-
-                <div class="card">
-                    <div class="metric-label">Partidas</div>
-                    <div class="metric-value"><%= totalPartidas || 0 %></div>
-                    <div class="metric-note">Partidas registradas</div>
-                </div>
-            </section>
-
-            <section class="grid two">
-                <div class="section">
-                    <div class="section-head">
-                        <h2>Próximas partidas</h2>
-                        <a class="btn ghost" href="/partidas">Ver todas</a>
-                    </div>
-
-                    <% if (partidas && partidas.length) { %>
-                        <% partidas.forEach(partida => { %>
-                            <div class="match-row">
-                                <div>
-                                    <strong><%= partida.equipe_casa %> x <%= partida.equipe_fora %></strong>
-                                    <div class="muted"><%= partida.data %> às <%= partida.horario %></div>
-                                </div>
-                                <span class="badge yellow">Agendada</span>
-                            </div>
-                        <% }); %>
-                    <% } else { %>
-                        <p class="muted">Nenhuma partida próxima.</p>
-                    <% } %>
-                </div>
-
-                <div class="section">
-                    <div class="section-head">
-                        <h2>Minhas equipes</h2>
-                        <a class="btn ghost" href="/equipes">Abrir</a>
-                    </div>
-
-                    <% if (equipes && equipes.length) { %>
-                        <% equipes.forEach(equipe => { %>
-                            <div class="team-row">
-                                <div>
-                                    <strong><%= equipe.nome %></strong>
-                                    <div class="muted"><%= equipe.categoria %></div>
-                                </div>
-                                <span class="badge green"><%= equipe.codigo_convite %></span>
-                            </div>
-                        <% }); %>
-                    <% } else { %>
-                        <p class="muted">Nenhuma equipe cadastrada.</p>
-                    <% } %>
-                </div>
-            </section>
-        </main>
+<main class="conteudo-principal">
+  <header class="barra-superior">
+    <div>
+      <p class="texto-pequeno">VISÃO GERAL</p>
+      <h1>Painel</h1>
+      <p class="subtitulo">Acompanhe suas equipes, atletas e partidas em um só lugar.</p>
     </div>
-</body>
-</html>
+
+    <div class="acoes-superiores">
+      <a href="/partidas/cadastro" class="botao lima">Nova partida</a>
+      <a href="/atletas/cadastro" class="botao principal">Novo atleta</a>
+    </div>
+  </header>
+
+  <% if (typeof sucesso !== 'undefined' && sucesso) { %>
+    <div class="aviso sucesso" role="status"><%= sucesso %></div>
+  <% } %>
+
+  <% if (typeof erro !== 'undefined' && erro) { %>
+    <div class="aviso erro" role="alert"><%= erro %></div>
+  <% } %>
+
+  <section class="grade metricas" aria-label="Resumo do sistema">
+    <article class="cartao">
+      <span class="rotulo-metrica">Equipes</span>
+      <strong class="valor-metrica"><%= totalEquipes || 0 %></strong>
+      <span class="observacao-metrica">
+        <%= (totalEquipes || 0) > 0 ? 'Equipes cadastradas' : 'Nenhuma equipe cadastrada' %>
+      </span>
+    </article>
+
+    <article class="cartao">
+      <span class="rotulo-metrica">Atletas</span>
+      <strong class="valor-metrica"><%= totalAtletas || 0 %></strong>
+      <span class="observacao-metrica">
+        <%= (totalAtletas || 0) > 0 ? 'Atletas cadastrados' : 'Nenhum atleta cadastrado' %>
+      </span>
+    </article>
+
+    <article class="cartao">
+      <span class="rotulo-metrica">Partidas</span>
+      <strong class="valor-metrica"><%= totalPartidas || 0 %></strong>
+      <span class="observacao-metrica">
+        <%= (totalPartidas || 0) > 0 ? 'Partidas registradas' : 'Nenhuma partida registrada' %>
+      </span>
+    </article>
+
+    <article class="cartao">
+      <span class="rotulo-metrica">Campeonatos</span>
+      <strong class="valor-metrica"><%= totalCampeonatos || 0 %></strong>
+      <span class="observacao-metrica">
+        Campeonatos associados às partidas
+      </span>
+    </article>
+  </section>
+
+  <section class="grade duas-colunas">
+    <article class="secao">
+      <div class="cabecalho-secao">
+        <div>
+          <h2>Partidas recentes</h2>
+          <p class="subtitulo">Acompanhe os últimos jogos cadastrados.</p>
+        </div>
+        <a href="/partidas" class="botao secundario">Ver todas</a>
+      </div>
+
+      <% if (Array.isArray(partidas) && partidas.length > 0) { %>
+        <div class="lista-partidas">
+          <% partidas.slice(0, 5).forEach(function(partida) { %>
+            <article class="linha-partida">
+              <div class="identificador-partida">VS</div>
+
+              <div class="informacoes-partida">
+                <h3>
+                  <%= partida.nome_equipe || partida.nomeEquipe || 'Minha equipe' %>
+                  x
+                  <%= partida.nome_equipe_adversaria || partida.nomeEquipeAdversaria || partida.adversario || 'Equipe adversária' %>
+                </h3>
+                <p class="texto-secundario">
+                  <%= partida.campeonato || 'Sem campeonato informado' %>
+                </p>
+              </div>
+
+              <span class="etiqueta amarelo">
+                <%= partida.status || partida.situacao || 'Agendada' %>
+              </span>
+            </article>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <div class="estado-vazio">
+          <h3>Nenhuma partida registrada</h3>
+          <p class="texto-secundario">
+            Crie sua primeira partida para organizar a temporada.
+          </p>
+          <a href="/partidas/cadastro" class="botao principal">Criar partida</a>
+        </div>
+      <% } %>
+    </article>
+
+    <article class="secao">
+      <div class="cabecalho-secao">
+        <div>
+          <h2>Equipe principal</h2>
+          <p class="subtitulo">Resumo do elenco atual.</p>
+        </div>
+        <a href="/equipes" class="botao secundario">Ver equipes</a>
+      </div>
+
+      <% if (Array.isArray(equipes) && equipes.length > 0) { %>
+        <div class="lista-equipes">
+          <% equipes.slice(0, 5).forEach(function(equipe) { %>
+            <article class="linha-equipe">
+              <div class="identificador-equipe">
+                <%= (equipe.nome || 'E').trim().slice(0, 2).toUpperCase() %>
+              </div>
+
+              <div class="informacoes-equipe">
+                <h3><%= equipe.nome || 'Equipe sem nome' %></h3>
+                <p class="texto-secundario">
+                  <%= equipe.quantidade_atletas || equipe.totalAtletas || 0 %> atletas
+                </p>
+              </div>
+            </article>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <div class="estado-vazio">
+          <h3>Nenhuma equipe criada</h3>
+          <p class="texto-secundario">
+            Crie uma equipe para cadastrar atletas e registrar partidas.
+          </p>
+          <a href="/equipes/cadastro" class="botao principal">Criar equipe</a>
+        </div>
+      <% } %>
+    </article>
+  </section>
+
+  <section class="secao">
+    <div class="cabecalho-secao">
+      <div>
+        <h2>Comece por aqui</h2>
+        <p class="subtitulo">Organize o VoleiStats em três passos.</p>
+      </div>
+    </div>
+
+    <div class="grade tres-colunas">
+      <article class="funcao cartao">
+        <strong>1. Crie sua equipe</strong>
+        <small>Cadastre a equipe que será acompanhada durante a temporada.</small>
+      </article>
+
+      <article class="funcao cartao">
+        <strong>2. Cadastre os atletas</strong>
+        <small>Adicione os jogadores e seus números de camisa.</small>
+      </article>
+
+      <article class="funcao cartao">
+        <strong>3. Registre uma partida</strong>
+        <small>Informe o adversário e organize os dados da partida.</small>
+      </article>
+    </div>
+  </section>
+</main>
+
+<%- include('parciais/rodape.ejs') %>

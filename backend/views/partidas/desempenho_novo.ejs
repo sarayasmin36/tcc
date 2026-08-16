@@ -1,0 +1,76 @@
+<%- include('../parciais/cabecalho.ejs', { titulo: 'Desempenho da partida | VoleiStats' }) %>
+<%- include('../parciais/menu_lateral.ejs') %>
+
+<%
+  const quantidadeSets = Number(partida.quantidade_sets || partida.sets_alvo || 3);
+  const atletasPartida = Array.isArray(atletas) ? atletas : [];
+%>
+
+<style>
+  .pagina-desempenho-nova { display:block !important; width:100%; min-height:100vh; padding:32px; background:#f5f8fc; color:#12263a; }
+  .pagina-desempenho-nova * { box-sizing:border-box; }
+  .pagina-desempenho-nova h1, .pagina-desempenho-nova h2, .pagina-desempenho-nova h3 { color:#12263a; }
+  .pagina-desempenho-nova .cabecalho-novo { display:flex; justify-content:space-between; gap:20px; align-items:flex-start; margin-bottom:22px; }
+  .pagina-desempenho-nova .cartao-novo { margin-bottom:18px; padding:22px; border:1px solid #dfe8f1; border-radius:16px; background:#fff; box-shadow:0 8px 22px rgba(18,59,93,.09); }
+  .pagina-desempenho-nova .placar-novo { display:grid; grid-template-columns:1fr 180px 1fr; gap:16px; align-items:center; }
+  .pagina-desempenho-nova .equipe-nova { padding:22px; border:1px solid #dfe8f1; border-radius:14px; text-align:center; }
+  .pagina-desempenho-nova .equipe-nova strong { display:block; margin:8px 0; font-size:48px; color:#123b5d; }
+  .pagina-desempenho-nova .controles-novos { display:flex; justify-content:center; gap:8px; }
+  .pagina-desempenho-nova button, .pagina-desempenho-nova select { min-height:38px; padding:8px 13px; border:1px solid #dfe8f1; border-radius:9px; background:#fff; color:#12263a; cursor:pointer; }
+  .pagina-desempenho-nova button:hover { background:#eaf4ff; }
+  .pagina-desempenho-nova .centro-novo { text-align:center; }
+  .pagina-desempenho-nova .centro-novo strong { display:block; margin:12px 0 0; font-size:26px; color:#1769aa; }
+  .pagina-desempenho-nova .quadra-nova { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; padding:16px; border-radius:14px; background:#eef7fa; }
+  .pagina-desempenho-nova .posicao-nova { min-height:82px; display:flex; flex-direction:column; justify-content:center; align-items:center; border-radius:12px; background:#fff; border:1px solid #d7e5eb; text-align:center; }
+  .pagina-desempenho-nova .posicao-nova.ocupada { background:#d7f36b; border-color:#a9d22d; }
+  .pagina-desempenho-nova .atletas-novos, .pagina-desempenho-nova .fundamentos-novos, .pagina-desempenho-nova .resultados-novos { display:flex; flex-wrap:wrap; gap:10px; }
+  .pagina-desempenho-nova .fundamentos-novos button { min-width:110px; min-height:70px; }
+  .pagina-desempenho-nova .resultado-novo { flex:1; min-width:150px; min-height:76px; }
+  .pagina-desempenho-nova table { width:100%; border-collapse:collapse; }
+  .pagina-desempenho-nova th, .pagina-desempenho-nova td { padding:12px 8px; border-bottom:1px solid #dfe8f1; text-align:left; }
+  @media (max-width:760px) { .pagina-desempenho-nova { padding:20px 14px; } .pagina-desempenho-nova .cabecalho-novo, .pagina-desempenho-nova .placar-novo { display:block; } .pagina-desempenho-nova .equipe-nova, .pagina-desempenho-nova .centro-novo { margin-bottom:12px; } .pagina-desempenho-nova .quadra-nova { grid-template-columns:repeat(2,1fr); } }
+</style>
+
+<main class="pagina-desempenho-nova tela-acompanhamento" data-quantidade-sets="<%= quantidadeSets %>" data-sets-salvos="0">
+  <header class="cabecalho-novo">
+    <div>
+      <p><%= partida.nome_equipe || 'Minha equipe' %> — <strong><%= partida.nome_equipe_adversaria || 'Equipe adversária' %></strong></p>
+      <h1>Acompanhamento da partida</h1>
+      <p>Registre o desempenho dos atletas durante cada set.</p>
+    </div>
+    <div>
+      <button type="button" data-encerrar-set>Encerrar set</button>
+      <button type="button" data-encerrar-partida disabled>Encerrar partida</button>
+    </div>
+  </header>
+
+  <section class="cartao-novo placar-novo">
+    <div class="equipe-nova"><span><%= partida.nome_equipe || 'Minha equipe' %></span><strong data-placar-casa>0</strong><div class="controles-novos"><button type="button" data-alterar-placar="casa" data-valor="-1">−1</button><button type="button" data-alterar-placar="casa" data-valor="1">+1</button></div></div>
+    <div class="centro-novo"><label for="set-novo">Set atual</label><select id="set-novo" data-seletor-set><% for (let set = 1; set <= quantidadeSets; set += 1) { %><option value="<%= set %>">Set <%= set %></option><% } %></select><strong><span data-sets-casa>0</span> × <span data-sets-adversario>0</span></strong><small>sets vencidos</small></div>
+    <div class="equipe-nova"><span><%= partida.nome_equipe_adversaria || 'Equipe adversária' %></span><strong data-placar-adversario>0</strong><div class="controles-novos"><button type="button" data-alterar-placar="adversario" data-valor="-1">−1</button><button type="button" data-alterar-placar="adversario" data-valor="1">+1</button></div></div>
+  </section>
+
+  <section class="cartao-novo">
+    <h2>Quadra e escalação</h2>
+    <div class="quadra-nova">
+      <% for (let posicao = 1; posicao <= 6; posicao += 1) { const atleta = atletasPartida.find((item) => String(item.posicao_inicial || item.posicao || '') === String(posicao)); %>
+        <div class="posicao-nova <%= atleta ? 'ocupada' : '' %>"><strong>Posição <%= posicao %></strong><span><%= atleta ? atleta.nome : 'Vazia' %></span><small><%= atleta ? '#' + (atleta.numero_camisa || '') : '' %></small></div>
+      <% } %>
+    </div>
+  </section>
+
+  <section class="cartao-novo">
+    <h2>Registrar ação</h2>
+    <p data-atleta-acao>Selecione um atleta</p>
+    <div class="atletas-novos"><% atletasPartida.forEach((atleta) => { %><button type="button" data-selecionar-atleta-acao data-atleta-id="<%= atleta.id_atleta || atleta.id %>"><%= atleta.nome %></button><% }); %></div>
+    <div class="fundamentos-novos"><% [['passe','Passe'],['ataque','Ataque'],['defesa','Defesa'],['levantamento','Levantamento'],['saque','Saque'],['bloqueio','Bloqueio'],['falta','Falta']].forEach((item) => { %><button type="button" data-acao-fundamento="<%= item[0] %>"><%= item[1] %></button><% }); %></div>
+    <div class="resultados-novos" data-painel-resultados hidden><button type="button" class="resultado-novo" data-resultado-acao="perfeito">A — Perfeito</button><button type="button" class="resultado-novo" data-resultado-acao="bom">B — Bom</button><button type="button" class="resultado-novo" data-resultado-acao="ruim">C — Ruim</button></div>
+  </section>
+
+  <section class="cartao-novo">
+    <h2>Ações do set</h2>
+    <table><thead><tr><th>Atleta</th><th>Fundamento</th><th>Resultado</th><th>Excluir</th></tr></thead><tbody data-lista-acoes-registradas><tr data-estado-acoes><td colspan="4">Nenhuma ação registrada.</td></tr></tbody></table>
+  </section>
+</main>
+
+<%- include('../parciais/rodape.ejs') %>

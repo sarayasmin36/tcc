@@ -1,77 +1,81 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Equipes | VoleiStats</title>
-    <link rel="stylesheet" href="/css/styles.css">
-</head>
-<body>
-    <div class="shell">
-        <aside class="sidebar">
-            <div class="brand">
-                <div class="brand-logo">🏐</div>
-                <div>
-                    <div class="brand-name">VoleiStats</div>
-                    <div class="brand-sub">Dashboard esportivo</div>
-                </div>
+<%- include('../parciais/cabecalho.ejs', { titulo: 'Equipes | VoleiStats' }) %>
+<%- include('../parciais/menu_lateral.ejs') %>
+
+<main class="conteudo-principal">
+  <header class="barra-superior">
+    <div>
+      <p class="texto-pequeno">ORGANIZAÇÃO DO ELENCO</p>
+      <h1>Minhas equipes</h1>
+      <p class="subtitulo">Organize seus elencos e acompanhe a evolução dos atletas.</p>
+    </div>
+
+    <div class="acoes-superiores">
+      <a href="/equipes/cadastro" class="botao principal">Nova equipe</a>
+    </div>
+  </header>
+
+  <% if (typeof mensagem !== 'undefined' && mensagem) { %>
+    <div class="aviso sucesso" role="status"><%= mensagem %></div>
+  <% } %>
+
+  <% if (typeof erro !== 'undefined' && erro) { %>
+    <div class="aviso erro" role="alert"><%= erro %></div>
+  <% } %>
+
+  <section class="secao">
+    <div class="cabecalho-secao">
+      <div>
+        <h2>Equipes cadastradas</h2>
+        <p class="subtitulo">Cada equipe terá seu próprio elenco e histórico de partidas.</p>
+      </div>
+
+      <label class="campo campo-busca" for="busca-equipes">
+        <span class="texto-oculto">Buscar equipe</span>
+        <input id="busca-equipes" type="search" placeholder="Buscar equipe..." data-filtro-equipes>
+      </label>
+    </div>
+
+    <div class="lista-equipes" id="lista-equipes">
+      <% if (Array.isArray(equipes) && equipes.length > 0) { %>
+        <% equipes.forEach(function(equipe) { %>
+          <% const nomeEquipe = equipe.nome || 'Equipe sem nome'; %>
+          <% const idEquipe = equipe.id_equipe || equipe.id || ''; %>
+
+          <article class="cartao linha-equipe" data-nome-equipe="<%= nomeEquipe %>">
+            <div class="identificador-equipe">
+              <%= nomeEquipe.trim().slice(0, 2).toUpperCase() %>
             </div>
 
-            <nav class="nav">
-                <a href="/">⌂ Início</a>
-                <a class="active" href="/equipes">◆ Equipes</a>
-                <a href="/atletas">● Atletas</a>
-                <a href="/campeonatos">★ Campeonatos</a>
-                <a href="/partidas">▣ Partidas</a>
-            </nav>
-        </aside>
+            <div class="informacoes-equipe">
+              <h3><%= nomeEquipe %></h3>
+              <p class="texto-secundario"><%= equipe.descricao || equipe.categoria || 'Equipe cadastrada' %></p>
+            </div>
 
-        <main class="main">
-            <header class="topbar">
-                <div>
-                    <h1>Equipes</h1>
-                    <p class="subtitle">Crie equipes e compartilhe o código com os atletas.</p>
-                </div>
-                <a class="btn lime" href="/equipes/cadastro">Nova equipe</a>
-            </header>
+            <div class="resumo-equipe">
+              <span class="etiqueta verde"><%= equipe.quantidadeAtletas || equipe.quantidade_atletas || 0 %> atletas</span>
+              <span class="texto-secundario"><%= equipe.quantidadePartidas || equipe.quantidade_partidas || 0 %> partidas</span>
+            </div>
 
-            <% if (mensagem) { %>
-                <div class="notice"><%= mensagem %></div>
-            <% } %>
+            <div class="acoes-equipe">
+              <a href="/atletas?equipe=<%= idEquipe %>" class="botao secundario">Ver atletas</a>
+              <a href="/equipes/<%= idEquipe %>/editar" class="botao secundario">Editar</a>
+            </div>
+          </article>
+        <% }); %>
 
-            <section class="grid three">
-                <% if (equipes && equipes.length) { %>
-                    <% equipes.forEach(equipe => { %>
-                        <article class="card">
-                            <div class="section-head">
-                                <h2><%= equipe.nome %></h2>
-                                <span class="badge green"><%= equipe.categoria %></span>
-                            </div>
-
-                            <p class="muted">Local: <%= equipe.local %></p>
-
-                            <div class="role">
-                                <strong>Código da equipe</strong>
-                                <small>Envie este código aos atletas.</small>
-                                <p><strong><%= equipe.codigo_convite %></strong></p>
-                            </div>
-
-                            <div class="form-actions">
-                                <a class="btn ghost" href="/equipes/<%= equipe.id_equipe %>/atletas">Ver atletas</a>
-                                <form action="/equipes/<%= equipe.id_equipe %>/novo-codigo" method="POST">
-                                    <button class="btn primary" type="submit">Gerar novo código</button>
-                                </form>
-                            </div>
-                        </article>
-                    <% }); %>
-                <% } else { %>
-                    <div class="card">
-                        <h2>Nenhuma equipe encontrada</h2>
-                        <p class="muted">Crie sua primeira equipe para gerar um código de convite.</p>
-                    </div>
-                <% } %>
-            </section>
-        </main>
+        <div class="estado-vazio oculto" id="estado-vazio-equipes">
+          <h3>Nenhuma equipe encontrada</h3>
+          <p class="texto-secundario">Tente buscar por outro nome.</p>
+        </div>
+      <% } else { %>
+        <div class="estado-vazio" id="estado-vazio-equipes">
+          <h3>Nenhuma equipe cadastrada</h3>
+          <p class="texto-secundario">Quando você cadastrar uma equipe, ela aparecerá nesta lista.</p>
+          <a href="/equipes/cadastro" class="botao principal">Criar equipe</a>
+        </div>
+      <% } %>
     </div>
-</body>
-</html>
+  </section>
+</main>
+
+<%- include('../parciais/rodape.ejs') %>

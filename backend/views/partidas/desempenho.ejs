@@ -1,0 +1,144 @@
+<%- include('../parciais/cabecalho.ejs', { titulo: 'Acompanhamento da partida | VoleiStats' }) %>
+<%- include('../parciais/menu_lateral.ejs') %>
+
+<%
+  const quantidadeSetsPartida = Number(partida.quantidade_sets || partida.sets_alvo || partida.melhor_de || 3);
+  const numeroSetAtual = Number(partida.set_atual || 1);
+  const pontosCasa = Number(partida.pontos_minha_equipe || partida.pontosCasa || 0);
+  const pontosAdversario = Number(partida.pontos_adversario || partida.pontosAdversario || 0);
+  const setsCasa = Number(partida.sets_minha_equipe || 0);
+  const setsAdversario = Number(partida.sets_adversario || 0);
+  const listaAtletas = typeof atletas !== 'undefined' && Array.isArray(atletas) ? atletas : [];
+  const listaAcoes = typeof acoes !== 'undefined' && Array.isArray(acoes) ? acoes : [];
+%>
+
+<main
+  class="conteudo-principal tela-acompanhamento"
+  data-quantidade-sets="<%= quantidadeSetsPartida %>"
+  data-sets-salvos="<%= Number(partida.sets_salvos || 0) %>">
+
+  <header class="cabecalho-acompanhamento">
+    <div>
+      <p class="texto-contexto">
+        <%= partida.nome_equipe || partida.nomeEquipe || 'Minha equipe' %>
+        <span>—</span>
+        <strong><%= partida.nome_equipe_adversaria || partida.nomeEquipeAdversaria || 'Equipe adversária' %></strong>
+      </p>
+      <h1>Acompanhamento da partida</h1>
+      <p class="subtitulo">Registre os fundamentos dos atletas em tempo real.</p>
+    </div>
+    <div class="acoes-acompanhamento">
+      <button type="button" class="botao secundario" data-encerrar-set>Encerrar e salvar set</button>
+      <button type="button" class="botao perigo" data-encerrar-partida disabled>Encerrar partida</button>
+    </div>
+  </header>
+
+  <p class="aviso-partida-finalizada" data-status-partida hidden>Partida encerrada.</p>
+
+  <section class="placar-partida-vivo cartao">
+    <div class="placar-equipe">
+      <span class="nome-equipe-placar"><%= partida.nome_equipe || partida.nomeEquipe || 'Minha equipe' %></span>
+      <strong data-placar-casa><%= pontosCasa %></strong>
+      <div class="controles-placar">
+        <button type="button" data-alterar-placar="casa" data-valor="-1">−1</button>
+        <button type="button" data-alterar-placar="casa" data-valor="1">+1</button>
+      </div>
+    </div>
+
+    <div class="informacao-set">
+      <label class="seletor-set" for="seletor-set">
+        <span>Set atual</span>
+        <select id="seletor-set" name="set_atual" data-seletor-set>
+          <% for (let numero = 1; numero <= quantidadeSetsPartida; numero += 1) { %>
+            <option value="<%= numero %>" <%= numero === numeroSetAtual ? 'selected' : '' %>>Set <%= numero %></option>
+          <% } %>
+        </select>
+      </label>
+      <span class="placar-sets"><b data-sets-casa><%= setsCasa %></b><i>×</i><b data-sets-adversario><%= setsAdversario %></b></span>
+      <small>sets vencidos</small>
+    </div>
+
+    <div class="placar-equipe">
+      <span class="nome-equipe-placar"><%= partida.nome_equipe_adversaria || partida.nomeEquipeAdversaria || 'Equipe adversária' %></span>
+      <strong data-placar-adversario><%= pontosAdversario %></strong>
+      <div class="controles-placar">
+        <button type="button" data-alterar-placar="adversario" data-valor="-1">−1</button>
+        <button type="button" data-alterar-placar="adversario" data-valor="1">+1</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="quadra-partida cartao">
+    <div class="cabecalho-secao">
+      <div><h2>Quadra</h2><p class="subtitulo">Formação atual da equipe.</p></div>
+    </div>
+    <div class="grade-posicoes">
+      <% for (let posicao = 1; posicao <= 6; posicao += 1) { %>
+        <% const atleta = listaAtletas.find((item) => String(item.posicao_inicial || item.posicaoInicial || item.posicao) === String(posicao)); %>
+        <div class="posicao-quadra <%= atleta ? 'posicao-ocupada' : '' %>" data-posicao="<%= posicao %>">
+          <% if (atleta) { %>
+            <strong>#<%= atleta.numero_camisa || atleta.numeroCamisa || '' %></strong>
+            <span><%= atleta.nome %></span>
+            <small><%= atleta.posicao || 'Atleta' %></small>
+          <% } else { %>
+            <span>Posição <%= posicao %></span><small>VAZIO</small>
+          <% } %>
+        </div>
+      <% } %>
+    </div>
+  </section>
+
+  <section class="painel-acao-set cartao">
+    <div class="cabecalho-secao">
+      <div><h2>Registrar ação</h2><p class="subtitulo">Selecione o atleta, o fundamento e o resultado.</p></div>
+      <span data-atleta-acao>Nenhum atleta selecionado</span>
+    </div>
+
+    <div class="seletor-atleta-acao">
+      <% if (listaAtletas.length) { %>
+        <% listaAtletas.forEach((atleta) => { %>
+          <button type="button" class="botao-atleta-acao" data-selecionar-atleta-acao data-atleta-id="<%= atleta.id_atleta || atleta.id %>"><%= atleta.nome %></button>
+        <% }); %>
+      <% } else { %><p class="texto-secundario">Nenhum atleta escalado.</p><% } %>
+    </div>
+
+    <div class="lista-acoes-partida">
+      <% [['passe','Passe'],['ataque','Ataque'],['defesa','Defesa'],['levantamento','Levantamento'],['saque','Saque'],['bloqueio','Bloqueio'],['falta','Falta']].forEach((fundamento) => { %>
+        <button type="button" class="acao-partida" data-acao-fundamento="<%= fundamento[0] %>"><strong><%= fundamento[1] %></strong></button>
+      <% }); %>
+    </div>
+
+    <div class="painel-resultados" data-painel-resultados hidden>
+      <h3>Resultado de <span data-nome-acao>ação</span></h3>
+      <div class="lista-resultados-acao">
+        <button type="button" class="resultado-acao" data-resultado-acao="perfeito"><strong>A — Perfeito</strong><small>Execução excelente</small></button>
+        <button type="button" class="resultado-acao" data-resultado-acao="bom"><strong>B — Bom</strong><small>Execução adequada</small></button>
+        <button type="button" class="resultado-acao" data-resultado-acao="ruim"><strong>C — Ruim</strong><small>Execução comprometida</small></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="secao tabela-acoes-set cartao">
+    <div class="cabecalho-secao"><div><h2>Ações do set <span data-titulo-set><%= numeroSetAtual %></span></h2><p class="subtitulo">Ações registradas nesta etapa.</p></div></div>
+    <div class="envoltorio-tabela">
+      <table>
+        <thead><tr><th>Atleta</th><th>Fundamento</th><th>Resultado</th><th>Excluir</th></tr></thead>
+        <tbody data-lista-acoes-registradas>
+          <% if (listaAcoes.length) { listaAcoes.forEach((acao) => { %>
+            <tr>
+              <td><strong><%= acao.nome_atleta || acao.nomeAtleta || 'Atleta' %></strong></td>
+              <td><%= acao.acao || acao.fundamento %></td>
+              <td><span class="etiqueta verde"><%= acao.resultado %></span></td>
+              <td><button type="button" class="botao-remover-acao" data-remover-acao data-id-acao="<%= acao.id_acao || acao.id || '' %>">Excluir</button></td>
+            </tr>
+          <% }); } else { %>
+            <tr data-estado-acoes><td colspan="4" class="estado-vazio">Nenhuma ação registrada neste set.</td></tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<%- include('../parciais/rodape.ejs') %>
+

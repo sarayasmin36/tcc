@@ -1,1 +1,149 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Relatórios | VoleiStats</title><link rel="stylesheet" href="/css/styles.css"></head><body><div class="shell"><aside class="sidebar"><div class="brand"><div class="brand-logo">🏐</div><div><div class="brand-name">VoleiStats</div><div class="brand-sub">Dashboard esportivo</div></div></div><div class="profile-top"><div class="avatar">AS</div><div><div class="profile-name">Ana Souza</div><div class="profile-role">Treinadora</div></div></div><nav class="nav"><a href="/" data-page="dashboard"><span class="icon">⌂</span>Início</a><a href="/equipes" data-page="equipes"><span class="icon">◆</span>Equipes</a><a href="/atletas" data-page="atletas"><span class="icon">●</span>Atletas</a><a href="/campeonatos" data-page="campeonatos"><span class="icon">★</span>Campeonatos</a><a href="/partidas" data-page="partidas"><span class="icon">▣</span>Partidas</a><a href="/relatorios" data-page="relatorios"><span class="icon">▤</span>Relatórios</a></nav><div class="sidebar-foot"><a class="profile-bottom" href="/perfil"><div class="avatar">AS</div><div><div class="profile-name">Perfil</div><div class="profile-role">Ver conta</div></div></a><a class="btn danger" href="/login">Sair</a></div></aside><main class="main"><header class="topbar"><div><h1>Relatórios</h1><p class="subtitle">Análises e exportações do desempenho</p></div><div class="top-actions"><div class="search">Buscar no sistema</div><div class="avatar">AS</div></div></header><div class="grid two"><section class="section"><div class="section-head"><h2>Vitórias por equipe</h2><span class="hint">Temporada 2026</span></div><div class="chart"><div class="column" style="height:90%"><small>Azul</small></div><div class="column" style="height:70%"><small>Minas</small></div><div class="column" style="height:55%"><small>Praia</small></div><div class="column" style="height:42%"><small>Estrelas</small></div></div></section><section class="section"><div class="section-head"><h2>Resumo geral</h2><button class="btn ghost">Exportar</button></div><div class="team-row"><span>Partidas analisadas</span><strong>27</strong></div><div class="team-row"><span>Sets disputados</span><strong>81</strong></div><div class="team-row"><span>Atletas avaliados</span><strong>48</strong></div><div class="team-row"><span>Taxa média de acerto</span><strong>74%</strong></div></section></div><section class="section"><div class="section-head"><h2>Melhores desempenhos individuais</h2><span class="hint">Todas as partidas</span></div><div class="table-wrap"><table><thead><tr><th>Atleta</th><th>Equipe</th><th>Ataques certos</th><th>Aces</th><th>Bloqueios</th><th>Índice</th></tr></thead><tbody><tr><td>Mariana Costa</td><td>Vôlei Clube Azul</td><td>42</td><td>8</td><td>6</td><td><span class="badge green">92%</span></td></tr><tr><td>Júlia Mendes</td><td>Minas Norte</td><td>35</td><td>11</td><td>3</td><td><span class="badge green">87%</span></td></tr></tbody></table></div></section></main></div><script src="/js/interface.js"></script></body></html>
+<%- include('parciais/cabecalho.ejs', { titulo: 'Relatórios | VoleiStats' }) %>
+    <%- include('parciais/menu_lateral.ejs') %>
+
+        <main class="conteudo-principal">
+            <header class="barra-superior">
+                <div>
+                    <h1>Relatórios</h1>
+                    <p class="subtitulo">Analise a evolução e o desempenho da sua equipe.</p>
+                </div>
+
+                <div class="acoes-superiores">
+                    <button type="button" class="botao secundario botao-bloqueado" disabled
+                        title="Disponível após o registro de desempenhos">
+                        Exportação em desenvolvimento
+                    </button>
+
+                </div>
+            </header>
+
+            <section class="grade metricas">
+                <article class="cartao">
+                    <span class="rotulo-metrica">Aproveitamento geral</span>
+                    <strong class="valor-metrica">—</strong>
+                    <span class="observacao-metrica">Aguardando partidas</span>
+                </article>
+
+                <article class="cartao">
+                    <span class="rotulo-metrica">Ataques positivos</span>
+                    <strong class="valor-metrica">—</strong>
+                    <span class="observacao-metrica">Nenhum dado registrado</span>
+                </article>
+
+                <article class="cartao">
+                    <span class="rotulo-metrica">Recepções positivas</span>
+                    <strong class="valor-metrica">—</strong>
+                    <span class="observacao-metrica">Nenhum dado registrado</span>
+                </article>
+
+                <article class="cartao">
+                    <span class="rotulo-metrica">Erros por set</span>
+                    <strong class="valor-metrica">—</strong>
+                    <span class="observacao-metrica">Nenhum dado registrado</span>
+                </article>
+            </section>
+
+            <section class="grade duas-colunas">
+                <article class="cartao">
+                    <div class="cabecalho-secao">
+                        <div>
+                            <h2>Aproveitamento por fundamento</h2>
+                            <p class="subtitulo">Resumo dos principais fundamentos.</p>
+                        </div>
+                    </div>
+
+                    <div class="lista-indicadores" id="lista-indicadores">
+                        <div class="indicador">
+                            <div class="cabecalho-indicador">
+                                <span>Ataque</span>
+                                <strong>—</strong>
+                            </div>
+                            <div class="barra-indicador">
+                                <span style="width: 0%"></span>
+                            </div>
+                        </div>
+
+                        <div class="indicador">
+                            <div class="cabecalho-indicador">
+                                <span>Bloqueio</span>
+                                <strong>—</strong>
+                            </div>
+                            <div class="barra-indicador">
+                                <span style="width: 0%"></span>
+                            </div>
+                        </div>
+
+                        <div class="indicador">
+                            <div class="cabecalho-indicador">
+                                <span>Saque</span>
+                                <strong>—</strong>
+                            </div>
+                            <div class="barra-indicador">
+                                <span style="width: 0%"></span>
+                            </div>
+                        </div>
+
+                        <div class="indicador">
+                            <div class="cabecalho-indicador">
+                                <span>Recepção</span>
+                                <strong>—</strong>
+                            </div>
+                            <div class="barra-indicador">
+                                <span style="width: 0%"></span>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="cartao">
+                    <div class="cabecalho-secao">
+                        <div>
+                            <h2>Desempenho por set</h2>
+                            <p class="subtitulo">Comparação dos sets registrados.</p>
+                        </div>
+                    </div>
+
+                    <div class="grafico" id="grafico-sets" data-grafico-sets>
+                        <div class="coluna" style="height: 0%" data-set="1">
+                            <span class="valor-coluna">—</span>
+                            <small>Set 1</small>
+                        </div>
+
+                        <div class="coluna" style="height: 0%" data-set="2">
+                            <span class="valor-coluna">—</span>
+                            <small>Set 2</small>
+                        </div>
+
+                        <div class="coluna" style="height: 0%" data-set="3">
+                            <span class="valor-coluna">—</span>
+                            <small>Set 3</small>
+                        </div>
+
+                        <div class="coluna" style="height: 0%" data-set="4">
+                            <span class="valor-coluna">—</span>
+                            <small>Set 4</small>
+                        </div>
+                    </div>
+
+                </article>
+            </section>
+
+            <section class="secao">
+                <div class="cabecalho-secao">
+                    <div>
+                        <h2>Atletas em destaque</h2>
+                        <p class="subtitulo">Os melhores desempenhos aparecerão aqui.</p>
+                    </div>
+                </div>
+
+                <div class="estado-vazio">
+                    <h3>Ainda não há desempenho para analisar</h3>
+                    <p class="texto-secundario">
+                        Registre uma partida e lance os fundamentos de cada atleta para gerar relatórios.
+                    </p>
+                    <a href="/partidas/cadastro" class="botao principal">Registrar partida</a>
+                </div>
+            </section>
+        </main>
+
+        <%- include('parciais/rodape.ejs') %>

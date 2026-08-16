@@ -1,124 +1,77 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nova partida | VoleiStats</title>
-    <link rel="stylesheet" href="/css/styles.css">
-</head>
-<body>
-    <div class="shell">
-        <aside class="sidebar">
-            <div class="brand">
-                <div class="brand-logo">🏐</div>
-                <div>
-                    <div class="brand-name">VoleiStats</div>
-                    <div class="brand-sub">Dashboard esportivo</div>
-                </div>
+<%- include('../parciais/cabecalho.ejs', { titulo: 'Partidas | VoleiStats' }) %>
+<%- include('../parciais/menu_lateral.ejs') %>
+
+<main class="conteudo-principal">
+  <header class="barra-superior">
+    <div>
+      <p class="texto-pequeno">ACOMPANHAMENTO</p>
+      <h1>Partidas</h1>
+      <p class="subtitulo">Consulte as partidas cadastradas e organize os próximos jogos.</p>
+    </div>
+
+    <div class="acoes-superiores">
+      <a href="/partidas/cadastro" class="botao principal">Nova partida</a>
+    </div>
+  </header>
+
+  <section class="secao">
+    <div class="cabecalho-secao">
+      <div>
+        <h2>Partidas cadastradas</h2>
+        <p class="subtitulo">Pesquise por equipe, adversário, campeonato ou situação.</p>
+      </div>
+
+      <label class="campo campo-busca" for="busca-partidas">
+        <span class="texto-oculto">Buscar partida</span>
+        <input id="busca-partidas" type="search" placeholder="Buscar partida..." data-filtro-partidas>
+      </label>
+    </div>
+
+    <div class="lista-partidas" id="lista-partidas">
+      <% if (typeof partidas !== 'undefined' && partidas.length > 0) { %>
+        <% partidas.forEach(function(partida) { %>
+          <% const idPartida = partida.id_partida || partida.id; %>
+          <% const nomeAdversario = partida.nome_equipe_adversaria || partida.nomeEquipeAdversaria || partida.adversario || 'Equipe adversária'; %>
+          <% const nomeEquipe = partida.nome_equipe || partida.nomeEquipe || 'Minha equipe'; %>
+          <% const campeonato = partida.campeonato || 'Sem campeonato informado'; %>
+          <% const dataPartida = partida.data_partida || partida.dataPartida || ''; %>
+          <% const situacao = partida.status || partida.situacao || 'Agendada'; %>
+
+          <article class="cartao linha-partida" data-partida-busca="<%= nomeEquipe %> <%= nomeAdversario %> <%= campeonato %> <%= situacao %>">
+            <div class="identificador-partida"><span>VS</span></div>
+
+            <div class="informacoes-partida">
+              <p class="texto-pequeno"><%= campeonato %></p>
+              <h3><%= nomeEquipe %> x <%= nomeAdversario %></h3>
+
+              <div class="detalhes-partida">
+                <% if (dataPartida) { %><span><%= dataPartida %></span><% } %>
+                <% if (partida.hora_partida || partida.horaPartida) { %><span><%= partida.hora_partida || partida.horaPartida %></span><% } %>
+                <% if (partida.local) { %><span><%= partida.local %></span><% } %>
+              </div>
             </div>
 
-            <nav class="nav">
-                <a href="/">⌂ Início</a>
-                <a href="/equipes">◆ Equipes</a>
-                <a href="/atletas">● Atletas</a>
-                <a href="/campeonatos">★ Campeonatos</a>
-                <a class="active" href="/partidas">▣ Partidas</a>
-            </nav>
-        </aside>
+            <span class="etiqueta etiqueta-partida"><%= situacao %></span>
 
-        <main class="main">
-            <header class="topbar">
-                <div>
-                    <h1>Nova partida</h1>
-                    <p class="subtitle">Cadastre uma nova partida entre duas equipes.</p>
-                </div>
-            </header>
+            <div class="acoes-partida">
+              <span class="botao secundario botao-bloqueado" title="Módulo em desenvolvimento">Desempenho em desenvolvimento</span>
+            </div>
+          </article>
+        <% }); %>
 
-            <% if (erro) { %>
-                <div class="notice"><%= erro %></div>
-            <% } %>
-
-            <section class="card form-card">
-                <form class="form-grid" action="/partidas" method="POST">
-                    <div class="field">
-                        <label for="equipe_casa_id">Equipe mandante</label>
-                        <select id="equipe_casa_id" name="equipe_casa_id" required>
-                            <option value="">Selecione uma equipe</option>
-
-                            <% equipes.forEach(equipe => { %>
-                                <option value="<%= equipe.id %>">
-                                    <%= equipe.nome %>
-                                </option>
-                            <% }); %>
-                        </select>
-                    </div>
-
-                    <div class="field">
-                        <label for="equipe_visitante_id">Equipe visitante</label>
-                        <select id="equipe_visitante_id" name="equipe_visitante_id" required>
-                            <option value="">Selecione uma equipe</option>
-
-                            <% equipes.forEach(equipe => { %>
-                                <option value="<%= equipe.id %>">
-                                    <%= equipe.nome %>
-                                </option>
-                            <% }); %>
-                        </select>
-                    </div>
-
-                    <div class="field">
-                        <label for="campeonato_id">Campeonato</label>
-                        <select id="campeonato_id" name="campeonato_id">
-                            <option value="">Partida amistosa</option>
-
-                            <% campeonatos.forEach(campeonato => { %>
-                                <option value="<%= campeonato.id %>">
-                                    <%= campeonato.nome %>
-                                </option>
-                            <% }); %>
-                        </select>
-                    </div>
-
-                    <div class="field">
-                        <label for="data_partida">Data da partida</label>
-                        <input
-                            type="date"
-                            id="data_partida"
-                            name="data_partida"
-                            required
-                        >
-                    </div>
-
-                    <div class="field">
-                        <label for="hora_partida">Horário</label>
-                        <input
-                            type="time"
-                            id="hora_partida"
-                            name="hora_partida"
-                            required
-                        >
-                    </div>
-
-                    <div class="field">
-                        <label for="local">Local da partida</label>
-                        <input
-                            type="text"
-                            id="local"
-                            name="local"
-                            placeholder="Ex.: Ginásio Municipal"
-                            required
-                        >
-                    </div>
-
-                    <div class="form-actions">
-                        <a class="btn ghost" href="/partidas">Cancelar</a>
-                        <button class="btn primary" type="submit">
-                            Criar partida
-                        </button>
-                    </div>
-                </form>
-            </section>
-        </main>
+        <div class="estado-vazio oculto" id="estado-vazio-partidas">
+          <h3>Nenhuma partida encontrada</h3>
+          <p class="texto-secundario">Tente buscar por outra equipe, campeonato ou situação.</p>
+        </div>
+      <% } else { %>
+        <div class="estado-vazio" id="estado-vazio-partidas">
+          <h3>Nenhuma partida cadastrada</h3>
+          <p class="texto-secundario">Cadastre uma partida para organizar sua temporada.</p>
+          <a href="/partidas/cadastro" class="botao principal">Criar primeira partida</a>
+        </div>
+      <% } %>
     </div>
-</body>
-</html>
+  </section>
+</main>
+
+<%- include('../parciais/rodape.ejs') %>

@@ -1,0 +1,84 @@
+<%- include('../parciais/cabecalho.ejs', { titulo: 'Novo atleta | VoleiStats' }) %>
+<%- include('../parciais/menu_lateral.ejs') %>
+
+<main class="conteudo-principal">
+  <header class="barra-superior">
+    <div>
+      <p class="texto-pequeno">ELENCO</p>
+      <h1>Novo atleta</h1>
+      <p class="subtitulo">Cadastre o atleta e vincule-o a uma equipe.</p>
+    </div>
+  </header>
+
+  <% if (typeof erro !== 'undefined' && erro) { %>
+    <div class="aviso erro" role="alert"><%= erro %></div>
+  <% } %>
+
+  <% if (typeof sucesso !== 'undefined' && sucesso) { %>
+    <div class="aviso sucesso" role="status"><%= sucesso %></div>
+  <% } %>
+
+  <section class="secao">
+    <form class="grade-formulario" action="/atletas" method="post">
+      <div class="campo completo">
+        <label for="nome-atleta">Nome completo</label>
+        <input id="nome-atleta" name="nome" type="text" placeholder="Ex.: Ana Souza" required>
+      </div>
+
+      <div class="campo">
+        <label for="email-atleta">E-mail</label>
+        <input id="email-atleta" name="email" type="email" placeholder="atleta@exemplo.com">
+        <small class="texto-ajuda">Opcional. Pode ser usado para o atleta entrar como visualizador.</small>
+      </div>
+
+      <div class="campo">
+        <label for="numero-camisa">Número da camisa</label>
+        <input id="numero-camisa" name="numero_camisa" type="number" min="1" max="99" placeholder="Ex.: 14" required>
+      </div>
+
+      <div class="campo">
+        <label for="posicao-atleta">Posição</label>
+        <select id="posicao-atleta" name="posicao" required>
+          <option value="">Selecione uma posição</option>
+          <option value="Levantadora">Levantadora</option>
+          <option value="Oposta">Oposta</option>
+          <option value="Ponteira">Ponteira</option>
+          <option value="Central">Central</option>
+          <option value="Líbero">Líbero</option>
+        </select>
+      </div>
+
+      <div class="campo">
+        <label for="equipe-atleta">Equipe</label>
+        <select id="equipe-atleta" name="id_equipe" required>
+          <option value="">Selecione uma equipe</option>
+          <% if (Array.isArray(equipes) && equipes.length > 0) { %>
+            <% equipes.forEach(function(equipe) { %>
+              <option value="<%= equipe.id_equipe || equipe.id %>">
+                <%= equipe.nome %>
+              </option>
+            <% }); %>
+          <% } %>
+        </select>
+
+        <% if (!Array.isArray(equipes) || equipes.length === 0) { %>
+          <small class="texto-ajuda">
+            Você precisa criar uma equipe antes de cadastrar um atleta.
+          </small>
+        <% } %>
+      </div>
+
+      <div class="campo completo">
+        <label for="observacoes-atleta">Observações</label>
+        <textarea id="observacoes-atleta" name="observacoes" placeholder="Informações adicionais sobre o atleta"></textarea>
+      </div>
+
+      <div class="acoes-formulario">
+        <a href="/atletas" class="botao secundario">Cancelar</a>
+        <button type="submit" class="botao principal" <%= (!Array.isArray(equipes) || equipes.length === 0) ? 'disabled' : '' %>>Cadastrar atleta</button>
+      </div>
+    </form>
+  </section>
+</main>
+
+<%- include('../parciais/rodape.ejs') %>

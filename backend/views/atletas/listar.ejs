@@ -1,110 +1,90 @@
-<!doctype html>
-<html lang="pt-BR">
+<%- include('../parciais/cabecalho.ejs', { titulo: 'Atletas | VoleiStats' }) %>
+<%- include('../parciais/menu_lateral.ejs') %>
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Atletas | VoleiStats</title>
-    <link rel="stylesheet" href="/css/styles.css">
-</head>
-
-<body>
-    <div class="shell">
-        <aside class="sidebar">
-            <div class="brand">
-                <div class="brand-logo">🏐</div>
-                <div>
-                    <div class="brand-name">VoleiStats</div>
-                    <div class="brand-sub">Dashboard esportivo</div>
-                </div>
-            </div>
-            <div class="profile-top">
-                <div class="avatar">AS</div>
-                <div>
-                    <div class="profile-name">Ana Souza</div>
-                    <div class="profile-role">Treinadora</div>
-                </div>
-            </div>
-            <nav class="nav"><a href="/" data-page="dashboard"><span class="icon">⌂</span>Início</a><a href="/equipes"
-                    data-page="equipes"><span class="icon">◆</span>Equipes</a><a href="/atletas"
-                    data-page="atletas"><span class="icon">●</span>Atletas</a><a href="/campeonatos"
-                    data-page="campeonatos"><span class="icon">★</span>Campeonatos</a><a href="/partidas"
-                    data-page="partidas"><span class="icon">▣</span>Partidas</a><a href="/relatorios"
-                    data-page="relatorios"><span class="icon">▤</span>Relatórios</a></nav>
-            <div class="sidebar-foot"><a class="profile-bottom" href="/perfil">
-                    <div class="avatar">AS</div>
-                    <div>
-                        <div class="profile-name">Perfil</div>
-                        <div class="profile-role">Ver conta</div>
-                    </div>
-                </a><a class="btn danger" href="/login">Sair</a></div>
-        </aside>
-        <main class="main">
-            <header class="topbar">
-                <div>
-                    <h1>Atletas</h1>
-                    <p class="subtitle">Elenco completo e estatísticas individuais</p>
-                </div>
-                <div class="top-actions">
-                    <div class="search">Buscar no sistema</div>
-                    <div class="avatar">AS</div>
-                </div>
-            </header>
-            <div class="section-head">
-                <div></div><button class="btn lime" onclick="alert('Modelo: abrir formulário de novo atleta')">+ Novo
-                    atleta</button>
-            </div>
-            <section class="section">
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Atleta</th>
-                                <th>Posição</th>
-                                <th>Equipe</th>
-                                <th>Camisa</th>
-                                <th>Desempenho</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>Mariana Costa</strong>
-                                    <span class="muted">mariana@email.com</span>
-                                </td>
-                                <td>Ponteira</td>
-                                <td>Vôlei Clube Azul</td>
-                                <td>#7</td>
-                                <td><span class="badge green">Excelente</span></td>
-                                <td><button class="btn ghost">Detalhes</button></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Júlia Mendes</strong>
-                                    <span class="muted">julia@email.com</span>
-                                </td>
-                                <td>Levantadora</td>
-                                <td>Minas Norte</td>
-                                <td>#3</td>
-                                <td><span class="badge green">Boa</span></td>
-                                <td><button class="btn ghost">Detalhes</button></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Camila Rocha</strong>
-                                    <span class="muted">camila@email.com</span>
-                                </td>
-                                <td>Líbero</td>
-                                <td>Praia Vôlei</td>
-                                <td>#2</td>
-                                <td><span class="badge yellow">Em evolução</span></td>
-                                <td><button class="btn ghost">Detalhes</button></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-        </main>
+<main class="conteudo-principal">
+  <header class="barra-superior">
+    <div>
+      <p class="texto-pequeno">ELENCO</p>
+      <h1>Atletas</h1>
+      <p class="subtitulo">Consulte os atletas vinculados às suas equipes.</p>
     </div>
-    <script src="/js/interface.js"></script>
-</body>
 
-</html>
+    <div class="acoes-superiores">
+      <label class="campo campo-busca" for="busca-atletas">
+        <span class="texto-oculto">Buscar atleta</span>
+        <input id="busca-atletas" type="search" placeholder="Buscar atleta..." data-filtro-atletas>
+      </label>
+
+      <a href="/registro-atleta" class="botao principal">Novo atleta</a>
+    </div>
+  </header>
+
+  <% if (typeof erro !== 'undefined' && erro) { %>
+    <div class="aviso erro" role="alert"><%= erro %></div>
+  <% } %>
+
+  <section class="secao">
+    <div class="cabecalho-secao">
+      <div>
+        <h2>Atletas cadastrados</h2>
+        <p class="subtitulo">Filtre por nome ou equipe.</p>
+      </div>
+
+      <label class="campo" for="filtro-equipe-atletas">
+        <span>Equipe</span>
+        <select id="filtro-equipe-atletas" data-filtro-equipe>
+          <option value="">Todas as equipes</option>
+          <% if (Array.isArray(equipes)) { %>
+            <% equipes.forEach(function(equipe) { %>
+              <option value="<%= equipe.id_equipe || equipe.id %>"><%= equipe.nome %></option>
+            <% }); %>
+          <% } %>
+        </select>
+      </label>
+    </div>
+
+    <% if (Array.isArray(atletas) && atletas.length > 0) { %>
+      <div class="envoltorio-tabela">
+        <table class="tabela tabela-atletas">
+          <thead>
+            <tr>
+              <th>Atleta</th>
+              <th>Posição</th>
+              <th>Equipe</th>
+              <th>Camisa</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+
+          <tbody id="lista-atletas">
+            <% atletas.forEach(function(atleta) { %>
+              <% const idAtleta = atleta.id_atleta || atleta.id || ''; %>
+              <% const idEquipe = atleta.id_equipe || atleta.equipe_id || atleta.equipeId || ''; %>
+              <% const nomeEquipe = atleta.nome_equipe || atleta.equipe_nome || atleta.equipeNome || 'Sem equipe'; %>
+              <% const numeroCamisa = atleta.numero_camisa || atleta.numeroCamisa || atleta.membro_numero_camisa || 'Não definida'; %>
+
+              <tr data-linha-atleta data-nome-atleta="<%= atleta.nome || '' %>" data-equipe-atleta="<%= idEquipe %>">
+                <td>
+                  <strong><%= atleta.nome || 'Atleta sem nome' %></strong>
+                  <% if (atleta.email) { %><span class="texto-secundario"><%= atleta.email %></span><% } %>
+                </td>
+                <td><%= atleta.posicao || 'Não informada' %></td>
+                <td><%= nomeEquipe %></td>
+                <td><%= numeroCamisa %></td>
+                <td class="acoes-tabela"><a href="/atletas/<%= idAtleta %>" class="botao secundario">Ver detalhes</a></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    <% } else { %>
+      <div class="estado-vazio" id="estado-vazio-atletas">
+        <h3>Nenhum atleta cadastrado</h3>
+        <p class="texto-secundario">Quando você cadastrar um atleta, ele aparecerá nesta lista.</p>
+        <a href="/registro-atleta" class="botao principal">Cadastrar atleta</a>
+      </div>
+    <% } %>
+  </section>
+</main>
+
+<%- include('../parciais/rodape.ejs') %>

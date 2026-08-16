@@ -1,111 +1,147 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nova partida | VoleiStats</title>
-    <link rel="stylesheet" href="/css/styles.css">
-</head>
-<body>
-    <div class="shell">
-        <aside class="sidebar">
-            <div class="brand">
-                <div class="brand-logo">🏐</div>
-                <div>
-                    <div class="brand-name">VoleiStats</div>
-                    <div class="brand-sub">Dashboard esportivo</div>
-                </div>
-            </div>
+<%- include('../parciais/cabecalho.ejs', { titulo: 'Nova partida | VoleiStats' }) %>
+<%- include('../parciais/menu_lateral.ejs') %>
 
-            <nav class="nav">
-                <a href="/">⌂ Início</a>
-                <a href="/equipes">◆ Equipes</a>
-                <a href="/atletas">● Atletas</a>
-                <a href="/campeonatos">★ Campeonatos</a>
-                <a class="active" href="/partidas">▣ Partidas</a>
-            </nav>
-        </aside>
-
-        <main class="main">
-            <header class="topbar">
-                <div>
-                    <h1>Nova partida</h1>
-                    <p class="subtitle">Cadastre uma nova partida.</p>
-                </div>
-            </header>
-
-            <% if (erro) { %>
-                <div class="notice"><%= erro %></div>
-            <% } %>
-
-            <section class="card form-card">
-                <form class="form-grid" action="/partidas" method="POST">
-                    <div class="field">
-                        <label for="equipe_casa_id">Equipe da casa</label>
-                        <select id="equipe_casa_id" name="equipe_casa_id" required>
-                            <option value="">Selecione uma equipe</option>
-                            <% equipes.forEach(equipe => { %>
-                                <option value="<%= equipe.id %>">
-                                    <%= equipe.nome %>
-                                </option>
-                            <% }); %>
-                        </select>
-                    </div>
-
-                    <div class="field">
-                        <label for="equipe_visitante_id">Equipe visitante</label>
-                        <select id="equipe_visitante_id" name="equipe_visitante_id" required>
-                            <option value="">Selecione uma equipe</option>
-                            <% equipes.forEach(equipe => { %>
-                                <option value="<%= equipe.id %>">
-                                    <%= equipe.nome %>
-                                </option>
-                            <% }); %>
-                        </select>
-                    </div>
-
-                    <div class="field">
-                        <label for="campeonato_id">Campeonato</label>
-                        <select id="campeonato_id" name="campeonato_id" required>
-                            <option value="">Selecione um campeonato</option>
-                            <% campeonatos.forEach(campeonato => { %>
-                                <option value="<%= campeonato.id %>">
-                                    <%= campeonato.nome %>
-                                </option>
-                            <% }); %>
-                        </select>
-                    </div>
-
-                    <div class="field">
-                        <label for="data_partida">Data</label>
-                        <input type="date" id="data_partida" name="data_partida" required>
-                    </div>
-
-                    <div class="field">
-                        <label for="hora_partida">Horário</label>
-                        <input type="time" id="hora_partida" name="hora_partida" required>
-                    </div>
-
-                    <div class="field">
-                        <label for="local">Local</label>
-                        <input
-                            type="text"
-                            id="local"
-                            name="local"
-                            required
-                            placeholder="Ex.: Ginásio Municipal"
-                        >
-                    </div>
-
-                    <div class="form-actions full">
-                        <a class="btn ghost" href="/partidas">Cancelar</a>
-                        <button class="btn primary" type="submit">
-                            Cadastrar partida
-                        </button>
-                    </div>
-                </form>
-            </section>
-        </main>
+<main class="conteudo-principal">
+  <header class="barra-superior">
+    <div>
+      <h1>Nova partida</h1>
+      <p class="subtitulo">Registre a partida, monte a escalação e defina as posições iniciais.</p>
     </div>
-</body>
-</html>
+  </header>
+
+  <% if (typeof erro !== 'undefined' && erro) { %>
+    <div class="aviso erro" role="alert"><%= erro %></div>
+  <% } %>
+
+  <form class="formulario-grade formulario-partida" action="/partidas" method="POST">
+    <section class="secao secao-formulario-partida">
+      <div class="cabecalho-secao">
+        <div>
+          <h2>Informações da partida</h2>
+          <p class="subtitulo">A equipe adversária pode ser informada somente pelo nome.</p>
+        </div>
+      </div>
+
+      <div class="grade-formulario">
+        <div class="campo">
+          <label for="equipe_casa_id">Minha equipe</label>
+          <select id="equipe_casa_id" name="equipe_casa_id" required>
+            <option value="">Selecione sua equipe</option>
+            <% if (typeof equipes !== 'undefined' && equipes.length > 0) { %>
+              <% equipes.forEach(function(equipe) { %>
+                <option value="<%= equipe.id_equipe || equipe.id %>"><%= equipe.nome %></option>
+              <% }); %>
+            <% } %>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label for="nome_equipe_adversaria">Equipe adversária</label>
+          <input type="text" id="nome_equipe_adversaria" name="nome_equipe_adversaria" placeholder="Digite o nome da equipe adversária" required>
+          <span class="texto-ajuda">Não é necessário cadastrar os atletas da equipe adversária.</span>
+        </div>
+
+        <div class="campo">
+          <label for="campeonato">Campeonato</label>
+          <input type="text" id="campeonato" name="campeonato" placeholder="Ex.: Campeonato Municipal ou amistoso">
+        </div>
+
+        <div class="campo">
+          <label for="quantidade_sets">Quantidade de sets</label>
+          <select id="quantidade_sets" name="quantidade_sets" required>
+            <option value="3">Melhor de 3 sets</option>
+            <option value="5">Melhor de 5 sets</option>
+          </select>
+          <span class="texto-ajuda">A partida poderá ser encerrada depois que essa quantidade de sets for concluída.</span>
+        </div>
+
+        <div class="campo">
+          <label for="data_partida">Data da partida</label>
+          <input type="date" id="data_partida" name="data_partida" required>
+        </div>
+
+        <div class="campo">
+          <label for="hora_partida">Horário</label>
+          <input type="time" id="hora_partida" name="hora_partida">
+        </div>
+
+        <div class="campo">
+          <label for="local">Local da partida</label>
+          <input type="text" id="local" name="local" placeholder="Ex.: Ginásio Municipal">
+        </div>
+
+        <div class="campo campo-completo">
+          <label for="observacoes">Observações</label>
+          <textarea id="observacoes" name="observacoes" rows="3" placeholder="Adicione alguma informação importante sobre a partida"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section class="secao secao-escalacao-inicial">
+      <div class="cabecalho-secao">
+        <div>
+          <h2>Escalação inicial</h2>
+          <p class="subtitulo">Selecione os atletas da partida e indique quem começa em cada posição.</p>
+        </div>
+      </div>
+
+      <% if (typeof atletas !== 'undefined' && atletas.length > 0) { %>
+        <div class="lista-escalacao-inicial">
+          <% atletas.forEach(function(atleta) { %>
+            <% const idAtleta = atleta.id_atleta || atleta.id; %>
+            <article class="cartao atleta-cadastro" data-cartao-cadastro-atleta>
+              <label class="seletor-atleta">
+                <input
+                  type="checkbox"
+                  name="escalacao[<%= idAtleta %>][participa]"
+                  value="1"
+                  data-atleta-partida
+                  data-atleta-id="<%= idAtleta %>">
+                <span>
+                  <strong><%= atleta.nome %></strong>
+                  <small class="texto-secundario">
+                    Camisa: <%= atleta.numero_camisa || atleta.numeroCamisa || 'Não informada' %>
+                    — <%= atleta.posicao || 'Posição não informada' %>
+                  </small>
+                </span>
+              </label>
+
+              <div class="campos-escalacao">
+                <label class="campo campo-titular-cadastro">
+                  <span>Titular</span>
+                  <input type="checkbox" name="escalacao[<%= idAtleta %>][titular]" value="1" data-titular-cadastro disabled>
+                </label>
+
+                <label class="campo campo-posicao-cadastro">
+                  <span>Posição</span>
+                  <select name="escalacao[<%= idAtleta %>][posicao]" data-posicao-cadastro disabled>
+                    <option value="">Banco</option>
+                    <option value="1">Posição 1</option>
+                    <option value="2">Posição 2</option>
+                    <option value="3">Posição 3</option>
+                    <option value="4">Posição 4</option>
+                    <option value="5">Posição 5</option>
+                    <option value="6">Posição 6</option>
+                  </select>
+                </label>
+              </div>
+            </article>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <div class="estado-vazio">
+          <h3>Nenhum atleta disponível</h3>
+          <p class="texto-secundario">Cadastre e vincule atletas à sua equipe antes de criar a partida.</p>
+          <a href="/atletas" class="botao principal">Ver atletas</a>
+        </div>
+      <% } %>
+    </section>
+
+    <div class="acoes-formulario">
+      <a class="botao secundario" href="/partidas">Cancelar</a>
+      <button class="botao principal" type="submit">Criar partida</button>
+    </div>
+  </form>
+</main>
+
+<%- include('../parciais/rodape.ejs') %>

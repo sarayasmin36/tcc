@@ -1,0 +1,48 @@
+<% const dadosUsuario=(typeof usuario !=='undefined' && usuario) ? usuario : {}; const nomeUsuario=dadosUsuario.nome ||
+    dadosUsuario.nome_completo || 'Usuário' ; const tipoUsuario=dadosUsuario.tipo || dadosUsuario.funcao ||
+    dadosUsuario.perfil || 'Perfil' ; const iniciaisUsuario=nomeUsuario .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(nome => nome.charAt(0).toUpperCase())
+    .join('') || ' US'; %>
+
+    <aside class="barra-lateral" id="barra-lateral">
+        <button type="button" class="botao-fechar-menu" id="botao-fechar-menu" aria-label="Fechar menu">
+            Fechar
+        </button>
+
+        <div class="marca">
+            <div class="logo-marca">V</div>
+            <div>
+                <div class="nome-marca">VoleiStats</div>
+                <div class="subtitulo-marca">Desempenho em quadra</div>
+            </div>
+        </div>
+
+        <div class="perfil-superior">
+            <div class="avatar">
+                <%= iniciaisUsuario %>
+            </div>
+            <div class="dados-perfil-menu">
+                <div class="nome-perfil">
+                    <%= nomeUsuario %>
+                </div>
+                <div class="funcao-perfil">
+                    <%= tipoUsuario %>
+                </div>
+            </div>
+        </div>
+
+        <nav class="navegacao" aria-label="Navegação principal">
+            <a href="/">Painel</a>
+            <a href="/equipes">Equipes</a>
+            <a href="/atletas">Atletas</a>
+            <a href="/partidas">Partidas</a>
+            <a href="/relatorios">Relatórios</a>
+            <a href="/perfil">Perfil</a>
+        </nav>
+
+        <div class="rodape-lateral">
+            <a href="/entrada/login" class="botao secundario">Sair</a>
+        </div>
+    </aside>
