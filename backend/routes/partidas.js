@@ -17,12 +17,12 @@ router.get('/partidas/cadastro', (req, res) => {
 });
 
 router.get('/partidas/:id/desempenho', (req, res) => {
-  res.render('partidas/desempenho_novo', {
+  res.render('partidas/desempenho', {
     partida: {
       id_partida: req.params.id,
       nome_equipe: 'Minha equipe',
       nome_equipe_adversaria: 'Equipe adversária',
-      quantidade_sets: 3,
+      quantidade_sets: 6,
       sets_salvos: 0,
       set_atual: 1,
       pontos_minha_equipe: 0,
