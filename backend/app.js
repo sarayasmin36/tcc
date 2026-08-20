@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const session = require('express-session');
 
 const entradaRoutes = require('./routes/entrada');
 const atletasRoutes = require('./routes/atletas');
@@ -12,6 +13,11 @@ const perfilRoutes = require('./routes/perfil');
 
 const app = express();
 
+app.use(session({
+    secret: 'chave_secreta',
+    resave: false,
+    saveUninitialized: false
+}));
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
