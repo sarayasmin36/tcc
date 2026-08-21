@@ -13,9 +13,20 @@ router.get('/login', (req, res) => {
 });
 
 router.post('/login', (req, res) => {
+    // Recebe os dados enviados pelo formulário da tela /login.
     const email = req.body.email;
     const senha = req.body.senha;
 
+    // Verifica se os dois campos foram preenchidos.
+    if (!email || !senha) {
+        return res.render('entrada/login', {
+            erro: 'Informe o e-mail e a senha.',
+            sucesso: null
+        });
+    }
+
+    // Busca o usuário pelo e-mail.
+    // O LEFT JOIN permite encontrar tanto treinador quanto atleta.
     const sql = `
         SELECT
             u.id_usuario,
@@ -35,43 +46,62 @@ router.post('/login', (req, res) => {
     `;
 
     banco.query(sql, [email], (erro, resultados) => {
+        // Trata erro de comunicação com o banco.
         if (erro) {
             console.log('Erro ao buscar usuário:', erro);
 
             return res.render('entrada/login', {
-                erro: 'Erro ao realizar login.',
+                erro: 'Não foi possível realizar o login.',
                 sucesso: null
             });
         }
 
+        // Se não encontrou o e-mail, não continua.
         if (resultados.length === 0) {
             return res.render('entrada/login', {
-                erro: 'E-mail ou senha inválidos.',
+                erro: 'E-mail ou senha incorretos.',
                 sucesso: null
             });
         }
 
+        // Guarda o usuário encontrado.
         const usuario = resultados[0];
 
+        // Compara a senha digitada com a senha_hash do banco.
         bcrypt.compare(senha, usuario.senha_hash, (erroSenha, senhaCorreta) => {
             if (erroSenha || !senhaCorreta) {
                 return res.render('entrada/login', {
-                    erro: 'E-mail ou senha inválidos.',
+                    erro: 'E-mail ou senha incorretos.',
                     sucesso: null
                 });
             }
 
-           req.session.usuario = usuario;
+            // Salva na sessão somente os dados necessários para autorização.
+            req.session.usuario = {
+                id_usuario: usuario.id_usuario,
+                nome: usuario.nome,
+                email: usuario.email,
+                tipo_usuario: usuario.tipo_usuario,
+                id_treinador: usuario.id_treinador || null,
+                id_atleta: usuario.id_atleta || null
+            };
 
+            // Redireciona cada tipo de usuário para sua própria área.
             if (usuario.tipo_usuario === 'TREINADOR') {
                 return res.redirect('/');
             }
 
             if (usuario.tipo_usuario === 'ATLETA') {
-                return res.redirect('/perfil');
+                return res.redirect('/atleta');
             }
 
-            res.redirect('/');
+            // Bloqueia tipos de usuário que não estão previstos.
+            req.session.destroy(() => {
+                res.render('entrada/login', {
+                    erro: 'Tipo de usuário não autorizado.',
+                    sucesso: null
+                });
+            });
         });
     });
 });
@@ -163,13 +193,6 @@ router.post('/registro-treinador', (req, res) => {
             }
         );
     });
-});
-
-router.get('/registro-atleta', (req, res) => {
-  res.render('entrada/registro-atleta', {
-    erro: null,
-    sucesso: null
-  });
 });
 
 

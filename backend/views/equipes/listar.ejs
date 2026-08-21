@@ -50,6 +50,8 @@
               <h3><%= nomeEquipe %></h3>
               <p class="texto-secundario"><%= equipe.descricao || equipe.categoria || 'Equipe cadastrada' %></p>
             </div>
+            <p>Código para atletas: <strong><%= equipe.codigo_acesso %></strong></p>
+
 
             <div class="resumo-equipe">
               <span class="etiqueta verde"><%= equipe.quantidadeAtletas || equipe.quantidade_atletas || 0 %> atletas</span>
