@@ -15,7 +15,12 @@
         <input id="busca-atletas" type="search" placeholder="Buscar atleta..." data-filtro-atletas>
       </label>
 
-      <a href="/atletas/cadastro" class="botao principal">Novo atleta</a>
+      <% if (usuario && usuario.tipo_usuario === 'TREINADOR') { %>
+    <a href="/atletas/cadastro" class="botao principal">
+        Novo atleta
+    </a>
+<% } %>
+
     </div>
   </header>
 
@@ -71,7 +76,23 @@
                 <td><%= atleta.posicao || 'Não informada' %></td>
                 <td><%= nomeEquipe %></td>
                 <td><%= numeroCamisa %></td>
-                <td class="acoes-tabela"><a href="/atletas/<%= idAtleta %>" class="botao secundario">Ver detalhes</a></td>
+                <td class="acoes-tabela">
+    <a
+        href="/atletas/<%= idAtleta %>"
+        class="botao secundario"
+    >
+        Ver detalhes
+    </a>
+
+    <% if (!atleta.possui_conta) { %>
+        <a
+            href="/atletas/<%= idAtleta %>/criar-conta"
+            class="botao principal"
+        >
+            Associar conta
+        </a>
+    <% } %>
+</td>
               </tr>
             <% }); %>
           </tbody>

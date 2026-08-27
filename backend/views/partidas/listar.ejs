@@ -10,7 +10,11 @@
     </div>
 
     <div class="acoes-superiores">
-      <a href="/partidas/cadastro" class="botao principal">Nova partida</a>
+      <% if (usuario && usuario.tipo_usuario === 'TREINADOR') { %>
+    <a href="/partidas/cadastro" class="botao principal">
+        Nova partida
+    </a>
+<% } %>
     </div>
   </header>
 
@@ -67,7 +71,11 @@
         <div class="estado-vazio" id="estado-vazio-partidas">
           <h3>Nenhuma partida cadastrada</h3>
           <p class="texto-secundario">Cadastre uma partida para organizar sua temporada.</p>
-          <a href="/partidas/cadastro" class="botao principal">Criar primeira partida</a>
+          <% if (usuario && usuario.tipo_usuario === 'TREINADOR') { %>
+    <a href="/partidas/cadastro" class="botao principal">
+        Nova partida
+    </a>
+<% } %>
         </div>
       <% } %>
     </div>

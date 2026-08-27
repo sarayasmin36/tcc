@@ -92,7 +92,7 @@ router.post('/login', (req, res) => {
             }
 
             if (usuario.tipo_usuario === 'ATLETA') {
-                return res.redirect('/atleta');
+                return res.redirect('/');
             }
 
             // Bloqueia tipos de usuário que não estão previstos.

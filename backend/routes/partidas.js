@@ -1,4 +1,7 @@
 const express = require('express');
+const banco = require('../db');
+const { exigirTreinador } = require('../middleware/autenticado');
+
 
 const router = express.Router();
 

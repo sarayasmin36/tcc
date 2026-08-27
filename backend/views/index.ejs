@@ -9,10 +9,12 @@
       <p class="subtitulo">Acompanhe suas equipes, atletas e partidas em um só lugar.</p>
     </div>
 
+  <% if (usuario && usuario.tipo_usuario === 'TREINADOR') { %>
     <div class="acoes-superiores">
       <a href="/partidas/cadastro" class="botao lima">Nova partida</a>
       <a href="/atletas/cadastro" class="botao principal">Novo atleta</a>
     </div>
+  <% } %>
   </header>
 
   <% if (typeof sucesso !== 'undefined' && sucesso) { %>
@@ -96,7 +98,9 @@
           <p class="texto-secundario">
             Crie sua primeira partida para organizar a temporada.
           </p>
+          <% if (usuario && usuario.tipo_usuario === 'TREINADOR') { %>
           <a href="/partidas/cadastro" class="botao principal">Criar partida</a>
+        <% } %>
         </div>
       <% } %>
     </article>

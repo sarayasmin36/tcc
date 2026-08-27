@@ -141,7 +141,11 @@
                     <p class="texto-secundario">
                         Registre uma partida e lance os fundamentos de cada atleta para gerar relatórios.
                     </p>
-                    <a href="/partidas/cadastro" class="botao principal">Registrar partida</a>
+                    <% if (usuario && usuario.tipo_usuario === 'TREINADOR') { %>
+    <a href="/partidas/cadastro" class="botao principal">
+        Registrar partida
+    </a>
+<% } %>
                 </div>
             </section>
         </main>

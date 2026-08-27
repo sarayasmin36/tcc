@@ -1,19 +1,39 @@
 const express = require('express');
 const banco = require('../db');
-const { exigirTreinador } = require('../middleware/autenticado');
+const { exigirLogin } = require('../middleware/autenticado');
 const router = express.Router();
 
-router.get('/', exigirTreinador, (req, res) => {
-    // Obtém o ID do treinador que fez login.
-    const idTreinador = req.session.usuario.id_treinador;
+router.get('/', exigirLogin, (req, res) => {
+    const usuario = req.session.usuario;
+    let filtroEquipe;
+    let idUsuario;
 
-    // Busca os totais somente relacionados às equipes do treinador.
+    // Define quais equipes o usuário pode visualizar.
+    if (usuario.tipo_usuario === 'ATLETA') {
+        filtroEquipe = `
+            e.id_equipe IN (
+                SELECT me.id_equipe
+                FROM membro_equipe me
+                WHERE me.id_atleta = ?
+                  AND me.status = 'ATIVO'
+            )
+        `;
+
+        idUsuario = usuario.id_atleta;
+    } else if (usuario.tipo_usuario === 'TREINADOR') {
+        filtroEquipe = 'e.id_treinador = ?';
+        idUsuario = usuario.id_treinador;
+    } else {
+        return res.status(403).send('Tipo de usuário não autorizado.');
+    }
+
+    // Busca os totais somente das equipes permitidas.
     const sqlTotais = `
         SELECT
             (
                 SELECT COUNT(*)
-                FROM equipe
-                WHERE id_treinador = ?
+                FROM equipe e
+                WHERE ${filtroEquipe}
             ) AS totalEquipes,
 
             (
@@ -21,7 +41,7 @@ router.get('/', exigirTreinador, (req, res) => {
                 FROM membro_equipe me
                 INNER JOIN equipe e
                     ON e.id_equipe = me.id_equipe
-                WHERE e.id_treinador = ?
+                WHERE ${filtroEquipe}
                   AND me.status = 'ATIVO'
             ) AS totalAtletas,
 
@@ -32,7 +52,7 @@ router.get('/', exigirTreinador, (req, res) => {
                     ON pp.id_partida = p.id_partida
                 INNER JOIN equipe e
                     ON e.id_equipe = pp.id_equipe
-                WHERE e.id_treinador = ?
+                WHERE ${filtroEquipe}
             ) AS totalCampeonatos,
 
             (
@@ -40,23 +60,21 @@ router.get('/', exigirTreinador, (req, res) => {
                 FROM participacao_partida pp
                 INNER JOIN equipe e
                     ON e.id_equipe = pp.id_equipe
-                WHERE e.id_treinador = ?
+                WHERE ${filtroEquipe}
             ) AS totalPartidas
     `;
 
-    // Executa a consulta dos totais.
-    // Cada ponto de interrogação recebe o ID do treinador.
+    // Cada ponto de interrogação recebe o ID do usuário logado.
     banco.query(
         sqlTotais,
-        [idTreinador, idTreinador, idTreinador, idTreinador],
+        [idUsuario, idUsuario, idUsuario, idUsuario],
         (erroTotais, totais) => {
-            // Verifica se houve erro ao consultar os totais.
             if (erroTotais) {
                 console.log('Erro ao buscar totais:', erroTotais);
                 return mostrarErro(res, 'Erro ao carregar os totais.');
             }
 
-            // Busca somente as equipes criadas pelo treinador logado.
+            // Busca somente as equipes permitidas para o usuário.
             const sqlEquipes = `
                 SELECT
                     e.id_equipe,
@@ -72,7 +90,7 @@ router.get('/', exigirTreinador, (req, res) => {
                 FROM equipe e
                 LEFT JOIN membro_equipe me
                     ON me.id_equipe = e.id_equipe
-                WHERE e.id_treinador = ?
+                WHERE ${filtroEquipe}
                 GROUP BY
                     e.id_equipe,
                     e.nome,
@@ -84,18 +102,16 @@ router.get('/', exigirTreinador, (req, res) => {
                 LIMIT 5
             `;
 
-            // Envia o ID do treinador para o ponto de interrogação.
             banco.query(
                 sqlEquipes,
-                [idTreinador],
+                [idUsuario],
                 (erroEquipes, equipes) => {
-                    // Verifica se houve erro ao buscar equipes.
                     if (erroEquipes) {
                         console.log('Erro ao buscar equipes:', erroEquipes);
                         return mostrarErro(res, 'Erro ao carregar as equipes.');
                     }
 
-                    // Busca somente partidas relacionadas às equipes do treinador.
+                    // Busca somente partidas das equipes permitidas.
                     const sqlPartidas = `
                         SELECT
                             p.id_partida,
@@ -110,7 +126,7 @@ router.get('/', exigirTreinador, (req, res) => {
                             ON pp.id_partida = p.id_partida
                         INNER JOIN equipe e
                             ON e.id_equipe = pp.id_equipe
-                        WHERE e.id_treinador = ?
+                        WHERE ${filtroEquipe}
                         GROUP BY
                             p.id_partida,
                             c.nome,
@@ -119,25 +135,21 @@ router.get('/', exigirTreinador, (req, res) => {
                         LIMIT 5
                     `;
 
-                    // Executa a consulta das partidas usando o treinador da sessão.
                     banco.query(
                         sqlPartidas,
-                        [idTreinador],
+                        [idUsuario],
                         (erroPartidas, partidas) => {
-                            // Verifica se houve erro ao buscar partidas.
                             if (erroPartidas) {
                                 console.log('Erro ao buscar partidas:', erroPartidas);
                                 return mostrarErro(res, 'Erro ao carregar as partidas.');
                             }
 
-                            // Prepara os dados no formato esperado pelo index.ejs.
+                            // Prepara os dados no formato usado pela tela.
                             partidas = partidas.map((partida) => {
-                                // Separa os nomes das equipes pelo texto " x ".
                                 const nomes = partida.nomes_equipes
                                     ? partida.nomes_equipes.split(' x ')
                                     : [];
 
-                                // Retorna os dados com os nomes usados na view.
                                 return {
                                     ...partida,
                                     nome_equipe: nomes[0] || 'Minha equipe',
@@ -146,12 +158,10 @@ router.get('/', exigirTreinador, (req, res) => {
                                 };
                             });
 
-                            // A consulta de totais retorna uma única linha.
                             const dados = totais[0];
 
-                            // Envia todos os dados para o index.ejs.
                             res.render('index', {
-                                usuario: req.session.usuario,
+                                usuario: usuario,
                                 totalEquipes: dados.totalEquipes,
                                 totalAtletas: dados.totalAtletas,
                                 totalCampeonatos: dados.totalCampeonatos,
@@ -169,23 +179,7 @@ router.get('/', exigirTreinador, (req, res) => {
     );
 });
 
-// Exibe o dashboard com valores vazios quando alguma consulta falha.
-function mostrarErro(res, mensagem) {
-    res.render('index', {
-        usuario: null,
-        totalEquipes: 0,
-        totalAtletas: 0,
-        totalCampeonatos: 0,
-        totalPartidas: 0,
-        partidas: [],
-        equipes: [],
-        erro: mensagem,
-        sucesso: null
-    });
-}
-
-
-
+// Exibe o painel com valores vazios quando alguma consulta falha.
 function mostrarErro(res, mensagem) {
     res.render('index', {
         usuario: null,

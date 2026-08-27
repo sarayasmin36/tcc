@@ -36,7 +36,9 @@
         <nav class="navegacao" aria-label="Navegação principal">
             <a href="/">Painel</a>
             <a href="/equipes">Equipes</a>
-            <a href="/atletas">Atletas</a>
+<% if (dadosUsuario.tipo_usuario !== 'ATLETA') { %>
+    <a href="/atletas">Atletas</a>
+<% } %>
             <a href="/partidas">Partidas</a>
             <a href="/relatorios">Relatórios</a>
             <a href="/perfil">Perfil</a>

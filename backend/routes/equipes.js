@@ -1,32 +1,68 @@
 const express = require('express');
 const crypto = require('crypto');
 const banco = require('../db');
-const { exigirTreinador } = require('../middleware/autenticado');
+const { exigirTreinador, exigirLogin } = require('../middleware/autenticado');
 
 const router = express.Router();
 
-router.get('/equipes', exigirTreinador, (req, res) => {
-  const idTreinador = req.session.usuario.id_treinador;
-  
-  const sql = `
-        SELECT
-            id_equipe,
-            nome,
-            categoria,
-            local,
-            codigo_acesso,
-            criada_em
-        FROM equipe
-        WHERE id_treinador = ?
-        ORDER BY criada_em DESC
-    `;
+router.get('/equipes', exigirLogin, (req, res) => {
+  const usuario = req.session.usuario;
+    let sql;
+    let parametros;
 
-    banco.query(sql, [idTreinador], (erro, equipes) => {
+    if (usuario.tipo_usuario === 'ATLETA') {
+        sql = `
+            SELECT
+                e.id_equipe,
+                e.nome,
+                e.categoria,
+                e.local,
+                e.codigo_acesso,
+                e.criada_em,
+                COUNT(me2.id_membro) AS quantidadeAtletas
+            FROM membro_equipe me
+            INNER JOIN equipe e
+                ON e.id_equipe = me.id_equipe
+            LEFT JOIN membro_equipe me2
+                ON me2.id_equipe = e.id_equipe
+                AND me2.status = 'ATIVO'
+            WHERE me.id_atleta = ?
+                AND me.status = 'ATIVO'
+            GROUP BY e.id_equipe
+            ORDER BY e.criada_em DESC
+        `;
+
+        parametros = [usuario.id_atleta];
+    } else if (usuario.tipo_usuario === 'TREINADOR') {
+        sql = `
+            SELECT
+                e.id_equipe,
+                e.nome,
+                e.categoria,
+                e.local,
+                e.codigo_acesso,
+                e.criada_em,
+                COUNT(me.id_membro) AS quantidadeAtletas
+            FROM equipe e
+            LEFT JOIN membro_equipe me
+                ON me.id_equipe = e.id_equipe
+                AND me.status = 'ATIVO'
+            WHERE e.id_treinador = ?
+            GROUP BY e.id_equipe
+            ORDER BY e.criada_em DESC
+        `;
+
+        parametros = [usuario.id_treinador];
+    } else {
+        return res.status(403).send('Tipo de usuário não autorizado.');
+    }
+
+    banco.query(sql, parametros, (erro, equipes) => {
         if (erro) {
             console.log('Erro ao buscar equipes:', erro);
 
             return res.render('equipes/listar', {
-                usuario: req.session.usuario,
+                usuario: usuario,
                 mensagem: null,
                 erro: 'Não foi possível carregar as equipes.',
                 equipes: []
