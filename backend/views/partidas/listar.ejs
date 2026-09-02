@@ -58,8 +58,22 @@
             <span class="etiqueta etiqueta-partida"><%= situacao %></span>
 
             <div class="acoes-partida">
-              <span class="botao secundario botao-bloqueado" title="Módulo em desenvolvimento">Desempenho em desenvolvimento</span>
-            </div>
+    <% if (situacao === 'AGENDADA' && usuario && usuario.tipo_usuario === 'TREINADOR') { %>
+        <a
+            href="/partidas/<%= idPartida %>/desempenho"
+            class="botao principal"
+        >
+            Registrar desempenho
+        </a>
+    <% } else { %>
+        <a
+            href="/partidas/<%= idPartida %>/desempenho"
+            class="botao secundario"
+        >
+            Ver desempenho
+        </a>
+    <% } %>
+</div>
           </article>
         <% }); %>
 

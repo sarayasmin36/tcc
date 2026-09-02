@@ -6,7 +6,6 @@ const entradaRoutes = require('./routes/entrada');
 const atletasRoutes = require('./routes/atletas');
 const equipesRoutes = require('./routes/equipes');
 const partidasRoutes = require('./routes/partidas');
-const campeonatosRoutes = require('./routes/campeonatos');
 const indexRoutes = require('./routes/index');
 const relatoriosRoutes = require('./routes/relatorios');
 const perfilRoutes = require('./routes/perfil');
@@ -34,7 +33,6 @@ app.use('/', entradaRoutes);
 app.use('/', atletasRoutes);
 app.use('/', equipesRoutes);
 app.use('/', partidasRoutes);
-app.use('/', campeonatosRoutes);
 app.use('/', relatoriosRoutes);
 app.use('/', perfilRoutes);
 

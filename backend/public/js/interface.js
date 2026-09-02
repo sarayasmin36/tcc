@@ -186,12 +186,14 @@ function configurarPartidaAoVivo() {
 
   const quantidadeSets = Number(painel.dataset.quantidadeSets || 3);
   const setsSalvosIniciais = Number(painel.dataset.setsSalvos || 0);
+  const somenteLeitura = painel.dataset.somenteLeitura === 'true';
   let partidaEncerrada = false;
 
   const estado = {
     atletaId: '',
     atletaNome: '',
-    fundamento: '',
+        fundamento: '',
+    acoesPendentes: [],
     placarCasa: Number(document.querySelector('[data-placar-casa]')?.textContent || 0),
     placarAdversario: Number(document.querySelector('[data-placar-adversario]')?.textContent || 0),
     setsSalvos: []
@@ -321,6 +323,65 @@ function configurarPartidaAoVivo() {
     });
   }
 
+  document.querySelector('[data-salvar-acoes]')?.addEventListener('click', async () => {
+    if (partidaEncerrada) {
+      mostrarAviso('Esta partida já foi encerrada.', 'informacao');
+      return;
+    }
+
+    if (estado.acoesPendentes.length === 0) {
+      mostrarAviso('Não há ações novas para salvar.', 'informacao');
+      return;
+    }
+
+    const idPartida = window.location.pathname.split('/')[2];
+    const botaoSalvar = document.querySelector('[data-salvar-acoes]');
+
+    if (botaoSalvar) botaoSalvar.disabled = true;
+
+    try {
+      const respostas = await Promise.all(
+        estado.acoesPendentes.map((acao) => fetch(
+          `/partidas/${idPartida}/desempenho/acao`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              id_atleta: acao.idAtleta,
+              fundamento: acao.fundamento,
+              resultado: acao.resultado
+            })
+          }
+        ))
+      );
+
+      const dados = await Promise.all(
+        respostas.map((resposta) => resposta.json())
+      );
+
+      const erro = dados.find((dado) => dado.erro);
+
+      if (erro) {
+        throw new Error(erro.erro);
+      }
+
+      estado.acoesPendentes = [];
+      mostrarAviso(
+        'Ações salvas no banco com sucesso. Você pode continuar o set.',
+        'sucesso'
+      );
+    } catch (erro) {
+      mostrarAviso(
+        erro.message || 'Não foi possível salvar as ações.',
+        'informacao'
+      );
+    } finally {
+      if (botaoSalvar) botaoSalvar.disabled = false;
+    }
+  });
+
   document.querySelector('[data-encerrar-partida]')?.addEventListener('click', () => {
     if (totalSetsSalvos() < quantidadeSets) {
       mostrarAviso(`É necessário salvar os ${quantidadeSets} sets antes de encerrar a partida.`, 'informacao');
@@ -387,6 +448,7 @@ function configurarPartidaAoVivo() {
   });
 
   document.querySelectorAll('[data-alterar-placar]').forEach((botao) => {
+    botao.disabled = somenteLeitura;
     botao.addEventListener('click', () => {
       const valor = Number(botao.dataset.valor || 0);
       if (botao.dataset.alterarPlacar === 'casa') estado.placarCasa += valor;
@@ -396,6 +458,7 @@ function configurarPartidaAoVivo() {
   });
 
   document.querySelectorAll('[data-selecionar-atleta-acao]').forEach((botao) => {
+    botao.disabled = somenteLeitura;
     botao.addEventListener('click', () => {
       document.querySelectorAll('[data-selecionar-atleta-acao]').forEach((item) => item.classList.remove('selecionado'));
       botao.classList.add('selecionado');
@@ -407,6 +470,7 @@ function configurarPartidaAoVivo() {
   });
 
   document.querySelectorAll('[data-acao-fundamento]').forEach((botao) => {
+    botao.disabled = somenteLeitura;
     botao.addEventListener('click', () => {
       if (!estado.atletaId) {
         mostrarAviso('Selecione um atleta antes de registrar a ação.', 'informacao');
@@ -430,7 +494,29 @@ function configurarPartidaAoVivo() {
   document.querySelectorAll('[data-resultado-acao]').forEach((botao) => {
     botao.addEventListener('click', () => {
       if (!estado.atletaId || !estado.fundamento) return;
-      adicionarAcao(estado.atletaNome, nomesFundamentos[estado.fundamento], botao.textContent.trim());
+
+      if (somenteLeitura) {
+        mostrarAviso('Atletas podem apenas visualizar o desempenho.', 'informacao');
+        return;
+      }
+
+      const fundamento = estado.fundamento;
+      const resultado = botao.dataset.resultadoAcao;
+      const nomeAcao = nomesFundamentos[fundamento];
+      const textoResultado = botao.textContent.trim();
+
+      estado.acoesPendentes.push({
+        idAtleta: estado.atletaId,
+        fundamento: fundamento,
+        resultado: resultado
+      });
+
+      adicionarAcao(estado.atletaNome, nomeAcao, textoResultado);
+      mostrarAviso(
+        'Ação adicionada. Clique em Salvar ações para gravar no banco.',
+        'informacao'
+      );
+
       const painelResultados = document.querySelector('[data-painel-resultados]');
       if (painelResultados) {
         painelResultados.setAttribute('hidden', 'hidden');

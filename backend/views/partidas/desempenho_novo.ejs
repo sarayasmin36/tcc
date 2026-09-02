@@ -1,76 +1,414 @@
-<%- include('../parciais/cabecalho.ejs', { titulo: 'Desempenho da partida | VoleiStats' }) %>
+<%- include('../parciais/cabecalho.ejs', { titulo: 'Acompanhamento da partida | VoleiStats' }) %>
 <%- include('../parciais/menu_lateral.ejs') %>
 
 <%
-  const quantidadeSets = Number(partida.quantidade_sets || partida.sets_alvo || 3);
-  const atletasPartida = Array.isArray(atletas) ? atletas : [];
+    const quantidadeSetsPartida = Number(
+        partida.quantidade_sets || partida.sets_alvo || partida.melhor_de || 3
+    );
+
+    const numeroSetAtual = Number(partida.set_atual || 1);
+    const pontosCasa = Number(
+        partida.pontos_minha_equipe || partida.pontosCasa || 0
+    );
+    const pontosAdversario = Number(
+        partida.pontos_adversario || partida.pontosAdversario || 0
+    );
+    const setsCasa = Number(partida.sets_minha_equipe || 0);
+    const setsAdversario = Number(partida.sets_adversario || 0);
+
+    const listaAtletas = typeof atletas !== 'undefined' && Array.isArray(atletas)
+        ? atletas
+        : [];
+
+    const listaAcoes = typeof acoes !== 'undefined' && Array.isArray(acoes)
+        ? acoes
+        : [];
+
+    const modoSomenteLeitura =
+        typeof somenteLeitura !== 'undefined' && somenteLeitura;
 %>
 
-<style>
-  .pagina-desempenho-nova { display:block !important; width:100%; min-height:100vh; padding:32px; background:#f5f8fc; color:#12263a; }
-  .pagina-desempenho-nova * { box-sizing:border-box; }
-  .pagina-desempenho-nova h1, .pagina-desempenho-nova h2, .pagina-desempenho-nova h3 { color:#12263a; }
-  .pagina-desempenho-nova .cabecalho-novo { display:flex; justify-content:space-between; gap:20px; align-items:flex-start; margin-bottom:22px; }
-  .pagina-desempenho-nova .cartao-novo { margin-bottom:18px; padding:22px; border:1px solid #dfe8f1; border-radius:16px; background:#fff; box-shadow:0 8px 22px rgba(18,59,93,.09); }
-  .pagina-desempenho-nova .placar-novo { display:grid; grid-template-columns:1fr 180px 1fr; gap:16px; align-items:center; }
-  .pagina-desempenho-nova .equipe-nova { padding:22px; border:1px solid #dfe8f1; border-radius:14px; text-align:center; }
-  .pagina-desempenho-nova .equipe-nova strong { display:block; margin:8px 0; font-size:48px; color:#123b5d; }
-  .pagina-desempenho-nova .controles-novos { display:flex; justify-content:center; gap:8px; }
-  .pagina-desempenho-nova button, .pagina-desempenho-nova select { min-height:38px; padding:8px 13px; border:1px solid #dfe8f1; border-radius:9px; background:#fff; color:#12263a; cursor:pointer; }
-  .pagina-desempenho-nova button:hover { background:#eaf4ff; }
-  .pagina-desempenho-nova .centro-novo { text-align:center; }
-  .pagina-desempenho-nova .centro-novo strong { display:block; margin:12px 0 0; font-size:26px; color:#1769aa; }
-  .pagina-desempenho-nova .quadra-nova { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; padding:16px; border-radius:14px; background:#eef7fa; }
-  .pagina-desempenho-nova .posicao-nova { min-height:82px; display:flex; flex-direction:column; justify-content:center; align-items:center; border-radius:12px; background:#fff; border:1px solid #d7e5eb; text-align:center; }
-  .pagina-desempenho-nova .posicao-nova.ocupada { background:#d7f36b; border-color:#a9d22d; }
-  .pagina-desempenho-nova .atletas-novos, .pagina-desempenho-nova .fundamentos-novos, .pagina-desempenho-nova .resultados-novos { display:flex; flex-wrap:wrap; gap:10px; }
-  .pagina-desempenho-nova .fundamentos-novos button { min-width:110px; min-height:70px; }
-  .pagina-desempenho-nova .resultado-novo { flex:1; min-width:150px; min-height:76px; }
-  .pagina-desempenho-nova table { width:100%; border-collapse:collapse; }
-  .pagina-desempenho-nova th, .pagina-desempenho-nova td { padding:12px 8px; border-bottom:1px solid #dfe8f1; text-align:left; }
-  @media (max-width:760px) { .pagina-desempenho-nova { padding:20px 14px; } .pagina-desempenho-nova .cabecalho-novo, .pagina-desempenho-nova .placar-novo { display:block; } .pagina-desempenho-nova .equipe-nova, .pagina-desempenho-nova .centro-novo { margin-bottom:12px; } .pagina-desempenho-nova .quadra-nova { grid-template-columns:repeat(2,1fr); } }
-</style>
+<main class="conteudo-principal tela-acompanhamento">
 
-<main class="pagina-desempenho-nova tela-acompanhamento" data-quantidade-sets="<%= quantidadeSets %>" data-sets-salvos="0">
-  <header class="cabecalho-novo">
-    <div>
-      <p><%= partida.nome_equipe || 'Minha equipe' %> — <strong><%= partida.nome_equipe_adversaria || 'Equipe adversária' %></strong></p>
-      <h1>Acompanhamento da partida</h1>
-      <p>Registre o desempenho dos atletas durante cada set.</p>
+    <header class="cabecalho-acompanhamento">
+        <div>
+            <p class="texto-contexto">
+                <%= partida.nome_equipe || partida.nomeEquipe || 'Minha equipe' %>
+                <span>—</span>
+                <strong>
+                    <%= partida.nome_equipe_adversaria || partida.nomeEquipeAdversaria || 'Equipe adversária' %>
+                </strong>
+            </p>
+
+            <h1>Acompanhamento da partida</h1>
+
+            <p class="subtitulo">
+                Registre os fundamentos dos atletas em tempo real.
+            </p>
+        </div>
+
+        <div class="acoes-acompanhamento">
+            <% if (!modoSomenteLeitura) { %>
+                <button
+                    type="button"
+                    class="botao principal"
+                    data-salvar-acoes>
+                    Salvar ações
+                </button>
+            <% } %>
+
+            <button
+                type="button"
+                class="botao secundario"
+                data-encerrar-set>
+                Encerrar e salvar set
+            </button>
+
+            <button
+                type="button"
+                class="botao perigo"
+                data-encerrar-partida
+                disabled>
+                Encerrar partida
+            </button>
+        </div>
+    </header>
+
+    <p
+        class="aviso-partida-finalizada"
+        data-status-partida
+        hidden>
+        Partida encerrada.
+    </p>
+
+    <section class="placar-partida-vivo cartao">
+        <div class="placar-equipe placar-equipe-casa">
+            <span class="nome-equipe-placar">
+                <%= partida.nome_equipe || partida.nomeEquipe || 'Minha equipe' %>
+            </span>
+
+            <strong data-placar-casa>
+                <%= pontosCasa %>
+            </strong>
+
+            <div class="controles-placar">
+                <button
+                    type="button"
+                    data-alterar-placar="casa"
+                    data-valor="-1">
+                    −1
+                </button>
+
+                <button
+                    type="button"
+                    data-alterar-placar="casa"
+                    data-valor="1">
+                    +1
+                </button>
+            </div>
+        </div>
+
+        <div class="informacao-set">
+            <label class="seletor-set" for="seletor-set">
+                <span>Set atual</span>
+
+                <select
+                    id="seletor-set"
+                    name="set_atual"
+                    data-seletor-set>
+                    <% for (let numero = 1; numero <= quantidadeSetsPartida; numero += 1) { %>
+                        <option
+                            value="<%= numero %>"
+                            <%= numero === numeroSetAtual ? 'selected' : '' %>>
+                            Set <%= numero %>
+                        </option>
+                    <% } %>
+                </select>
+            </label>
+
+            <span class="placar-sets">
+                <b data-sets-casa><%= setsCasa %></b>
+                <i>×</i>
+                <b data-sets-adversario><%= setsAdversario %></b>
+            </span>
+
+            <small>sets vencidos</small>
+        </div>
+
+        <div class="placar-equipe">
+            <span class="nome-equipe-placar">
+                <%= partida.nome_equipe_adversaria || partida.nomeEquipeAdversaria || 'Equipe adversária' %>
+            </span>
+
+            <strong data-placar-adversario>
+                <%= pontosAdversario %>
+            </strong>
+
+            <div class="controles-placar">
+                <button
+                    type="button"
+                    data-alterar-placar="adversario"
+                    data-valor="-1">
+                    −1
+                </button>
+
+                <button
+                    type="button"
+                    data-alterar-placar="adversario"
+                    data-valor="1">
+                    +1
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <div class="quadra-banco-lado-a-lado">
+        <section class="quadra-partida cartao">
+            <div class="cabecalho-secao">
+                <div>
+                    <h2>Quadra</h2>
+                    <p class="subtitulo">
+                        Formação atual da equipe.
+                    </p>
+                </div>
+            </div>
+
+            <div class="grade-posicoes">
+                <% for (let posicao = 1; posicao <= 6; posicao += 1) { %>
+                    <% const atleta = listaAtletas.find((item) =>
+                        String(item.posicao_inicial || '') === String(posicao)
+                    ); %>
+
+                    <div
+                        class="posicao-quadra <%= atleta ? 'posicao-ocupada' : '' %>"
+                        data-posicao="<%= posicao %>">
+
+                        <% if (atleta) { %>
+                            <strong>
+                                #<%= atleta.numero_camisa || '' %>
+                            </strong>
+
+                            <span><%= atleta.nome %></span>
+                            <small><%= atleta.posicao || 'Atleta' %></small>
+                        <% } else { %>
+                            <span>Posição <%= posicao %></span>
+                            <small>VAZIO</small>
+                        <% } %>
+                    </div>
+                <% } %>
+            </div>
+        </section>
+
+        <section class="quadra-partida cartao">
+            <div class="cabecalho-secao">
+                <div>
+                    <h2>Banco de Reservas</h2>
+                    <p class="subtitulo">
+                        Atletas fora da formação inicial.
+                    </p>
+                </div>
+            </div>
+
+            <%
+                const idsTitulares = new Set();
+
+                listaAtletas.forEach((item) => {
+                    if (item.posicao_inicial) {
+                        idsTitulares.add(String(item.id_atleta || item.id));
+                    }
+                });
+
+                const listaReservas = listaAtletas.filter((item) =>
+                    !idsTitulares.has(String(item.id_atleta || item.id))
+                );
+            %>
+
+            <div class="grade-posicoes">
+                <% for (let posicao = 1; posicao <= 6; posicao += 1) { %>
+                    <% const atleta = listaReservas[posicao - 1]; %>
+
+                    <div
+                        class="posicao-quadra <%= atleta ? 'posicao-ocupada' : '' %>"
+                        data-posicao-banco="<%= posicao %>">
+
+                        <% if (atleta) { %>
+                            <strong>
+                                #<%= atleta.numero_camisa || '' %>
+                            </strong>
+
+                            <span><%= atleta.nome %></span>
+                            <small><%= atleta.posicao || 'Reserva' %></small>
+                        <% } else { %>
+                            <span>Banco <%= posicao %></span>
+                            <small>VAZIO</small>
+                        <% } %>
+                    </div>
+                <% } %>
+            </div>
+        </section>
     </div>
-    <div>
-      <button type="button" data-encerrar-set>Encerrar set</button>
-      <button type="button" data-encerrar-partida disabled>Encerrar partida</button>
-    </div>
-  </header>
 
-  <section class="cartao-novo placar-novo">
-    <div class="equipe-nova"><span><%= partida.nome_equipe || 'Minha equipe' %></span><strong data-placar-casa>0</strong><div class="controles-novos"><button type="button" data-alterar-placar="casa" data-valor="-1">−1</button><button type="button" data-alterar-placar="casa" data-valor="1">+1</button></div></div>
-    <div class="centro-novo"><label for="set-novo">Set atual</label><select id="set-novo" data-seletor-set><% for (let set = 1; set <= quantidadeSets; set += 1) { %><option value="<%= set %>">Set <%= set %></option><% } %></select><strong><span data-sets-casa>0</span> × <span data-sets-adversario>0</span></strong><small>sets vencidos</small></div>
-    <div class="equipe-nova"><span><%= partida.nome_equipe_adversaria || 'Equipe adversária' %></span><strong data-placar-adversario>0</strong><div class="controles-novos"><button type="button" data-alterar-placar="adversario" data-valor="-1">−1</button><button type="button" data-alterar-placar="adversario" data-valor="1">+1</button></div></div>
-  </section>
+    <section class="painel-acao-set cartao">
+        <div class="cabecalho-secao">
+            <div>
+                <h2>Registrar ação</h2>
+                <p class="subtitulo">
+                    Selecione o atleta, o fundamento e o resultado.
+                </p>
+            </div>
 
-  <section class="cartao-novo">
-    <h2>Quadra e escalação</h2>
-    <div class="quadra-nova">
-      <% for (let posicao = 1; posicao <= 6; posicao += 1) { const atleta = atletasPartida.find((item) => String(item.posicao_inicial || item.posicao || '') === String(posicao)); %>
-        <div class="posicao-nova <%= atleta ? 'ocupada' : '' %>"><strong>Posição <%= posicao %></strong><span><%= atleta ? atleta.nome : 'Vazia' %></span><small><%= atleta ? '#' + (atleta.numero_camisa || '') : '' %></small></div>
-      <% } %>
-    </div>
-  </section>
+            <span data-atleta-acao>
+                Nenhum atleta selecionado
+            </span>
+        </div>
 
-  <section class="cartao-novo">
-    <h2>Registrar ação</h2>
-    <p data-atleta-acao>Selecione um atleta</p>
-    <div class="atletas-novos"><% atletasPartida.forEach((atleta) => { %><button type="button" data-selecionar-atleta-acao data-atleta-id="<%= atleta.id_atleta || atleta.id %>"><%= atleta.nome %></button><% }); %></div>
-    <div class="fundamentos-novos"><% [['passe','Passe'],['ataque','Ataque'],['defesa','Defesa'],['levantamento','Levantamento'],['saque','Saque'],['bloqueio','Bloqueio'],['falta','Falta']].forEach((item) => { %><button type="button" data-acao-fundamento="<%= item[0] %>"><%= item[1] %></button><% }); %></div>
-    <div class="resultados-novos" data-painel-resultados hidden><button type="button" class="resultado-novo" data-resultado-acao="perfeito">A — Perfeito</button><button type="button" class="resultado-novo" data-resultado-acao="bom">B — Bom</button><button type="button" class="resultado-novo" data-resultado-acao="ruim">C — Ruim</button></div>
-  </section>
+        <div class="seletor-atleta-acao">
+            <% if (listaAtletas.length) { %>
+                <% listaAtletas.forEach((atleta) => { %>
+                    <button
+                        type="button"
+                        class="botao-atleta-acao"
+                        data-selecionar-atleta-acao
+                        data-atleta-id="<%= atleta.id_atleta || atleta.id %>">
+                        <%= atleta.nome %>
+                    </button>
+                <% }); %>
+            <% } else { %>
+                <p class="texto-secundario">
+                    Nenhum atleta escalado.
+                </p>
+            <% } %>
+        </div>
 
-  <section class="cartao-novo">
-    <h2>Ações do set</h2>
-    <table><thead><tr><th>Atleta</th><th>Fundamento</th><th>Resultado</th><th>Excluir</th></tr></thead><tbody data-lista-acoes-registradas><tr data-estado-acoes><td colspan="4">Nenhuma ação registrada.</td></tr></tbody></table>
-  </section>
+        <div class="lista-acoes-partida">
+            <% [
+                ['passe', 'Passe'],
+                ['ataque', 'Ataque'],
+                ['defesa', 'Defesa'],
+                ['levantamento', 'Levantamento'],
+                ['saque', 'Saque'],
+                ['bloqueio', 'Bloqueio'],
+                ['falta', 'Falta']
+            ].forEach((fundamento) => { %>
+                <button
+                    type="button"
+                    class="acao-partida"
+                    data-acao-fundamento="<%= fundamento[0] %>">
+                    <strong><%= fundamento[1] %></strong>
+                </button>
+            <% }); %>
+        </div>
+
+        <div
+            class="painel-resultados"
+            data-painel-resultados
+            hidden>
+
+            <h3>
+                Resultado de <span data-nome-acao>ação</span>
+            </h3>
+
+            <div class="lista-resultados-acao">
+                <button
+                    type="button"
+                    class="resultado-acao"
+                    data-resultado-acao="perfeito">
+                    <strong>A — Perfeito</strong>
+                    <small>Execução excelente</small>
+                </button>
+
+                <button
+                    type="button"
+                    class="resultado-acao"
+                    data-resultado-acao="bom">
+                    <strong>B — Bom</strong>
+                    <small>Execução adequada</small>
+                </button>
+
+                <button
+                    type="button"
+                    class="resultado-acao"
+                    data-resultado-acao="ruim">
+                    <strong>C — Ruim</strong>
+                    <small>Execução comprometida</small>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="secao tabela-acoes-set cartao">
+        <div class="cabecalho-secao">
+            <div>
+                <h2>
+                    Ações do set
+                    <span data-titulo-set><%= numeroSetAtual %></span>
+                </h2>
+
+                <p class="subtitulo">
+                    Ações registradas nesta etapa.
+                </p>
+            </div>
+        </div>
+
+        <div class="envoltorio-tabela">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Atleta</th>
+                        <th>Fundamento</th>
+                        <th>Resultado</th>
+                        <th>Excluir</th>
+                    </tr>
+                </thead>
+
+                <tbody data-lista-acoes-registradas>
+                    <% if (listaAcoes.length) { %>
+                        <% listaAcoes.forEach((acao) => { %>
+                            <tr>
+                                <td>
+                                    <strong>
+                                        <%= acao.nome_atleta || acao.nomeAtleta || 'Atleta' %>
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    <%= acao.acao || acao.fundamento %>
+                                </td>
+
+                                <td>
+                                    <span class="etiqueta verde">
+                                        <%= acao.resultado %>
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <% if (!modoSomenteLeitura) { %>
+                                        <button
+                                            type="button"
+                                            class="botao-remover-acao"
+                                            data-remover-acao
+                                            data-id-acao="<%= acao.id_acao || acao.id || '' %>">
+                                            Excluir
+                                        </button>
+                                    <% } else { %>
+                                        <span class="texto-secundario">
+                                            Somente leitura
+                                        </span>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr data-estado-acoes>
+                            <td colspan="4" class="estado-vazio">
+                                Nenhuma ação registrada neste set.
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </section>
 </main>
 
 <%- include('../parciais/rodape.ejs') %>

@@ -25,9 +25,28 @@
                         <p class="subtitulo">Registre os fundamentos dos atletas em tempo real.</p>
                     </div>
                     <div class="acoes-acompanhamento">
-                        <button type="button" class="botao secundario" data-encerrar-set>Encerrar e salvar set</button>
-                        <button type="button" class="botao perigo" data-encerrar-partida disabled>Encerrar partida</button>
-                    </div>
+    <button
+        type="button"
+        class="botao principal"
+        data-salvar-acoes>
+        Salvar ações
+    </button>
+
+    <button
+        type="button"
+        class="botao secundario"
+        data-encerrar-set>
+        Encerrar e salvar set
+    </button>
+
+    <button
+        type="button"
+        class="botao perigo"
+        data-encerrar-partida
+        disabled>
+        Encerrar partida
+    </button>
+</div>
                 </header>
 
                 <p class="aviso-partida-finalizada" data-status-partida hidden>Partida encerrada.</p>
@@ -147,7 +166,6 @@
                 <section class="painel-acao-set cartao">
                     <div class="cabecalho-secao">
                         <div>
-                            <% if (usuario && usuario.tipo_usuario === 'TREINADOR') { %>
                             <h2>Registrar ação</h2>
                             <p class="subtitulo">Selecione o atleta, o fundamento e o resultado.</p>
                         </div>
@@ -169,7 +187,7 @@
                             <button type="button" class="acao-partida" data-acao-fundamento="<%= fundamento[0] %>"><strong><%= fundamento[1] %></strong></button>
                             <% }); %>
                     </div>
-<% } %> 
+
                     <div class="painel-resultados" data-painel-resultados hidden>
                         <h3>Resultado de <span data-nome-acao>ação</span></h3>
                         <div class="lista-resultados-acao">
