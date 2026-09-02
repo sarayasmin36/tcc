@@ -67,9 +67,12 @@
         </a>
     <% } else { %>
         <a
+
+        <% if (usuario && usuario.tipo_usuario === 'TREINADOR') { %>
             href="/partidas/<%= idPartida %>/desempenho"
             class="botao secundario"
         >
+<% } %>
             Ver desempenho
         </a>
     <% } %>

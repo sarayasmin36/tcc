@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   configurarPartidaAoVivo();
 });
 
+
 function configurarMenuLateral() {
   const corpo = document.body;
   const botaoAbrir = document.querySelector('#botao-menu-mobile');
@@ -181,11 +182,82 @@ function configurarDesempenho() {
 }
 
 function configurarPartidaAoVivo() {
+  
+
+
+  async function carregarAcoesDoSet(numeroSet) {
+  const idPartida = window.location.pathname.split('/')[2];
+
+  const resposta = await fetch(
+    `/partidas/${idPartida}/desempenho/acoes?numero_set=${numeroSet}`
+  );
+
+  if (!resposta.ok) {
+    throw new Error('Não foi possível carregar as ações do set.');
+  }
+
+  const acoes = await resposta.json();
+  const lista = document.querySelector(
+    '[data-lista-acoes-registradas]'
+  );
+
+  if (!lista) return;
+
+  lista.innerHTML = '';
+
+  if (acoes.length === 0) {
+    lista.innerHTML = `
+      <tr data-estado-acoes>
+        <td colspan="4" class="estado-vazio">
+          Nenhuma ação registrada neste set.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  acoes.forEach((acao) => {
+    const linha = document.createElement('tr');
+
+    linha.innerHTML = `
+      <td><strong>${escaparHtml(acao.nome_atleta)}</strong></td>
+      <td>${escaparHtml(acao.fundamento)}</td>
+      <td>${escaparHtml(acao.resultado)}</td>
+      <td>
+        <button
+          type="button"
+          class="botao-remover-acao"
+          data-remover-acao
+          data-id-acao="${acao.id_acao}">
+          Excluir
+        </button>
+      </td>
+    `;
+
+    lista.appendChild(linha);
+  });
+}
+
+
+    async function carregarSetsSalvos(idPartida) {
+    const resposta = await fetch(
+      `/partidas/${idPartida}/desempenho/sets`
+    );
+
+    if (!resposta.ok) {
+      throw new Error('Não foi possível carregar os sets salvos.');
+    }
+
+    return resposta.json();
+  }
+
+
+
   const painel = document.querySelector('.tela-acompanhamento');
   if (!painel) return;
 
   const quantidadeSets = Number(painel.dataset.quantidadeSets || 3);
-  const setsSalvosIniciais = Number(painel.dataset.setsSalvos || 0);
+  
   const somenteLeitura = painel.dataset.somenteLeitura === 'true';
   let partidaEncerrada = false;
 
@@ -227,7 +299,7 @@ function configurarPartidaAoVivo() {
   }
 
   function totalSetsSalvos() {
-    return setsSalvosIniciais + estado.setsSalvos.length;
+    return estado.setsSalvos.length;
   }
 
   function atualizarControleEncerramento() {
@@ -243,6 +315,26 @@ function configurarPartidaAoVivo() {
     }
   }
 
+  const idPartida = window.location.pathname.split('/')[2];
+
+  carregarSetsSalvos(idPartida)
+  .then((sets) => {
+    estado.setsSalvos = sets.map((set) => ({
+      id: Number(set.id_set),
+      numero: Number(set.numero_set),
+      placarCasa: Number(set.placar_casa),
+      placarAdversario: Number(set.placar_adversario),
+      vencedor: set.vencedor
+    }));
+
+    renderizarSetsSalvos();
+    atualizarControleEncerramento();
+  })
+  .catch((erro) => {
+    console.error('Erro ao carregar sets:', erro);
+  });
+
+
   const seletorSet = document.querySelector('[data-seletor-set]');
 
   if (seletorSet) {
@@ -255,7 +347,12 @@ function configurarPartidaAoVivo() {
       if (setAtual) setAtual.textContent = setSelecionado;
       if (setAcao) setAcao.textContent = setSelecionado;
       if (tituloSet) tituloSet.textContent = setSelecionado;
+      carregarAcoesDoSet(Number(setSelecionado))
+        .catch((erro) => console.error('Erro ao carregar ações do set:', erro));
     });
+
+    carregarAcoesDoSet(Number(seletorSet.value || 1))
+      .catch((erro) => console.error('Erro ao carregar ações iniciais:', erro));
   }
 
   function atualizarResumoEncerramento() {
@@ -298,30 +395,110 @@ function configurarPartidaAoVivo() {
   }
 
   function renderizarSetsSalvos() {
-    const lista = document.querySelector('[data-lista-sets-salvos]');
-    if (!lista) return;
+    const indicadorCasa = document.querySelector('[data-sets-casa]');
+    const indicadorAdversario = document.querySelector('[data-sets-adversario]');
 
-    lista.innerHTML = '';
+    const setsCasa = estado.setsSalvos.filter(
+      (set) => set.vencedor === 'MINHA_EQUIPE'
+    ).length;
+    const setsAdversario = estado.setsSalvos.filter(
+      (set) => set.vencedor === 'EQUIPE_ADVERSARIA'
+    ).length;
 
-    if (estado.setsSalvos.length === 0) {
-      const vazio = document.createElement('p');
-      vazio.className = 'texto-secundario';
-      vazio.textContent = 'Nenhum set encerrado.';
-      lista.appendChild(vazio);
+    if (indicadorCasa) indicadorCasa.textContent = setsCasa;
+    if (indicadorAdversario) indicadorAdversario.textContent = setsAdversario;
+  }
+
+  document.querySelector('[data-lista-sets-salvos]')?.addEventListener('click', async (evento) => {
+    const botaoApagar = evento.target.closest('[data-apagar-set]');
+    const botaoEditar = evento.target.closest('[data-editar-set]');
+    const idPartidaAtual = window.location.pathname.split('/')[2];
+
+    if (botaoApagar) {
+      if (!window.confirm('Deseja apagar este set e todas as ações dele?')) return;
+
+      try {
+        const resposta = await fetch(
+          `/partidas/${idPartidaAtual}/desempenho/set/${botaoApagar.dataset.idSet}`,
+          { method: 'DELETE' }
+        );
+        const dados = await resposta.json();
+
+        if (!resposta.ok || dados.erro) {
+          throw new Error(dados.erro || 'Não foi possível apagar o set.');
+        }
+
+        botaoApagar.closest('[data-linha-set]')?.remove();
+        estado.setsSalvos = estado.setsSalvos.filter(
+          (set) => String(set.id) !== String(botaoApagar.dataset.idSet)
+        );
+        renderizarSetsSalvos();
+        atualizarControleEncerramento();
+        await carregarAcoesDoSet(Number(seletorSet?.value || 1));
+        mostrarAviso('Set apagado com sucesso.', 'sucesso');
+      } catch (erro) {
+        mostrarAviso(erro.message, 'informacao');
+      }
       return;
     }
 
-    estado.setsSalvos.forEach((setSalvo) => {
-      const cartao = document.createElement('article');
-      cartao.className = 'cartao-set-salvo';
-      cartao.innerHTML = `
-        <strong>Set ${setSalvo.numero}</strong>
-        <span>${setSalvo.placarCasa} × ${setSalvo.placarAdversario}</span>
-        <small>${setSalvo.vencedor}</small>
-      `;
-      lista.appendChild(cartao);
-    });
-  }
+    if (botaoEditar) {
+      const set = estado.setsSalvos.find(
+        (item) => String(item.id) === String(botaoEditar.dataset.idSet)
+      );
+      if (!set) return;
+
+      const placarCasa = Number(window.prompt('Placar da minha equipe:', set.placarCasa));
+      const placarAdversario = Number(window.prompt('Placar da equipe adversária:', set.placarAdversario));
+
+      if (!Number.isInteger(placarCasa) || !Number.isInteger(placarAdversario) || placarCasa < 0 || placarAdversario < 0) {
+        mostrarAviso('Placar inválido.', 'informacao');
+        return;
+      }
+
+      const vencedor = placarCasa === placarAdversario
+        ? 'EMPATE'
+        : placarCasa > placarAdversario
+          ? 'MINHA_EQUIPE'
+          : 'EQUIPE_ADVERSARIA';
+
+      try {
+        const resposta = await fetch(
+          `/partidas/${idPartidaAtual}/desempenho/set/${set.id}`,
+          {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              placar_casa: placarCasa,
+              placar_adversario: placarAdversario,
+              vencedor: vencedor
+            })
+          }
+        );
+        const dados = await resposta.json();
+
+        if (!resposta.ok || dados.erro) {
+          throw new Error(dados.erro || 'Não foi possível editar o set.');
+        }
+
+        const linha = botaoEditar.closest('[data-linha-set]');
+        if (linha) {
+          linha.children[1].textContent = `${placarCasa} × ${placarAdversario}`;
+          linha.children[2].textContent = vencedor;
+          botaoEditar.dataset.placarCasa = placarCasa;
+          botaoEditar.dataset.placarAdversario = placarAdversario;
+        }
+
+        set.placarCasa = placarCasa;
+        set.placarAdversario = placarAdversario;
+        set.vencedor = vencedor;
+        renderizarSetsSalvos();
+        mostrarAviso('Set editado com sucesso.', 'sucesso');
+      } catch (erro) {
+        mostrarAviso(erro.message, 'informacao');
+      }
+    }
+  });
 
   document.querySelector('[data-salvar-acoes]')?.addEventListener('click', async () => {
     if (partidaEncerrada) {
@@ -350,6 +527,7 @@ function configurarPartidaAoVivo() {
             },
             body: JSON.stringify({
               id_atleta: acao.idAtleta,
+              numero_set: acao.numeroSet,
               fundamento: acao.fundamento,
               resultado: acao.resultado
             })
@@ -411,18 +589,57 @@ function configurarPartidaAoVivo() {
 
   document.querySelector('[data-cancelar-encerramento]')?.addEventListener('click', esconderResumoEncerramento);
 
-  document.querySelector('[data-confirmar-encerramento]')?.addEventListener('click', () => {
-    const numeroSet = Number(seletorSet?.value || 1);
-    let vencedor = 'Empate';
+  document.querySelector('[data-confirmar-encerramento]')?.addEventListener('click', async () => {
+  const numeroSet = Number(seletorSet?.value || 1);
+  let vencedor = 'EMPATE';
 
-    if (estado.placarCasa > estado.placarAdversario) vencedor = 'Minha equipe';
-    if (estado.placarAdversario > estado.placarCasa) vencedor = 'Equipe adversária';
+  if (estado.placarCasa > estado.placarAdversario) {
+    vencedor = 'MINHA_EQUIPE';
+  } else if (estado.placarAdversario > estado.placarCasa) {
+    vencedor = 'EQUIPE_ADVERSARIA';
+  }
+
+  const partes = window.location.pathname.split('/');
+  const idPartida = partes[2];
+  const botaoConfirmar = document.querySelector(
+    '[data-confirmar-encerramento]'
+  );
+
+  if (botaoConfirmar) {
+    botaoConfirmar.disabled = true;
+  }
+
+  try {
+    const resposta = await fetch(
+      `/partidas/${idPartida}/desempenho/set`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          numero_set: numeroSet,
+          placar_casa: estado.placarCasa,
+          placar_adversario: estado.placarAdversario,
+          vencedor: vencedor
+        })
+      }
+    );
+
+    const dados = await resposta.json();
+
+    if (!resposta.ok || dados.erro) {
+      throw new Error(
+        dados.erro || 'Não foi possível salvar o set.'
+      );
+    }
 
     estado.setsSalvos.push({
+      id: Number(dados.id_set),
       numero: numeroSet,
       placarCasa: estado.placarCasa,
       placarAdversario: estado.placarAdversario,
-      vencedor
+      vencedor: vencedor
     });
 
     renderizarSetsSalvos();
@@ -434,18 +651,39 @@ function configurarPartidaAoVivo() {
     atualizarPlacar();
 
     if (totalSetsSalvos() >= quantidadeSets) {
-      mostrarAviso(`Set ${numeroSet} salvo. Agora você pode encerrar a partida.`, 'sucesso');
+      mostrarAviso(
+        `Set ${numeroSet} salvo no banco. Agora você pode encerrar a partida.`,
+        'sucesso'
+      );
       return;
     }
 
-    const proximoSet = Math.min(quantidadeSets, numeroSet + 1);
+    const proximoSet = Math.min(
+      quantidadeSets,
+      numeroSet + 1
+    );
+
     if (seletorSet) {
       seletorSet.value = String(proximoSet);
       seletorSet.dispatchEvent(new Event('change'));
     }
 
-    mostrarAviso(`Set ${numeroSet} salvo. Set ${proximoSet} iniciado.`, 'sucesso');
-  });
+    mostrarAviso(
+      `Set ${numeroSet} salvo no banco. Set ${proximoSet} iniciado.`,
+      'sucesso'
+    );
+  } catch (erro) {
+    mostrarAviso(
+      erro.message || 'Erro ao salvar o set.',
+      'informacao'
+    );
+  } finally {
+    if (botaoConfirmar) {
+      botaoConfirmar.disabled = false;
+    }
+  }
+});
+
 
   document.querySelectorAll('[data-alterar-placar]').forEach((botao) => {
     botao.disabled = somenteLeitura;
@@ -492,7 +730,7 @@ function configurarPartidaAoVivo() {
   });
 
   document.querySelectorAll('[data-resultado-acao]').forEach((botao) => {
-    botao.addEventListener('click', () => {
+    botao.addEventListener('click', async () => {
       if (!estado.atletaId || !estado.fundamento) return;
 
       if (somenteLeitura) {
@@ -505,17 +743,56 @@ function configurarPartidaAoVivo() {
       const nomeAcao = nomesFundamentos[fundamento];
       const textoResultado = botao.textContent.trim();
 
-      estado.acoesPendentes.push({
-        idAtleta: estado.atletaId,
-        fundamento: fundamento,
-        resultado: resultado
-      });
-
-      adicionarAcao(estado.atletaNome, nomeAcao, textoResultado);
-      mostrarAviso(
-        'Ação adicionada. Clique em Salvar ações para gravar no banco.',
-        'informacao'
+      const numeroSet = Number(seletorSet?.value || 1);
+      const linha = adicionarAcao(
+        estado.atletaNome,
+        nomeAcao,
+        textoResultado
       );
+
+      try {
+        const idPartida = window.location.pathname.split('/')[2];
+        const resposta = await fetch(
+          `/partidas/${idPartida}/desempenho/acao`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              id_atleta: Number(estado.atletaId),
+              numero_set: numeroSet,
+              fundamento: fundamento,
+              resultado: resultado
+            })
+          }
+        );
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok || dados.erro) {
+          throw new Error(
+            dados.erro || 'Não foi possível salvar a ação.'
+          );
+        }
+
+        if (linha && dados.id_acao) {
+          linha.dataset.idAcao = dados.id_acao;
+          linha.querySelector('[data-remover-acao]')
+            ?.setAttribute('data-id-acao', dados.id_acao);
+        }
+
+        mostrarAviso(
+          'Ação salva no banco com sucesso.',
+          'sucesso'
+        );
+      } catch (erro) {
+        linha?.remove();
+        mostrarAviso(
+          erro.message || 'Não foi possível salvar a ação.',
+          'informacao'
+        );
+      }
 
       const painelResultados = document.querySelector('[data-painel-resultados]');
       if (painelResultados) {
@@ -538,36 +815,63 @@ function configurarPartidaAoVivo() {
   const listaAcoesRegistradas = document.querySelector('[data-lista-acoes-registradas]');
 
   if (listaAcoesRegistradas) {
-    listaAcoesRegistradas.addEventListener('click', (evento) => {
+    listaAcoesRegistradas.addEventListener('click', async (evento) => {
       const botaoRemover = evento.target.closest('[data-remover-acao]');
+      if (!botaoRemover) return;
 
-      if (!botaoRemover) {
+      if (!window.confirm('Deseja excluir esta ação do set?')) return;
+
+      const idPartidaAtual = window.location.pathname.split('/')[2];
+      const idAcao = botaoRemover.dataset.idAcao;
+      const resposta = await fetch(
+        `/partidas/${idPartidaAtual}/desempenho/acao/${idAcao}`,
+        { method: 'DELETE' }
+      );
+      const dados = await resposta.json();
+
+      if (!resposta.ok || !dados.sucesso) {
+        mostrarAviso(dados.erro || 'Não foi possível excluir a ação.', 'informacao');
         return;
       }
 
-      const linha = botaoRemover.closest('tr');
-      const confirmou = window.confirm('Deseja excluir esta ação do set?');
-
-      if (confirmou && linha) {
-        linha.remove();
-        mostrarAviso('Ação excluída do set.', 'sucesso');
-      }
+      botaoRemover.closest('tr')?.remove();
+      mostrarAviso('Ação excluída do set.', 'sucesso');
     });
   }
 
   function adicionarAcao(jogador, acao, resultado) {
-    const lista = document.querySelector('[data-lista-acoes-registradas]');
-    if (!lista) return;
+    const lista = document.querySelector(
+      '[data-lista-acoes-registradas]'
+    );
+
+    if (!lista) return null;
+
     document.querySelector('[data-estado-acoes]')?.remove();
 
     const linha = document.createElement('tr');
     linha.innerHTML = `
-      <td><strong>${escaparHtml(jogador)}</strong></td>
+      <td>
+        <strong>${escaparHtml(jogador)}</strong>
+      </td>
       <td>${escaparHtml(acao)}</td>
-      <td><span class="etiqueta etiqueta-verde">${escaparHtml(resultado)}</span></td>
-      <td><button type="button" class="botao-remover-acao" data-remover-acao>Remover</button></td>
+      <td>
+        <span class="etiqueta etiqueta-verde">
+          ${escaparHtml(resultado)}
+        </span>
+      </td>
+      <td>
+        <button
+          type="button"
+          class="botao-remover-acao"
+          data-remover-acao
+          data-id-acao="">
+          Remover
+        </button>
+      </td>
     `;
+
     lista.appendChild(linha);
+    return linha;
   }
 
   atualizarControleEncerramento();

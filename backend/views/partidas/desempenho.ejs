@@ -81,10 +81,13 @@
                       </label>
 
                         <span class="placar-sets">
-                          <b data-sets-casa><%= setsCasa %></b>
-                          <i>×</i>
-                          <b data-sets-adversario><%= setsAdversario %></b>
-                      </span>
+    <b data-sets-casa><%= setsCasa %></b>
+    <i>×</i>
+    <b data-sets-adversario><%= setsAdversario %></b>
+</span>
+
+<small>sets ganhos</small>
+
 
                         <small>sets vencidos</small>
 
@@ -107,7 +110,7 @@
                     </div>
 
                 </section>
-                <section <div class="quadra-banco-lado-a-lado">
+                <section class="quadra-banco-lado-a-lado">
                     <section class="quadra-partida cartao">
                         <div class="cabecalho-secao">
                             <div>
@@ -161,7 +164,6 @@
                         </div>
                     </section>
                     </div>
-                </section>
 
                 <section class="painel-acao-set cartao">
                     <div class="cabecalho-secao">
@@ -198,40 +200,193 @@
                     </div>
                 </section>
 
+
                 <section class="secao tabela-acoes-set cartao">
-                    <div class="cabecalho-secao">
-                        <div>
-                            <h2>Ações do set <span data-titulo-set><%= numeroSetAtual %></span></h2>
-                            <p class="subtitulo">Ações registradas nesta etapa.</p>
-                        </div>
+    <div class="cabecalho-secao">
+        <div>
+            <h2>
+                Ações do set
+                <span data-titulo-set><%= numeroSetAtual %></span>
+            </h2>
+
+            <p class="subtitulo">
+                Ações registradas nesta etapa.
+            </p>
+        </div>
+    </div>
+
+    <div class="envoltorio-tabela">
+        <table>
+            <thead>
+                <tr>
+                    <th>Atleta</th>
+                    <th>Fundamento</th>
+                    <th>Resultado</th>
+                    <th>Excluir</th>
+                </tr>
+            </thead>
+
+            <tbody data-lista-acoes-registradas>
+                <% if (typeof listaAcoes !== 'undefined' && listaAcoes.length > 0) { %>
+                    <% listaAcoes.forEach((acao) => { %>
+                        <tr>
+                            <td>
+                                <strong>
+                                    <%= acao.nome_atleta || acao.nomeAtleta || 'Atleta' %>
+                                </strong>
+                            </td>
+
+                            <td>
+                                <%= acao.fundamento || acao.acao || '' %>
+                            </td>
+
+                            <td>
+                                <span class="etiqueta verde">
+                                    <%= acao.resultado || '' %>
+                                </span>
+                            </td>
+
+                            <td>
+                                <button
+                                    type="button"
+                                    class="botao-remover-acao"
+                                    data-remover-acao
+                                    data-id-acao="<%= acao.id_acao || acao.id || '' %>">
+                                    Remover
+                                </button>
+                            </td>
+                        </tr>
+                    <% }); %>
+                <% } else { %>
+                    <tr data-estado-acoes>
+                        <td colspan="4" class="estado-vazio">
+                            Nenhuma ação registrada neste set.
+                        </td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+                                <section class="secao tabela-sets cartao">
+    <div class="cabecalho-secao">
+        <div>
+            <h2>Sets registrados</h2>
+            <p class="subtitulo">
+                Sets salvos nesta partida.
+            </p>
+        </div>
+    </div>
+
+    <div class="envoltorio-tabela">
+        <table>
+            <thead>
+                <tr>
+                    <th>Set</th>
+                    <th>Placar</th>
+                    <th>Resultado</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+
+            <tbody data-lista-sets-salvos>
+                <% if (typeof setsSalvos !== 'undefined' && setsSalvos.length > 0) { %>
+                    <% setsSalvos.forEach((set) => { %>
+                        <tr
+                            data-linha-set
+                            data-id-set="<%= set.id_set %>">
+
+                            <td>
+                                <strong>
+                                    Set <%= set.numero_set %>
+                                </strong>
+                            </td>
+
+                            <td data-placar-set>
+                                <%= set.placar_casa %>
+                                ×
+                                <%= set.placar_adversario %>
+                            </td>
+
+                            <td data-vencedor-set>
+                                <span class="etiqueta verde">
+                                    <%= set.vencedor %>
+                                </span>
+                            </td>
+
+                            <td class="acoes-set">
+                                <button
+                                    type="button"
+                                    class="botao secundario"
+                                    data-editar-set
+                                    data-id-set="<%= set.id_set %>"
+                                    data-numero-set="<%= set.numero_set %>"
+                                    data-placar-casa="<%= set.placar_casa %>"
+                                    data-placar-adversario="<%= set.placar_adversario %>">
+                                    Editar
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="botao perigo"
+                                    data-apagar-set
+                                    data-id-set="<%= set.id_set %>">
+                                    Apagar
+                                </button>
+                            </td>
+                        </tr>
+                    <% }); %>
+                <% } else { %>
+                    <tr data-nenhum-set>
+                        <td colspan="4" class="estado-vazio">
+                            Nenhum set encerrado.
+                        </td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+
+                <section
+                    class="resumo-encerramento-set cartao"
+                    data-resumo-encerramento
+                    hidden>
+
+                    <div class="texto-resumo-encerramento">
+                        <h2>
+                            Encerrar set
+                            <span data-resumo-numero-set>
+                                <%= numeroSetAtual %>
+                            </span>
+                        </h2>
+                        <p>Confira o placar antes de salvar este set.</p>
                     </div>
-                    <div class="envoltorio-tabela">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Atleta</th>
-                                    <th>Fundamento</th>
-                                    <th>Resultado</th>
-                                    <th>Excluir</th>
-                                </tr>
-                            </thead>
-                            <tbody data-lista-acoes-registradas>
-                                <% if (listaAcoes.length) { listaAcoes.forEach((acao) => { %>
-                                    <tr>
-                                        <td><strong><%= acao.nome_atleta || acao.nomeAtleta || 'Atleta' %></strong></td>
-                                        <td>
-                                            <%= acao.acao || acao.fundamento %>
-                                        </td>
-                                        <td><span class="etiqueta verde"><%= acao.resultado %></span></td>
-                                        <td><button type="button" class="botao-remover-acao" data-remover-acao data-id-acao="<%= acao.id_acao || acao.id || '' %>">Excluir</button></td>
-                                    </tr>
-                                    <% }); } else { %>
-                                        <tr data-estado-acoes>
-                                            <td colspan="4" class="estado-vazio">Nenhuma ação registrada neste set.</td>
-                                        </tr>
-                                        <% } %>
-                            </tbody>
-                        </table>
+
+                    <div class="resumo-placar-set">
+                        <strong>Placar</strong>
+                        <span data-resumo-placar>0 × 0</span>
+                        <small data-resumo-vencedor>
+                            O set está empatado
+                        </small>
+                    </div>
+
+                    <div class="acoes-resumo-set">
+                        <button
+                            type="button"
+                            class="botao secundario"
+                            data-cancelar-encerramento>
+                            Voltar
+                        </button>
+
+                        <button
+                            type="button"
+                            class="botao principal"
+                            data-confirmar-encerramento>
+                            Confirmar e salvar set
+                        </button>
                     </div>
                 </section>
             </main>

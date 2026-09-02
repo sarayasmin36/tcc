@@ -1,282 +1,350 @@
 <%- include('parciais/cabecalho.ejs', { titulo: 'Relatórios | VoleiStats' }) %>
-    <%- include('parciais/menu_lateral.ejs') %>
+<%- include('parciais/menu_lateral.ejs') %>
 
-        <%
-            const listaRelatorios =
-                typeof relatorios !== 'undefined' && Array.isArray(relatorios)
-                    ? relatorios
-                    : [];
+<%
+    const listaRelatorios =
+        typeof relatorios !== 'undefined' && Array.isArray(relatorios)
+            ? relatorios
+            : [];
 
-            const soma = (campo) => listaRelatorios.reduce(
-                (total, item) => total + Number(item[campo] || 0),
-                0
-            );
+    const listaSets =
+        typeof setsSalvos !== 'undefined' && Array.isArray(setsSalvos)
+            ? setsSalvos
+            : typeof sets !== 'undefined' && Array.isArray(sets)
+                ? sets
+                : [];
 
-            const ataquesCertos = soma('ataques_certos');
-            const ataquesErrados = soma('ataques_errados');
-            const recepcoesCertas = soma('recepcoes_certas');
-            const recepcoesErradas = soma('recepcoes_erradas');
-            const bloqueiosCertos = soma('bloqueios_certos');
-            const bloqueiosErrados = soma('bloqueios_errados');
-            const saquesCertos = soma('saques_certos');
-            const saquesErrados = soma('saques_errados');
+    const listaAcoes =
+        typeof acoes !== 'undefined' && Array.isArray(acoes)
+            ? acoes
+            : [];
 
-            const totalAtaques = ataquesCertos + ataquesErrados;
-            const totalRecepcoes = recepcoesCertas + recepcoesErradas;
-            const totalBloqueios = bloqueiosCertos + bloqueiosErrados;
-            const totalSaques = saquesCertos + saquesErrados;
-            const totalErros = ataquesErrados + recepcoesErradas
-                + bloqueiosErrados + saquesErrados;
+    const soma = (campo) => listaRelatorios.reduce(
+        (total, item) => total + Number(item[campo] || 0),
+        0
+    );
 
-            const percentual = (certos, total) => total > 0
-                ? Math.round((certos / total) * 100)
-                : 0;
-        %>
+    const ataquesCertos = soma('ataques_certos');
+    const ataquesErrados = soma('ataques_errados');
+    const levantamentosCertos = soma('levantamentos_certos');
+    const levantamentosErrados = soma('levantamentos_errados');
+    const saquesCertos = soma('saques_certos');
+    const saquesErrados = soma('saques_errados');
+    const aces = soma('aces');
+    const bloqueiosCertos = soma('bloqueios_certos');
+    const bloqueiosErrados = soma('bloqueios_errados');
+    const recepcoesCertas = soma('recepcoes_certas');
+    const recepcoesErradas = soma('recepcoes_erradas');
+    const passesCertos = soma('passes_certos');
+    const passesErrados = soma('passes_errados');
+    const faltas = soma('faltas');
 
-        <main class="conteudo-principal">
-            <header class="barra-superior">
+    const totalAtaques = ataquesCertos + ataquesErrados;
+    const totalLevantamentos = levantamentosCertos + levantamentosErrados;
+    const totalSaques = saquesCertos + saquesErrados;
+    const totalBloqueios = bloqueiosCertos + bloqueiosErrados;
+    const totalRecepcoes = recepcoesCertas + recepcoesErradas;
+    const totalPasses = passesCertos + passesErrados;
+
+    const totalAcoes = totalAtaques
+        + totalLevantamentos
+        + totalSaques
+        + totalBloqueios
+        + totalRecepcoes
+        + totalPasses
+        + faltas;
+
+    const totalErros = ataquesErrados
+        + levantamentosErrados
+        + saquesErrados
+        + bloqueiosErrados
+        + recepcoesErradas
+        + passesErrados
+        + faltas;
+
+    const percentual = (certos, total) => total > 0
+        ? Math.round((certos / total) * 100)
+        : 0;
+
+    const percentualGeral = totalAcoes > 0
+        ? Math.round(((totalAcoes - totalErros) / totalAcoes) * 100)
+        : 0;
+
+    const valor = (objeto, campo) => Number(objeto?.[campo] || 0);
+%>
+
+<main class="conteudo-principal">
+    <header class="barra-superior">
+        <div>
+            <h1>Relatórios</h1>
+            <p class="subtitulo">
+                Analise partidas, sets, ações e desempenho das atletas.
+            </p>
+        </div>
+    </header>
+
+    <section class="grade metricas">
+        <article class="cartao">
+            <span class="rotulo-metrica">Aproveitamento geral</span>
+            <strong class="valor-metrica"><%= percentualGeral %>%</strong>
+        </article>
+
+        <article class="cartao">
+            <span class="rotulo-metrica">Atletas analisados</span>
+            <strong class="valor-metrica"><%= listaRelatorios.length %></strong>
+            <span class="observacao-metrica">
+                Com dados registrados
+            </span>
+        </article>
+
+        <article class="cartao">
+            <span class="rotulo-metrica">Ações registradas</span>
+                    <%= totalAcoes %> ações analisadas
+            <span class="observacao-metrica">
+                Participações contabilizadas
+            </span>
+        </article>
+
+        <article class="cartao">
+            <span class="rotulo-metrica">Erros registrados</span>
+            <strong class="valor-metrica"><%= totalErros %></strong>
+            <span class="observacao-metrica">
+                Em todos os fundamentos
+            </span>
+        </article>
+    </section>
+
+    <section class="secao cartao">
+        <div class="cabecalho-secao">
+            <div>
+                <h2>Desempenho por fundamento</h2>
+                <p class="subtitulo">
+                    Totais certos, errados e aproveitamento de cada fundamento.
+                </p>
+            </div>
+        </div>
+
+        <div class="envoltorio-tabela">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fundamento</th>
+                        <th>Certos</th>
+                        <th>Errados</th>
+                        <th>Total</th>
+                        <th>Aproveitamento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Passe</strong></td>
+                        <td><%= passesCertos %></td>
+                        <td><%= passesErrados %></td>
+                        <td><%= totalPasses %></td>
+                        <td><%= percentual(passesCertos, totalPasses) %>%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Ataque</strong></td>
+                        <td><%= ataquesCertos %></td>
+                        <td><%= ataquesErrados %></td>
+                        <td><%= totalAtaques %></td>
+                        <td><%= percentual(ataquesCertos, totalAtaques) %>%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Levantamento</strong></td>
+                        <td><%= levantamentosCertos %></td>
+                        <td><%= levantamentosErrados %></td>
+                        <td><%= totalLevantamentos %></td>
+                        <td><%= percentual(levantamentosCertos, totalLevantamentos) %>%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Saque</strong></td>
+                        <td><%= saquesCertos %></td>
+                        <td><%= saquesErrados %></td>
+                        <td><%= totalSaques %></td>
+                        <td><%= percentual(saquesCertos, totalSaques) %>%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Bloqueio</strong></td>
+                        <td><%= bloqueiosCertos %></td>
+                        <td><%= bloqueiosErrados %></td>
+                        <td><%= totalBloqueios %></td>
+                        <td><%= percentual(bloqueiosCertos, totalBloqueios) %>%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Recepção</strong></td>
+                        <td><%= recepcoesCertas %></td>
+                        <td><%= recepcoesErradas %></td>
+                        <td><%= totalRecepcoes %></td>
+                        <td><%= percentual(recepcoesCertas, totalRecepcoes) %>%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Aces</strong></td>
+                        <td><%= aces %></td>
+                        <td>—</td>
+                        <td><%= aces %></td>
+                        <td>—</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Faltas</strong></td>
+                        <td>—</td>
+                        <td><%= faltas %></td>
+                        <td><%= faltas %></td>
+                        <td>—</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="grade duas-colunas">
+        <article class="cartao">
+            <div class="cabecalho-secao">
                 <div>
-                    <h1>Relatórios</h1>
-                    <p class="subtitulo">
-                        Analise a evolução e o desempenho da sua equipe.
-                    </p>
+                    <h2>Aproveitamento</h2>
+                    <p class="subtitulo">Percentual de ações certas.</p>
                 </div>
+            </div>
 
-                <div class="acoes-superiores">
-                    <button
-                        type="button"
-                        class="botao secundario botao-bloqueado"
-                        disabled
-                        title="Disponível após o registro de desempenhos">
-                        Exportação em desenvolvimento
-                    </button>
+            <div class="lista-indicadores">
+                <% const indicadores = [
+                    ['Passe', passesCertos, totalPasses],
+                    ['Ataque', ataquesCertos, totalAtaques],
+                    ['Levantamento', levantamentosCertos, totalLevantamentos],
+                    ['Saque', saquesCertos, totalSaques],
+                    ['Bloqueio', bloqueiosCertos, totalBloqueios],
+                    ['Recepção', recepcoesCertas, totalRecepcoes]
+                ]; %>
+
+                <% indicadores.forEach(([nome, certos, total]) => { %>
+                    <div class="indicador">
+                        <div class="cabecalho-indicador">
+                            <span><%= nome %></span>
+                            <strong><%= percentual(certos, total) %>%</strong>
+                        </div>
+                        <div class="barra-indicador">
+                            <span style="width: <%= percentual(certos, total) %>%"></span>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        </article>
+
+        <article class="cartao">
+            <div class="cabecalho-secao">
+                <div>
+                    <h2>Sets registrados</h2>
+                    <p class="subtitulo">Resultados dos sets disponíveis.</p>
                 </div>
-            </header>
+            </div>
 
-            <section class="grade metricas">
-                <article class="cartao">
-                    <span class="rotulo-metrica">
-                        Aproveitamento geral
-                    </span>
-                    <strong class="valor-metrica">
-                        <%= listaRelatorios.length %>
-                    </strong>
-                    <span class="observacao-metrica">
-                        Atletas com dados registrados
-                    </span>
-                </article>
-
-                <article class="cartao">
-                    <span class="rotulo-metrica">
-                        Ataques positivos
-                    </span>
-                    <strong class="valor-metrica">
-                        <%= percentual(ataquesCertos, totalAtaques) %>%
-                    </strong>
-                    <span class="observacao-metrica">
-                        <%= ataquesCertos %> ataques certos
-                    </span>
-                </article>
-
-                <article class="cartao">
-                    <span class="rotulo-metrica">
-                        Recepções positivas
-                    </span>
-                    <strong class="valor-metrica">
-                        <%= percentual(recepcoesCertas, totalRecepcoes) %>%
-                    </strong>
-                    <span class="observacao-metrica">
-                        <%= recepcoesCertas %> recepções certas
-                    </span>
-                </article>
-
-                <article class="cartao">
-                    <span class="rotulo-metrica">
-                        Erros por set
-                    </span>
-                    <strong class="valor-metrica">
-                        <%= totalErros %>
-                    </strong>
-                    <span class="observacao-metrica">
-                        Erros registrados
-                    </span>
-                </article>
-            </section>
-
-            <section class="grade duas-colunas">
-                <article class="cartao">
-                    <div class="cabecalho-secao">
-                        <div>
-                            <h2>Aproveitamento por fundamento</h2>
-                            <p class="subtitulo">
-                                Resumo dos principais fundamentos.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="lista-indicadores" id="lista-indicadores">
-                        <div class="indicador">
-                            <div class="cabecalho-indicador">
-                                <span>Ataque</span>
-                                <strong>
-                                    <%= percentual(ataquesCertos, totalAtaques) %>%
-                                </strong>
-                            </div>
-                            <div class="barra-indicador">
-                                <span style="width: <%= percentual(ataquesCertos, totalAtaques) %>%"></span>
-                            </div>
-                        </div>
-
-                        <div class="indicador">
-                            <div class="cabecalho-indicador">
-                                <span>Bloqueio</span>
-                                <strong>
-                                    <%= percentual(bloqueiosCertos, totalBloqueios) %>%
-                                </strong>
-                            </div>
-                            <div class="barra-indicador">
-                                <span style="width: <%= percentual(bloqueiosCertos, totalBloqueios) %>%"></span>
-                            </div>
-                        </div>
-
-                        <div class="indicador">
-                            <div class="cabecalho-indicador">
-                                <span>Saque</span>
-                                <strong>
-                                    <%= percentual(saquesCertos, totalSaques) %>%
-                                </strong>
-                            </div>
-                            <div class="barra-indicador">
-                                <span style="width: <%= percentual(saquesCertos, totalSaques) %>%"></span>
-                            </div>
-                        </div>
-
-                        <div class="indicador">
-                            <div class="cabecalho-indicador">
-                                <span>Recepção</span>
-                                <strong>
-                                    <%= percentual(recepcoesCertas, totalRecepcoes) %>%
-                                </strong>
-                            </div>
-                            <div class="barra-indicador">
-                                <span style="width: <%= percentual(recepcoesCertas, totalRecepcoes) %>%"></span>
-                            </div>
-                        </div>
-                    </div>
-                </article>
-
-                <article class="cartao">
-                    <div class="cabecalho-secao">
-                        <div>
-                            <h2>Desempenho por set</h2>
-                            <p class="subtitulo">
-                                Comparação dos sets registrados.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div
-                        class="grafico"
-                        id="grafico-sets"
-                        data-grafico-sets>
-                        <div
-                            class="coluna"
-                            style="height: 0%"
-                            data-set="1">
-                            <span class="valor-coluna">—</span>
-                            <small>Set 1</small>
-                        </div>
-
-                        <div
-                            class="coluna"
-                            style="height: 0%"
-                            data-set="2">
-                            <span class="valor-coluna">—</span>
-                            <small>Set 2</small>
-                        </div>
-
-                        <div
-                            class="coluna"
-                            style="height: 0%"
-                            data-set="3">
-                            <span class="valor-coluna">—</span>
-                            <small>Set 3</small>
-                        </div>
-
-                        <div
-                            class="coluna"
-                            style="height: 0%"
-                            data-set="4">
-                            <span class="valor-coluna">—</span>
-                            <small>Set 4</small>
-                        </div>
-                    </div>
-                </article>
-            </section>
-
-            <section class="secao">
-                <div class="cabecalho-secao">
-                    <div>
-                        <h2>Atletas em destaque</h2>
-                        <p class="subtitulo">
-                            Os melhores desempenhos aparecerão aqui.
-                        </p>
-                    </div>
-                </div>
-
-                <% if (listaRelatorios.length === 0) { %>
-                    <div class="estado-vazio">
-                        <h3>Ainda não há desempenho para analisar</h3>
-                        <p class="texto-secundario">
-                            Registre uma partida e lance os fundamentos de cada atleta para gerar relatórios.
-                        </p>
-
-                        <% if (usuario && usuario.tipo_usuario === 'TREINADOR') { %>
-                            <a
-                                href="/partidas/cadastro"
-                                class="botao principal">
-                                Registrar partida
-                            </a>
-                        <% } %>
-                    </div>
-                <% } else { %>
-                    <div class="envoltorio-tabela">
-                        <table>
-                            <thead>
+            <% if (listaSets.length > 0) { %>
+                <div class="envoltorio-tabela">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Set</th>
+                                <th>Placar</th>
+                                <th>Vencedor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% listaSets.forEach((set) => { %>
                                 <tr>
-                                    <th>Atleta</th>
-                                    <th>Equipe</th>
-                                    <th>Partidas</th>
-                                    <th>Ataques certos</th>
-                                    <th>Levantamentos certos</th>
-                                    <th>Saques certos</th>
-                                    <th>Bloqueios certos</th>
-                                    <th>Recepções certas</th>
+                                    <td>
+                                        Set <%= set.numero_set || set.numero || '—' %>
+                                    </td>
+                                    <td>
+                                        <%= set.placar_casa || set.placarCasa || 0 %>
+                                        ×
+                                        <%= set.placar_adversario || set.placarAdversario || 0 %>
+                                    </td>
+                                    <td><%= set.vencedor || '—' %></td>
                                 </tr>
-                            </thead>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <div class="estado-vazio">
+                    Nenhum set foi enviado para este relatório.
+                </div>
+            <% } %>
+        </article>
+    </section>
 
-                            <tbody>
-                                <% listaRelatorios.forEach((relatorio) => { %>
-                                    <tr>
-                                        <td>
-                                            <strong>
-                                                <%= relatorio.nome_atleta %>
-                                            </strong>
-                                        </td>
-                                        <td><%= relatorio.nome_equipe %></td>
-                                        <td><%= relatorio.total_partidas %></td>
-                                        <td><%= relatorio.ataques_certos || 0 %></td>
-                                        <td><%= relatorio.levantamentos_certos || 0 %></td>
-                                        <td><%= relatorio.saques_certos || 0 %></td>
-                                        <td><%= relatorio.bloqueios_certos || 0 %></td>
-                                        <td><%= relatorio.recepcoes_certas || 0 %></td>
-                                    </tr>
-                                <% }); %>
-                            </tbody>
-                        </table>
-                    </div>
-                <% } %>
-            </section>
-        </main>
+    <section class="secao cartao">
+        <div class="cabecalho-secao">
+            <div>
+                <h2>Desempenho por atleta</h2>
+                <p class="subtitulo">
+                    Todos os totais retornados pelo banco de dados.
+                </p>
+            </div>
+        </div>
 
-        <%- include('parciais/rodape.ejs') %>
+        <% if (listaRelatorios.length === 0) { %>
+            <div class="estado-vazio">
+                <h3>Ainda não há desempenho para analisar</h3>
+                <p class="texto-secundario">
+                    Registre uma partida e lance os fundamentos das atletas para gerar relatórios.
+                </p>
+            </div>
+        <% } else { %>
+            <div class="envoltorio-tabela">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Atleta</th>
+                            <th>Equipe</th>
+                            <th>Partidas</th>
+                            <th>Ataques certos</th>
+                            <th>Ataques errados</th>
+                            <th>Levantamentos certos</th>
+                            <th>Levantamentos errados</th>
+                            <th>Saques certos</th>
+                            <th>Saques errados</th>
+                            <th>Aces</th>
+                            <th>Bloqueios certos</th>
+                            <th>Bloqueios errados</th>
+                            <th>Recepções certas</th>
+                            <th>Recepções erradas</th>
+                            <th>Passes certos</th>
+                            <th>Passes errados</th>
+                            <th>Faltas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% listaRelatorios.forEach((relatorio) => { %>
+                            <tr>
+                                <td>
+                                    <strong>
+                                        <%= relatorio.nome_atleta || 'Atleta' %>
+                                    </strong>
+                                </td>
+                                <td><%= relatorio.nome_equipe || '—' %></td>
+                                <td><%= relatorio.total_partidas || 0 %></td>
+                                <td><%= relatorio.ataques_certos || 0 %></td>
+                                <td><%= relatorio.ataques_errados || 0 %></td>
+                                <td><%= relatorio.levantamentos_certos || 0 %></td>
+                                <td><%= relatorio.levantamentos_errados || 0 %></td>
+                                <td><%= relatorio.saques_certos || 0 %></td>
+                                <td><%= relatorio.saques_errados || 0 %></td>
+                                <td><%= relatorio.aces || 0 %></td>
+                                <td><%= relatorio.bloqueios_certos || 0 %></td>
+                                <td><%= relatorio.bloqueios_errados || 0 %></td>
+                                <td><%= relatorio.recepcoes_certas || 0 %></td>
+                                <td><%= relatorio.recepcoes_erradas || 0 %></td>
+                                <td><%= relatorio.passes_certos || 0 %></td>
+                                <td><%= relatorio.passes_errados || 0 %></td>
+                                <td><%= relatorio.faltas || 0 %></td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        <% } %>
+    </section>
+</main>
+
+<%- include('parciais/rodape.ejs') %>

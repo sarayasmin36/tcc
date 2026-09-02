@@ -386,133 +386,400 @@ router.post('/partidas', exigirTreinador, (req, res) => {
     );
 });
 
-// ============================
-// VISUALIZAR DESEMPENHO
-// ============================
-router.get('/partidas/:id/desempenho', exigirLogin, (req, res) => {
-    const idPartida = req.params.id;
-    const usuario = req.session.usuario;
-    let filtroEquipe;
-    let parametroEquipe;
+// salvar set
 
-    if (usuario.tipo_usuario === 'TREINADOR') {
-        filtroEquipe = 'e.id_treinador = ?';
-        parametroEquipe = usuario.id_treinador;
-    } else {
-        filtroEquipe = `
-            e.id_equipe IN (
-                SELECT me.id_equipe
-                FROM membro_equipe me
-                WHERE me.id_atleta = ?
-                  AND me.status = 'ATIVO'
-            )
-        `;
-        parametroEquipe = usuario.id_atleta;
+router.get('/partidas/:id/desempenho/sets', exigirLogin, (req, res) => {
+    const idPartida = Number(req.params.id);
+
+    const sql = `
+        SELECT
+            id_set,
+            numero_set,
+            placar_casa,
+            placar_adversario,
+            vencedor
+        FROM set_partida
+        WHERE id_partida = ?
+        ORDER BY numero_set ASC
+    `;
+
+    banco.query(sql, [idPartida], (erro, sets) => {
+        if (erro) {
+            console.error('Erro ao buscar sets:', erro);
+            return res.status(500).json({
+                erro: 'Não foi possível carregar os sets.'
+            });
+        }
+
+        return res.json(sets);
+    });
+});
+
+router.post('/partidas/:id/desempenho/set', exigirLogin, (req, res) => {
+    const idPartida = Number(req.params.id);
+    const numeroSet = Number(req.body.numero_set);
+    const placarCasa = Number(req.body.placar_casa);
+    const placarAdversario = Number(req.body.placar_adversario);
+    const vencedor = String(req.body.vencedor || 'EMPATE');
+
+    if (!idPartida || !numeroSet) {
+        return res.status(400).json({
+            erro: 'Partida ou número do set inválido.'
+        });
     }
 
-    const sqlPartida = `
-        SELECT
-            p.id_partida,
-            e.id_equipe,
-            e.nome AS nome_equipe,
-            p.nome_equipe_adversaria,
-            p.quantidade_sets,
-            p.status,
-            pp.placar,
-            pp.resultado
-        FROM partida p
-        INNER JOIN participacao_partida pp
-            ON pp.id_partida = p.id_partida
-        INNER JOIN equipe e
-            ON e.id_equipe = pp.id_equipe
-        WHERE p.id_partida = ?
-          AND ${filtroEquipe}
-        LIMIT 1
+    if (
+        !Number.isInteger(placarCasa) ||
+        !Number.isInteger(placarAdversario) ||
+        placarCasa < 0 ||
+        placarAdversario < 0
+    ) {
+        return res.status(400).json({
+            erro: 'Placar inválido.'
+        });
+    }
+
+    const vencedoresPermitidos = [
+        'MINHA_EQUIPE',
+        'EQUIPE_ADVERSARIA',
+        'EMPATE'
+    ];
+
+    if (!vencedoresPermitidos.includes(vencedor)) {
+        return res.status(400).json({
+            erro: 'Vencedor inválido.'
+        });
+    }
+
+    const sql = `
+        INSERT INTO set_partida
+            (
+                id_partida,
+                numero_set,
+                placar_casa,
+                placar_adversario,
+                vencedor
+            )
+        VALUES (?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE
+            placar_casa = VALUES(placar_casa),
+            placar_adversario = VALUES(placar_adversario),
+            vencedor = VALUES(vencedor)
     `;
 
     banco.query(
-        sqlPartida,
-        [idPartida, parametroEquipe],
-        (erroPartida, partidas) => {
-            if (erroPartida) {
-                console.log('Erro ao buscar partida:', erroPartida);
-                return res.send('Erro ao buscar partida.');
+        sql,
+        [
+            idPartida,
+            numeroSet,
+            placarCasa,
+            placarAdversario,
+            vencedor
+        ],
+        (erro, resultado) => {
+            if (erro) {
+                console.error('Erro ao salvar set:', erro);
+                return res.status(500).json({
+                    erro: 'Não foi possível salvar o set no banco.'
+                });
             }
 
-            if (partidas.length === 0) {
-                return res.status(404).send('Partida não encontrada.');
-            }
-
-            const partida = partidas[0];
-
-            const sqlAtletas = `
-                SELECT
-                    a.id_atleta,
-                    COALESCE(a.nome, u.nome) AS nome,
-                    a.numero_camisa,
-                    a.posicao,
-                    pa.titular
-                FROM participacao_atleta pa
-                INNER JOIN atleta a
-                    ON a.id_atleta = pa.id_atleta
-                LEFT JOIN usuario u
-                    ON u.id_usuario = a.id_usuario
-                INNER JOIN membro_equipe me
-                    ON me.id_atleta = pa.id_atleta
-                   AND me.id_equipe = pa.id_equipe
-                WHERE pa.id_partida = ?
-                  AND pa.id_equipe = ?
-                  AND me.status = 'ATIVO'
-                ORDER BY pa.titular DESC, COALESCE(a.nome, u.nome)
-            `;
-
-                    banco.query(
-                sqlAtletas,
-                [idPartida, partida.id_equipe],
-                (erroAtletas, atletas) => {
-                    if (erroAtletas) {
-                        console.log('Erro ao buscar atletas:', erroAtletas);
-                        atletas = [];
-                    }
-
-                    let proximaPosicaoTitular = 1;
-
-                    atletas.forEach((atleta) => {
-                        if (
-                            Number(atleta.titular) === 1 &&
-                            !atleta.posicao_inicial &&
-                            proximaPosicaoTitular <= 6
-                        ) {
-                            atleta.posicao_inicial = proximaPosicaoTitular;
-                            proximaPosicaoTitular += 1;
-                        }
-                    });
-
-                    res.render('partidas/desempenho', {
-                        usuario: usuario,
-                        partida: {
-                            id_partida: partida.id_partida,
-                            nome_equipe: partida.nome_equipe,
-                            nome_equipe_adversaria: partida.nome_equipe_adversaria,
-                            quantidade_sets: partida.quantidade_sets || 3,
-                            sets_salvos: 0,
-                            set_atual: 1,
-                            pontos_minha_equipe: 0,
-                            pontos_adversario: 0,
-                            sets_minha_equipe: 0,
-                            sets_adversario: 0,
-                            equipe_sacando: partida.nome_equipe
-                        },
-                        atletas: atletas,
-                        acoes: [],
-                        somenteLeitura: usuario.tipo_usuario === 'ATLETA',
-                        erro: null
-                    });
-                }
-            );
+            return res.status(201).json({
+                sucesso: true,
+                id_set: resultado.insertId || null
+            });
         }
     );
 });
 
-module.exports = router;
+// editar set 
 
+router.put('/partidas/:id/desempenho/set/:idSet', exigirTreinador, (req, res) => {
+    const idPartida = Number(req.params.id);
+    const idSet = Number(req.params.idSet);
+    const placarCasa = Number(req.body.placar_casa);
+    const placarAdversario = Number(req.body.placar_adversario);
+    const vencedor = String(req.body.vencedor || 'EMPATE');
+
+    if (!idPartida || !idSet) {
+        return res.status(400).json({
+            erro: 'Partida ou set inválido.'
+        });
+    }
+
+    const sql = `
+        UPDATE set_partida
+        SET
+            placar_casa = ?,
+            placar_adversario = ?,
+            vencedor = ?
+        WHERE id_set = ?
+          AND id_partida = ?
+    `;
+
+    banco.query(
+        sql,
+        [
+            placarCasa,
+            placarAdversario,
+            vencedor,
+            idSet,
+            idPartida
+        ],
+        (erro, resultado) => {
+            if (erro) {
+                console.error('Erro ao editar set:', erro);
+                return res.status(500).json({
+                    erro: 'Não foi possível editar o set.'
+                });
+            }
+
+            if (resultado.affectedRows === 0) {
+                return res.status(404).json({
+                    erro: 'Set não encontrado.'
+                });
+            }
+
+            return res.json({ sucesso: true });
+        }
+    );
+});
+
+router.delete('/partidas/:id/desempenho/set/:idSet', exigirTreinador, (req, res) => {
+    const idPartida = Number(req.params.id);
+    const idSet = Number(req.params.idSet);
+
+    const sql = `
+        DELETE FROM set_partida
+        WHERE id_set = ?
+          AND id_partida = ?
+    `;
+
+    banco.query(
+        sql,
+        [idSet, idPartida],
+        (erro, resultado) => {
+            if (erro) {
+                console.error('Erro ao apagar set:', erro);
+                return res.status(500).json({
+                    erro: 'Não foi possível apagar o set.'
+                });
+            }
+
+            if (resultado.affectedRows === 0) {
+                return res.status(404).json({
+                    erro: 'Set não encontrado.'
+                });
+            }
+
+            return res.json({ sucesso: true });
+        }
+    );
+});
+
+
+// ============================
+// VISUALIZAR DESEMPENHO
+// ============================
+// =====================================
+// TELA DE DESEMPENHO
+// SOMENTE TREINADOR
+// =====================================
+router.get(
+    '/partidas/:id/desempenho',
+    exigirTreinador,
+    (req, res) => {
+        const idPartida = Number(req.params.id);
+        const idTreinador = Number(
+            req.session.usuario.id_treinador
+        );
+
+        const sqlPartida = `
+            SELECT
+                p.id_partida,
+                e.id_equipe,
+                e.nome AS nome_equipe,
+                p.nome_equipe_adversaria,
+                p.quantidade_sets,
+                p.status,
+                pp.placar,
+                pp.resultado
+            FROM partida p
+            INNER JOIN participacao_partida pp
+                ON pp.id_partida = p.id_partida
+            INNER JOIN equipe e
+                ON e.id_equipe = pp.id_equipe
+            WHERE p.id_partida = ?
+              AND e.id_treinador = ?
+            LIMIT 1
+        `;
+
+        banco.query(
+            sqlPartida,
+            [idPartida, idTreinador],
+            (erroPartida, partidas) => {
+                if (erroPartida) {
+                    console.error(
+                        'Erro ao buscar partida:',
+                        erroPartida
+                    );
+                    return res.status(500).send(
+                        'Erro ao buscar partida.'
+                    );
+                }
+
+                if (partidas.length === 0) {
+                    return res.status(404).send(
+                        'Partida não encontrada ou sem permissão.'
+                    );
+                }
+
+                const partida = partidas[0];
+
+                const sqlAtletas = `
+                    SELECT
+                        a.id_atleta,
+                        COALESCE(a.nome, u.nome) AS nome,
+                        a.numero_camisa,
+                        a.posicao,
+                        pa.titular
+                    FROM participacao_atleta pa
+                    INNER JOIN atleta a
+                        ON a.id_atleta = pa.id_atleta
+                    LEFT JOIN usuario u
+                        ON u.id_usuario = a.id_usuario
+                    INNER JOIN membro_equipe me
+                        ON me.id_atleta = pa.id_atleta
+                       AND me.id_equipe = pa.id_equipe
+                    WHERE pa.id_partida = ?
+                      AND pa.id_equipe = ?
+                      AND me.status = 'ATIVO'
+                    ORDER BY
+                        pa.titular DESC,
+                        COALESCE(a.nome, u.nome)
+                `;
+
+                banco.query(
+                    sqlAtletas,
+                    [idPartida, partida.id_equipe],
+                    (erroAtletas, atletas) => {
+                        if (erroAtletas) {
+                            console.error(
+                                'Erro ao buscar atletas:',
+                                erroAtletas
+                            );
+                            atletas = [];
+                        }
+
+                        const sqlSets = `
+                            SELECT
+                                id_set,
+                                id_partida,
+                                numero_set,
+                                placar_casa,
+                                placar_adversario,
+                                vencedor
+                            FROM set_partida
+                            WHERE id_partida = ?
+                            ORDER BY numero_set ASC
+                        `;
+
+                        banco.query(
+                            sqlSets,
+                            [idPartida],
+                            (erroSets, setsSalvos) => {
+                                if (erroSets) {
+                                    console.error(
+                                        'Erro ao buscar sets:',
+                                        erroSets
+                                    );
+                                    setsSalvos = [];
+                                }
+
+                                const sqlAcoes = `
+                                    SELECT
+                                        ac.id_acao,
+                                        ac.id_partida,
+                                        ac.id_set,
+                                        ac.id_atleta,
+                                        COALESCE(
+                                            a2.nome,
+                                            u2.nome,
+                                            'Atleta'
+                                        ) AS nome_atleta,
+                                        ac.fundamento,
+                                        ac.resultado,
+                                        sp.numero_set
+                                    FROM acao_partida ac
+                                    INNER JOIN set_partida sp
+                                        ON sp.id_set = ac.id_set
+                                    LEFT JOIN atleta a2
+                                        ON a2.id_atleta = ac.id_atleta
+                                    LEFT JOIN usuario u2
+                                        ON u2.id_usuario = a2.id_usuario
+                                    WHERE ac.id_partida = ?
+                                      AND sp.numero_set = 1
+                                    ORDER BY ac.id_acao ASC
+                                `;
+
+                                banco.query(
+                                    sqlAcoes,
+                                    [idPartida],
+                                    (erroAcoes, acoes) => {
+                                        if (erroAcoes) {
+                                            console.error(
+                                                'Erro ao buscar ações:',
+                                                erroAcoes
+                                            );
+                                            acoes = [];
+                                        }
+
+                                        // ESTE É O ÚNICO res.render DA ROTA.
+                                        return res.render(
+                                            'partidas/desempenho',
+                                            {
+                                                usuario: req.session.usuario,
+                                                partida: {
+                                                    id_partida: partida.id_partida,
+                                                    nome_equipe: partida.nome_equipe,
+                                                    nome_equipe_adversaria:
+                                                        partida.nome_equipe_adversaria,
+                                                    quantidade_sets:
+                                                        partida.quantidade_sets || 3,
+                                                    sets_salvos:
+                                                        setsSalvos.length,
+                                                    set_atual:
+                                                        setsSalvos.length + 1,
+                                                    pontos_minha_equipe: 0,
+                                                    pontos_adversario: 0,
+                                                    sets_minha_equipe:
+                                                        setsSalvos.filter(
+                                                            (set) => set.vencedor === 'MINHA_EQUIPE'
+                                                        ).length,
+                                                    sets_adversario:
+                                                        setsSalvos.filter(
+                                                            (set) => set.vencedor === 'EQUIPE_ADVERSARIA'
+                                                        ).length,
+                                                    equipe_sacando:
+                                                        partida.nome_equipe
+                                                },
+                                                atletas: atletas,
+                                                acoes: acoes,
+                                                listaAcoes: acoes,
+                                                setsSalvos: setsSalvos,
+                                                somenteLeitura: false,
+                                                erro: null
+                                            }
+                                        );
+                                    }
+                                );
+                            }
+                        );
+                    }
+                );
+            }
+        );
+    }
+);
+ 
+module.exports = router;
