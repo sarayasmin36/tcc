@@ -131,4 +131,118 @@ router.post('/equipes', exigirTreinador, (req, res) => {
     );
 });
 
+router.get('/equipes/:id/editar', exigirTreinador, (req, res) => {
+    const idEquipe = Number(req.params.id);
+    const idTreinador = Number(req.session.usuario.id_treinador);
+
+    if (!idEquipe || !idTreinador) {
+        return res.status(400).send('Equipe inválida.');
+    }
+
+    const sql = `
+        SELECT
+            e.id_equipe,
+            e.id_treinador,
+            e.nome,
+            e.categoria,
+            e.local,
+            e.codigo_acesso,
+            e.criada_em
+        FROM equipe e
+        WHERE e.id_equipe = ?
+          AND e.id_treinador = ?
+        LIMIT 1
+    `;
+
+    banco.query(sql, [idEquipe, idTreinador], (erro, equipes) => {
+        if (erro) {
+            console.error('Erro ao carregar equipe para edição:', erro);
+            return res.status(500).render('equipes/editar', {
+                usuario: req.session.usuario,
+                equipe: null,
+                erro: 'Não foi possível carregar a equipe.'
+            });
+        }
+
+        if (!equipes.length) {
+            return res.status(404).render('equipes/editar', {
+                usuario: req.session.usuario,
+                equipe: null,
+                erro: 'Equipe não encontrada ou sem permissão.'
+            });
+        }
+
+        return res.render('equipes/editar', {
+            usuario: req.session.usuario,
+            equipe: equipes[0],
+            erro: null
+        });
+    });
+});
+
+router.post('/equipes/:id', exigirTreinador, (req, res) => {
+    const idEquipe = Number(req.params.id);
+    const idTreinador = Number(req.session.usuario.id_treinador);
+    const nome = String(req.body.nome || '').trim();
+    const categoria = String(req.body.categoria || '').trim();
+    const local = String(req.body.local || '').trim();
+
+    if (!idEquipe || !idTreinador || !nome) {
+        return res.status(400).render('equipes/editar', {
+            usuario: req.session.usuario,
+            equipe: {
+                id_equipe: idEquipe,
+                nome,
+                categoria,
+                local
+            },
+            erro: 'Informe o nome da equipe.'
+        });
+    }
+
+    const sql = `
+        UPDATE equipe
+        SET nome = ?,
+            categoria = ?,
+            local = ?
+        WHERE id_equipe = ?
+          AND id_treinador = ?
+    `;
+
+    banco.query(
+        sql,
+        [nome, categoria || null, local || null, idEquipe, idTreinador],
+        (erro, resultado) => {
+            if (erro) {
+                console.error('Erro ao atualizar equipe:', erro);
+                return res.status(500).render('equipes/editar', {
+                    usuario: req.session.usuario,
+                    equipe: {
+                        id_equipe: idEquipe,
+                        nome,
+                        categoria,
+                        local
+                    },
+                    erro: 'Não foi possível salvar as alterações.'
+                });
+            }
+
+            if (resultado.affectedRows === 0) {
+                return res.status(404).render('equipes/editar', {
+                    usuario: req.session.usuario,
+                    equipe: {
+                        id_equipe: idEquipe,
+                        nome,
+                        categoria,
+                        local
+                    },
+                    erro: 'Equipe não encontrada ou sem permissão.'
+                });
+            }
+
+            return res.redirect('/equipes');
+        }
+    );
+});
+
 module.exports = router;

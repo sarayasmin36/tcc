@@ -185,23 +185,108 @@
                     </div>
 
                     <div class="lista-acoes-partida">
-                        <% [['passe','Passe'],['ataque','Ataque'],['defesa','Defesa'],['levantamento','Levantamento'],['saque','Saque'],['bloqueio','Bloqueio'],['falta','Falta']].forEach((fundamento) => { %>
+                        <% [['passe','Passe'],['ataque','Ataque'],['defesa','Defesa'],['levantamento','Levantamento'],['saque','Saque'],['bloqueio','Bloqueio']].forEach((fundamento) => { %>
                             <button type="button" class="acao-partida" data-acao-fundamento="<%= fundamento[0] %>"><strong><%= fundamento[1] %></strong></button>
                             <% }); %>
                     </div>
 
                     <div class="painel-resultados" data-painel-resultados hidden>
-                        <h3>Resultado de <span data-nome-acao>ação</span></h3>
-                        <div class="lista-resultados-acao">
-                            <button type="button" class="resultado-acao" data-resultado-acao="perfeito"><strong>A — Perfeito</strong><small>Execução excelente</small></button>
-                            <button type="button" class="resultado-acao" data-resultado-acao="bom"><strong>B — Bom</strong><small>Execução adequada</small></button>
-                            <button type="button" class="resultado-acao" data-resultado-acao="ruim"><strong>C — Ruim</strong><small>Execução comprometida</small></button>
-                        </div>
-                    </div>
-                </section>
+    <h3>
+        Resultado de
+        <span data-nome-acao>ação</span>
+    </h3>
 
+    <div class="lista-resultados-acao" data-fundamentos-resultados="passe" hidden>
+        <button type="button" class="resultado-acao" data-resultado-acao="perfeito">
+            <strong>PASSE EXCELENTE</strong>
+            <small>A bola chega com tranquilidade para o levantador</small>
+        </button>
+        <button type="button" class="resultado-acao" data-resultado-acao="bom">
+            <strong>PASSE BOM</strong>
+            <small>A bola chega no levantador</small>
+        </button>
+        <button type="button" class="resultado-acao" data-resultado-acao="ruim">
+            <strong>PASSE ERRADO</strong>
+            <small>A recepção dificulta a continuidade da jogada</small>
+        </button>
+    </div>
 
-                <section class="secao tabela-acoes-set cartao">
+    <div class="lista-resultados-acao" data-fundamentos-resultados="ataque" hidden>
+        <button type="button" class="resultado-acao" data-resultado-acao="perfeito">
+            <strong>ATAQUE EXCELENTE</strong>
+            <small>A bola resulta em ponto ou é indefensável</small>
+        </button>
+        <button type="button" class="resultado-acao" data-resultado-acao="bom">
+            <strong>ATAQUE BOM</strong>
+            <small>O ataque gera dificuldade para o adversário</small>
+        </button>
+        <button type="button" class="resultado-acao" data-resultado-acao="ruim">
+            <strong>ATAQUE ERRADO</strong>
+            <small>Ataque para fora, na rede ou facilmente defendido</small>
+        </button>
+    </div>
+
+    <div class="lista-resultados-acao" data-fundamentos-resultados="defesa" hidden>
+        <button type="button" class="resultado-acao" data-resultado-acao="perfeito">
+            <strong>RECEPÇÃO EXCELENTE</strong>
+            <small>A bola é controlada e permanece em jogo</small>
+        </button>
+        <button type="button" class="resultado-acao" data-resultado-acao="bom">
+            <strong>RECEPÇÃO BOA</strong>
+            <small>A bola permanece na área de defesa, mas gera dificuldade para levantamento</small>
+        </button>
+        <button type="button" class="resultado-acao" data-resultado-acao="ruim">
+            <strong>RECEPÇÃO ERRADA</strong>
+            <small>A bola quina ou gera ponto adversário</small>
+        </button>
+    </div>
+
+    <div class="lista-resultados-acao" data-fundamentos-resultados="levantamento" hidden>
+        <button type="button" class="resultado-acao" data-resultado-acao="perfeito">
+            <strong>LEVANTAMENTO EXCELENTE</strong>
+            <small>A bola é colocada na melhor condição para o ataque</small>
+        </button>
+        <button type="button" class="resultado-acao" data-resultado-acao="bom">
+            <strong>LEVANTAMENTO BOM</strong>
+            <small>A bola permite a continuidade da jogada</small>
+        </button>
+        <button type="button" class="resultado-acao" data-resultado-acao="ruim">
+            <strong>LEVANTAMENTO ERRADO</strong>
+            <small>A bola fica fora do alcance ou prejudica o ataque</small>
+        </button>
+    </div>
+
+    <div class="lista-resultados-acao" data-fundamentos-resultados="saque" hidden>
+        <button type="button" class="resultado-acao" data-resultado-acao="ace">
+            <strong>ACE</strong>
+            <small>Saque direto ou indefensável</small>
+        </button>
+        <button type="button" class="resultado-acao" data-resultado-acao="bom">
+            <strong>SAQUE BOM</strong>
+            <small>Saque realizado corretamente</small>
+        </button>
+        <button type="button" class="resultado-acao" data-resultado-acao="errado">
+            <strong>SAQUE ERRADO</strong>
+            <small>Saque para fora, na rede ou cometido com erro</small>
+        </button>
+    </div>
+
+    <div class="lista-resultados-acao" data-fundamentos-resultados="bloqueio" hidden>
+        <button type="button" class="resultado-acao" data-resultado-acao="perfeito">
+            <strong>BLOQUEIO EXCELENTE</strong>
+            <small>Bloqueio resulta em ponto direto</small>
+        </button>
+        <button type="button" class="resultado-acao" data-resultado-acao="bom">
+            <strong>BLOQUEIO BOM</strong>
+            <small>Bloqueio toca na bola e favorece a defesa</small>
+        </button>
+        <button type="button" class="resultado-acao" data-resultado-acao="ruim">
+            <strong>BLOQUEIO ERRADO</strong>
+            <small>Bloqueio não impede o ataque adversário</small>
+        </button>
+    </div>
+</div>
+
     <div class="cabecalho-secao">
         <div>
             <h2>
@@ -222,49 +307,65 @@
                     <th>Atleta</th>
                     <th>Fundamento</th>
                     <th>Resultado</th>
-                    <th>Excluir</th>
+                    <th>Excluir ou editar</th>
                 </tr>
             </thead>
 
             <tbody data-lista-acoes-registradas>
-                <% if (typeof listaAcoes !== 'undefined' && listaAcoes.length > 0) { %>
-                    <% listaAcoes.forEach((acao) => { %>
-                        <tr>
-                            <td>
-                                <strong>
-                                    <%= acao.nome_atleta || acao.nomeAtleta || 'Atleta' %>
-                                </strong>
-                            </td>
+    <% if (typeof listaAcoes !== 'undefined' && listaAcoes.length > 0) { %>
+        <% listaAcoes.forEach((acao) => { %>
+            <tr
+                data-linha-acao
+                data-id-acao="<%= acao.id_acao %>"
+                data-id-atleta="<%= acao.id_atleta %>"
+                data-numero-set="<%= acao.numero_set %>"
+                data-fundamento="<%= acao.fundamento %>"
+                data-resultado="<%= acao.resultado %>">
 
-                            <td>
-                                <%= acao.fundamento || acao.acao || '' %>
-                            </td>
+                <td>
+                    <strong data-acao-atleta>
+                        <%= acao.nome_atleta || 'Atleta' %>
+                    </strong>
+                </td>
 
-                            <td>
-                                <span class="etiqueta verde">
-                                    <%= acao.resultado || '' %>
-                                </span>
-                            </td>
+                <td data-acao-fundamento>
+                    <%= acao.fundamento || '' %>
+                </td>
 
-                            <td>
-                                <button
-                                    type="button"
-                                    class="botao-remover-acao"
-                                    data-remover-acao
-                                    data-id-acao="<%= acao.id_acao || acao.id || '' %>">
-                                    Remover
-                                </button>
-                            </td>
-                        </tr>
-                    <% }); %>
-                <% } else { %>
-                    <tr data-estado-acoes>
-                        <td colspan="4" class="estado-vazio">
-                            Nenhuma ação registrada neste set.
-                        </td>
-                    </tr>
-                <% } %>
-            </tbody>
+                <td data-acao-resultado>
+                    <span class="etiqueta verde">
+                        <%= acao.resultado || '' %>
+                    </span>
+                </td>
+
+                <td>
+                    <button
+                        type="button"
+                        class="botao secundario"
+                        data-editar-acao
+                        data-id-acao="<%= acao.id_acao %>">
+                        Editar
+                    </button>
+
+                    <button
+                        type="button"
+                        class="botao-remover-acao"
+                        data-remover-acao
+                        data-id-acao="<%= acao.id_acao %>">
+                        Remover
+                    </button>
+                </td>
+            </tr>
+        <% }); %>
+    <% } else { %>
+        <tr data-estado-acoes>
+            <td colspan="4" class="estado-vazio">
+                Nenhuma ação registrada neste set.
+            </td>
+        </tr>
+    <% } %>
+</tbody>
+
         </table>
     </div>
 </section>
@@ -348,6 +449,58 @@
         </table>
     </div>
 </section>
+
+<div class="modal-editar-acao" data-modal-editar-acao hidden>
+    <div class="modal-conteudo">
+        <h2>Editar ação</h2>
+
+        <h3>Atleta</h3>
+        <div class="grupo-botoes-edicao">
+            <% listaAtletas.forEach((atleta) => { %>
+                <button
+                    type="button"
+                    class="botao secundario"
+                    data-editar-atleta="<%= atleta.id_atleta || atleta.id %>">
+                    <%= atleta.nome %>
+                </button>
+            <% }); %>
+        </div>
+
+        <h3>Fundamento</h3>
+        <div class="grupo-botoes-edicao">
+            <button type="button" class="botao secundario" data-editar-fundamento="passe">Passe</button>
+            <button type="button" class="botao secundario" data-editar-fundamento="ataque">Ataque</button>
+            <button type="button" class="botao secundario" data-editar-fundamento="defesa">Defesa</button>
+            <button type="button" class="botao secundario" data-editar-fundamento="levantamento">Levantamento</button>
+            <button type="button" class="botao secundario" data-editar-fundamento="saque">Saque</button>
+            <button type="button" class="botao secundario" data-editar-fundamento="bloqueio">Bloqueio</button>
+        </div>
+
+        <h3>Resultado</h3>
+        <div class="grupo-botoes-edicao" data-editar-resultados></div>
+
+        <h3>Set</h3>
+        <div class="grupo-botoes-edicao">
+            <% for (let numero = 1; numero <= quantidadeSetsPartida; numero += 1) { %>
+                <button
+                    type="button"
+                    class="botao secundario"
+                    data-editar-set="<%= numero %>">
+                    Set <%= numero %>
+                </button>
+            <% } %>
+        </div>
+
+        <button type="button" class="botao secundario" data-cancelar-edicao-acao>
+            Cancelar
+        </button>
+
+        <button type="button" class="botao principal" data-salvar-edicao-acao>
+            Salvar alteração
+        </button>
+    </div>
+</div>
+
 
 
                 <section

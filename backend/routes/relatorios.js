@@ -101,6 +101,10 @@ router.get('/relatorios', exigirLogin, (req, res) => {
             INNER JOIN equipe e2
                 ON e2.id_equipe = pa2.id_equipe
             WHERE ${filtroAcessoSets}
+              AND NOT (
+                  sp.placar_casa = 0
+                  AND sp.placar_adversario = 0
+              )
             ORDER BY sp.id_partida DESC, sp.numero_set ASC
         `;
 
@@ -407,204 +411,251 @@ router.delete('/partidas/:id/desempenho/acao/:idAcao', exigirTreinador, (req, re
     });
 });
 
-// =====================================
-// REGISTRAR AÇÃO INDIVIDUAL
-// =====================================
-router.post(
-    '/partidas/:id/desempenho/acao',
-    exigirTreinador,
-    (req, res) => {
-        const idPartida = Number(req.params.id);
-        const idAtleta = Number(req.body.id_atleta);
-        const idSetInformado = Number(req.body.id_set || 0);
-        const numeroSet = Number(req.body.numero_set || 0);
-        const idTreinador = Number(
-            req.session.usuario.id_treinador
-        );
+// Edita uma ação existente e ajusta os totais agregados.
+router.put('/partidas/:id/desempenho/acao/:idAcao', exigirTreinador, (req, res) => {
+    const idPartida = Number(req.params.id);
+    const idAcao = Number(req.params.idAcao);
+    const idAtleta = Number(req.body.id_atleta);
+    const numeroSet = Number(req.body.numero_set);
+    const fundamento = String(req.body.fundamento || '').trim();
+    const resultado = String(req.body.resultado || '').trim();
+    const idTreinador = Number(req.session.usuario.id_treinador);
 
-        const fundamento = String(
-            req.body.fundamento || ''
-        ).trim().toLowerCase();
+    const colunas = {
+        passe: { perfeito: 'recepcoes_certas', bom: 'recepcoes_certas', ruim: 'recepcoes_erradas' },
+        ataque: { perfeito: 'ataques_certos', bom: 'ataques_certos', ruim: 'ataques_errados' },
+        defesa: { perfeito: 'defesas_certas', bom: 'defesas_certas', ruim: 'defesas_erradas' },
+        levantamento: { perfeito: 'levantamentos_certos', bom: 'levantamentos_certos', ruim: 'levantamentos_errados' },
+        saque: { ace: 'aces', bom: 'saques_certos', errado: 'saques_errados' },
+        bloqueio: { perfeito: 'bloqueios_certos', bom: 'bloqueios_certos', ruim: 'bloqueios_errados' }
+    };
+    const novaColuna = colunas[fundamento]?.[resultado];
 
-        const resultadoRecebido = String(
-            req.body.resultado || ''
-        ).trim().toLowerCase();
+    if (!idPartida || !idAcao || !idAtleta || !numeroSet || !idTreinador || !novaColuna) {
+        return res.status(400).json({ erro: 'Dados da ação inválidos.' });
+    }
 
-        let resultado = resultadoRecebido;
+    banco.beginTransaction((erroTransacao) => {
+        if (erroTransacao) return res.status(500).json({ erro: 'Não foi possível iniciar a edição.' });
 
-        if (resultadoRecebido.includes('perfeito')) {
-            resultado = 'perfeito';
-        } else if (resultadoRecebido.includes('bom')) {
-            resultado = 'bom';
-        } else if (resultadoRecebido.includes('ruim')) {
-            resultado = 'ruim';
-        }
-
-        const colunas = {
-            passe: {
-                perfeito: 'recepcoes_certas',
-                bom: 'recepcoes_certas',
-                ruim: 'recepcoes_erradas'
-            },
-            ataque: {
-                perfeito: 'ataques_certos',
-                bom: 'ataques_certos',
-                ruim: 'ataques_errados'
-            },
-            defesa: {
-                perfeito: 'recepcoes_certas',
-                bom: 'recepcoes_certas',
-                ruim: 'recepcoes_erradas'
-            },
-            levantamento: {
-                perfeito: 'levantamentos_certos',
-                bom: 'levantamentos_certos',
-                ruim: 'levantamentos_errados'
-            },
-            saque: {
-                perfeito: 'saques_certos',
-                bom: 'saques_certos',
-                ruim: 'saques_errados'
-            },
-            bloqueio: {
-                perfeito: 'bloqueios_certos',
-                bom: 'bloqueios_certos',
-                ruim: 'bloqueios_errados'
-            },
-            falta: {
-                perfeito: 'ataques_errados',
-                bom: 'ataques_errados',
-                ruim: 'ataques_errados'
-            }
+        const falhar = (status, mensagem, erro) => {
+            if (erro) console.error(mensagem, erro);
+            banco.rollback(() => {
+                if (!res.headersSent) res.status(status).json({ erro: mensagem });
+            });
         };
 
-        const coluna = colunas[fundamento]?.[resultado];
+        const buscar = `
+            SELECT ac.id_acao, ac.id_atleta, ac.id_set, ac.fundamento, ac.resultado,
+                   sp.numero_set, pa.id_participacao_atleta
+            FROM acao_partida ac
+            INNER JOIN set_partida sp ON sp.id_set = ac.id_set
+            INNER JOIN participacao_atleta pa ON pa.id_atleta = ac.id_atleta
+                AND pa.id_partida = ac.id_partida
+            INNER JOIN equipe e ON e.id_equipe = pa.id_equipe
+            WHERE ac.id_acao = ? AND ac.id_partida = ? AND e.id_treinador = ?
+            LIMIT 1
+        `;
 
-        if (!idPartida || !idAtleta || !idTreinador) {
-            return res.status(400).json({
-                erro: 'Partida, atleta ou treinador inválido.'
-            });
-        }
+        banco.query(buscar, [idAcao, idPartida, idTreinador], (erroBusca, linhas) => {
+            if (erroBusca) return falhar(500, 'Não foi possível localizar a ação.', erroBusca);
+            if (!linhas.length) return falhar(404, 'Ação não encontrada.');
 
-        if (!coluna) {
-            return res.status(400).json({
-                erro: 'Fundamento ou resultado inválido.'
-            });
-        }
+            const antiga = linhas[0];
+            const antigaColuna = colunas[antiga.fundamento]?.[antiga.resultado];
+            if (!antigaColuna) return falhar(400, 'A ação antiga possui um resultado inválido.');
 
-        banco.beginTransaction((erroTransacao) => {
-            if (erroTransacao) {
-                console.error(
-                    'Erro ao iniciar transação:',
-                    erroTransacao
-                );
-
-                return res.status(500).json({
-                    erro: 'Não foi possível iniciar o salvamento.'
-                });
-            }
-
-            const responderErro = (
-                status,
-                mensagem,
-                erro
-            ) => {
-                if (erro) {
-                    console.error(mensagem, erro);
-                }
-
-                banco.rollback(() => {
-                    if (!res.headersSent) {
-                        return res.status(status).json({
-                            erro: mensagem
-                        });
-                    }
-                });
-            };
-
-            const sqlParticipacao = `
-                SELECT
-                    pa.id_participacao_atleta
+            const buscarParticipacao = `
+                SELECT pa.id_participacao_atleta
                 FROM participacao_atleta pa
-                INNER JOIN equipe e
-                    ON e.id_equipe = pa.id_equipe
-                WHERE pa.id_atleta = ?
-                  AND pa.id_partida = ?
-                  AND e.id_treinador = ?
+                INNER JOIN equipe e ON e.id_equipe = pa.id_equipe
+                WHERE pa.id_atleta = ? AND pa.id_partida = ? AND e.id_treinador = ?
                 LIMIT 1
             `;
 
-            banco.query(
-                sqlParticipacao,
-                [
-                    idAtleta,
-                    idPartida,
-                    idTreinador
-                ],
-                (erroParticipacao, participacoes) => {
-                    if (erroParticipacao) {
-                        return responderErro(
-                            500,
-                            'Erro ao verificar a participação da atleta.',
-                            erroParticipacao
-                        );
-                    }
+            banco.query(buscarParticipacao, [idAtleta, idPartida, idTreinador], (erroPart, participacoes) => {
+                if (erroPart) return falhar(500, 'Não foi possível validar a nova atleta.', erroPart);
+                if (!participacoes.length) return falhar(403, 'A atleta não pertence a esta partida.');
 
-                    if (participacoes.length === 0) {
-                        return responderErro(
-                            403,
-                            'A atleta não pertence a esta partida.'
-                        );
-                    }
+                const novaParticipacao = participacoes[0].id_participacao_atleta;
+                const atualizarAcao = `
+                    UPDATE acao_partida
+                    SET id_set = (
+                        SELECT id_set FROM set_partida
+                        WHERE id_partida = ? AND numero_set = ?
+                        LIMIT 1
+                    ), id_atleta = ?, fundamento = ?, resultado = ?
+                    WHERE id_acao = ? AND id_partida = ?
+                `;
 
-                    const idParticipacaoAtleta =
-                        participacoes[0].id_participacao_atleta;
+                banco.query(atualizarAcao, [idPartida, numeroSet, idAtleta, fundamento, resultado, idAcao, idPartida], (erroAtualizar) => {
+                    if (erroAtualizar) return falhar(500, 'Não foi possível editar a ação.', erroAtualizar);
 
-                    const buscarSet = (continuar) => {
-                        if (idSetInformado) {
-                            return continuar(idSetInformado);
-                        }
+                    const retirarAntigo = `UPDATE desempenho_atleta SET ${antigaColuna} = GREATEST(${antigaColuna} - 1, 0) WHERE id_participacao_atleta = ?`;
+                    banco.query(retirarAntigo, [antiga.id_participacao_atleta], (erroRetirar) => {
+                        if (erroRetirar) return falhar(500, 'Não foi possível ajustar o desempenho antigo.', erroRetirar);
 
-                        if (!numeroSet) {
+                        const adicionarNovo = `
+                            INSERT INTO desempenho_atleta (id_participacao_atleta, ${novaColuna}) VALUES (?, 1)
+                            ON DUPLICATE KEY UPDATE ${novaColuna} = ${novaColuna} + 1
+                        `;
+                        banco.query(adicionarNovo, [novaParticipacao], (erroAdicionar) => {
+                            if (erroAdicionar) return falhar(500, 'Não foi possível ajustar o novo desempenho.', erroAdicionar);
+
+                            banco.commit((erroCommit) => {
+                                if (erroCommit) return falhar(500, 'Não foi possível confirmar a edição.', erroCommit);
+                                return res.json({ sucesso: true, mensagem: 'Ação editada com sucesso.' });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    });
+});
+
+// Esta rota deve aparecer una única vez em backend/routes/relatorios.js.
+router.post('/partidas/:id/desempenho/acao', exigirTreinador, (req, res) => {
+    const idPartida = Number(req.params.id);
+    const idAtleta = Number(req.body.id_atleta);
+    const numeroSet = Number(req.body.numero_set);
+    const fundamento = String(req.body.fundamento || '').trim();
+    const resultado = String(req.body.resultado || '').trim();
+    const idTreinador = Number(req.session.usuario.id_treinador);
+
+    const colunas = {
+        passe: {
+            perfeito: 'recepcoes_certas',
+            bom: 'recepcoes_certas',
+            ruim: 'recepcoes_erradas'
+        },
+        ataque: {
+            perfeito: 'ataques_certos',
+            bom: 'ataques_certos',
+            ruim: 'ataques_errados'
+        },
+        defesa: {
+            perfeito: 'defesas_certas',
+            bom: 'defesas_certas',
+            ruim: 'defesas_erradas'
+        },
+        levantamento: {
+            perfeito: 'levantamentos_certos',
+            bom: 'levantamentos_certos',
+            ruim: 'levantamentos_errados'
+        },
+        saque: {
+            ace: 'aces',
+            bom: 'saques_certos',
+            errado: 'saques_errados',
+            perfeito: 'aces',
+            ruim: 'saques_errados'
+        },
+        bloqueio: {
+            perfeito: 'bloqueios_certos',
+            bom: 'bloqueios_certos',
+            ruim: 'bloqueios_errados'
+        }
+    };
+
+    const coluna = colunas[fundamento]?.[resultado];
+
+    if (!idPartida || !idAtleta || !numeroSet || !idTreinador || !coluna) {
+        return res.status(400).json({
+            erro: 'Dados da ação inválidos.'
+        });
+    }
+
+    banco.beginTransaction((erroTransacao) => {
+        if (erroTransacao) {
+            console.error('Erro ao iniciar transação:', erroTransacao);
+            return res.status(500).json({
+                erro: 'Não foi possível iniciar o salvamento.'
+            });
+        }
+
+        let respondeu = false;
+
+        const responderErro = (status, mensagem, erro) => {
+            if (erro) console.error(mensagem, erro);
+            if (respondeu || res.headersSent) return;
+            respondeu = true;
+
+            banco.rollback(() => {
+                if (!res.headersSent) {
+                    return res.status(status).json({ erro: mensagem });
+                }
+            });
+        };
+
+        const sqlParticipacao = `
+            SELECT pa.id_participacao_atleta
+            FROM participacao_atleta pa
+            INNER JOIN equipe e
+                ON e.id_equipe = pa.id_equipe
+            WHERE pa.id_atleta = ?
+              AND pa.id_partida = ?
+              AND e.id_treinador = ?
+            LIMIT 1
+        `;
+
+        banco.query(
+            sqlParticipacao,
+            [idAtleta, idPartida, idTreinador],
+            (erroParticipacao, participacoes) => {
+                if (erroParticipacao) {
+                    return responderErro(
+                        500,
+                        'Erro ao verificar a participação da atleta.',
+                        erroParticipacao
+                    );
+                }
+
+                if (!participacoes || participacoes.length === 0) {
+                    return responderErro(
+                        403,
+                        'A atleta não pertence a esta partida.'
+                    );
+                }
+
+                const idParticipacaoAtleta =
+                    participacoes[0].id_participacao_atleta;
+
+                const sqlSet = `
+                    INSERT INTO set_partida
+                        (
+                            id_partida,
+                            numero_set,
+                            placar_casa,
+                            placar_adversario,
+                            vencedor
+                        )
+                    VALUES (?, ?, 0, 0, 'EMPATE')
+                    ON DUPLICATE KEY UPDATE
+                        id_set = LAST_INSERT_ID(id_set)
+                `;
+
+                banco.query(
+                    sqlSet,
+                    [idPartida, numeroSet],
+                    (erroSet, resultadoSet) => {
+                        if (erroSet) {
                             return responderErro(
-                                400,
-                                'Informe o número ou o ID do set.'
+                                500,
+                                'Não foi possível criar ou localizar o set.',
+                                erroSet
                             );
                         }
 
-                        const sqlSet = `
-                            SELECT id_set
-                            FROM set_partida
-                            WHERE id_partida = ?
-                              AND numero_set = ?
-                            LIMIT 1
-                        `;
+                        const idSet = Number(resultadoSet.insertId);
 
-                        banco.query(
-                            sqlSet,
-                            [idPartida, numeroSet],
-                            (erroSet, sets) => {
-                                if (erroSet) {
-                                    return responderErro(
-                                        500,
-                                        'Erro ao buscar o set.',
-                                        erroSet
-                                    );
-                                }
+                        if (!idSet) {
+                            return responderErro(
+                                500,
+                                'Não foi possível obter o ID do set.'
+                            );
+                        }
 
-                                if (sets.length === 0) {
-                                    return responderErro(
-                                        400,
-                                        'O set precisa ser salvo antes da ação.'
-                                    );
-                                }
-
-                                return continuar(sets[0].id_set);
-                            }
-                        );
-                    };
-
-                    buscarSet((idSet) => {
                         const sqlAcao = `
                             INSERT INTO acao_partida
                                 (
@@ -667,22 +718,25 @@ router.post(
                                                 );
                                             }
 
+                                            if (respondeu || res.headersSent) return;
+                                            respondeu = true;
+
                                             return res.status(201).json({
                                                 sucesso: true,
-                                                id_acao: resultadoAcao.insertId,
+                                                id_acao: Number(resultadoAcao.insertId),
                                                 id_set: idSet,
-                                                mensagem: 'Ação salva com sucesso.'
+                                                mensagem: 'Ação salva no set correto.'
                                             });
                                         });
                                     }
                                 );
                             }
                         );
-                    });
-                }
-            );
-        });
-    }
-);
+                    }
+                );
+            }
+        );
+    });
+});
 
 module.exports = router;

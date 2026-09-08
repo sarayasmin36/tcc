@@ -37,7 +37,6 @@
     const recepcoesErradas = soma('recepcoes_erradas');
     const passesCertos = soma('passes_certos');
     const passesErrados = soma('passes_errados');
-    const faltas = soma('faltas');
 
     const totalAtaques = ataquesCertos + ataquesErrados;
     const totalLevantamentos = levantamentosCertos + levantamentosErrados;
@@ -51,16 +50,14 @@
         + totalSaques
         + totalBloqueios
         + totalRecepcoes
-        + totalPasses
-        + faltas;
+        + totalPasses;
 
     const totalErros = ataquesErrados
         + levantamentosErrados
         + saquesErrados
         + bloqueiosErrados
         + recepcoesErradas
-        + passesErrados
-        + faltas;
+        + passesErrados;
 
     const percentual = (certos, total) => total > 0
         ? Math.round((certos / total) * 100)
@@ -185,13 +182,6 @@
                         <td><%= aces %></td>
                         <td>—</td>
                     </tr>
-                    <tr>
-                        <td><strong>Faltas</strong></td>
-                        <td>—</td>
-                        <td><%= faltas %></td>
-                        <td><%= faltas %></td>
-                        <td>—</td>
-                    </tr>
                 </tbody>
             </table>
         </div>
@@ -311,7 +301,6 @@
                             <th>Recepções erradas</th>
                             <th>Passes certos</th>
                             <th>Passes errados</th>
-                            <th>Faltas</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -337,7 +326,6 @@
                                 <td><%= relatorio.recepcoes_erradas || 0 %></td>
                                 <td><%= relatorio.passes_certos || 0 %></td>
                                 <td><%= relatorio.passes_errados || 0 %></td>
-                                <td><%= relatorio.faltas || 0 %></td>
                             </tr>
                         <% }); %>
                     </tbody>

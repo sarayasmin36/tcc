@@ -714,4 +714,197 @@ router.get('/atleta', exigirAtleta, (req, res) => {
     });
 });
 
+router.get('/atletas/:id', exigirTreinador, (req, res) => {
+    const idAtleta = Number(req.params.id);
+    const idTreinador = Number(req.session.usuario.id_treinador);
+
+    if (!idAtleta || !idTreinador) {
+        return res.status(400).render('atletas/editar', {
+            usuario: req.session.usuario,
+            atleta: null,
+            erro: 'Atleta inválida.',
+            sucesso: null
+        });
+    }
+
+    const sql = `
+        SELECT
+            a.id_atleta,
+            COALESCE(a.nome, u.nome) AS nome,
+            a.numero_camisa,
+            a.posicao,
+            e.id_equipe,
+            e.nome AS nome_equipe
+        FROM atleta a
+        LEFT JOIN usuario u
+            ON u.id_usuario = a.id_usuario
+        INNER JOIN membro_equipe me
+            ON me.id_atleta = a.id_atleta
+        INNER JOIN equipe e
+            ON e.id_equipe = me.id_equipe
+        WHERE a.id_atleta = ?
+          AND e.id_treinador = ?
+          AND me.status = 'ATIVO'
+        LIMIT 1
+    `;
+
+    banco.query(sql, [idAtleta, idTreinador], (erro, atletas) => {
+        if (erro) {
+            console.error('Erro ao carregar atleta para edição:', erro);
+            return res.status(500).render('atletas/editar', {
+                usuario: req.session.usuario,
+                atleta: null,
+                erro: 'Não foi possível carregar a atleta.',
+                sucesso: null
+            });
+        }
+
+        if (!atletas.length) {
+            return res.status(404).render('atletas/editar', {
+                usuario: req.session.usuario,
+                atleta: null,
+                erro: 'Atleta não encontrada ou sem permissão.',
+                sucesso: null
+            });
+        }
+
+        return res.render('atletas/editar', {
+            usuario: req.session.usuario,
+            atleta: atletas[0],
+            erro: null,
+            sucesso: null
+        });
+    });
+});
+
+router.post('/atletas/:id', exigirTreinador, (req, res) => {
+    const idAtleta = Number(req.params.id);
+    const idTreinador = Number(req.session.usuario.id_treinador);
+    const nome = String(req.body.nome || '').trim();
+    const numeroCamisa = String(req.body.numero_camisa || '').trim();
+    const posicao = String(req.body.posicao || '').trim();
+
+    const atletaForm = {
+        id_atleta: idAtleta,
+        nome,
+        numero_camisa: numeroCamisa,
+        posicao
+    };
+
+    if (!idAtleta || !idTreinador || !nome || !numeroCamisa || !posicao) {
+        return res.status(400).render('atletas/editar', {
+            usuario: req.session.usuario,
+            atleta: atletaForm,
+            erro: 'Preencha nome, número da camisa e posição.',
+            sucesso: null
+        });
+    }
+
+    const verificar = `
+        SELECT
+            a.id_atleta,
+            e.id_equipe,
+            e.nome AS nome_equipe
+        FROM atleta a
+        INNER JOIN membro_equipe me
+            ON me.id_atleta = a.id_atleta
+        INNER JOIN equipe e
+            ON e.id_equipe = me.id_equipe
+        WHERE a.id_atleta = ?
+          AND e.id_treinador = ?
+          AND me.status = 'ATIVO'
+        LIMIT 1
+    `;
+
+    banco.query(verificar, [idAtleta, idTreinador], (erroVerificar, atletas) => {
+        if (erroVerificar) {
+            console.error('Erro ao verificar atleta:', erroVerificar);
+            return res.status(500).render('atletas/editar', {
+                usuario: req.session.usuario,
+                atleta: atletaForm,
+                erro: 'Não foi possível verificar a atleta.',
+                sucesso: null
+            });
+        }
+
+        if (!atletas.length) {
+            return res.status(403).render('atletas/editar', {
+                usuario: req.session.usuario,
+                atleta: atletaForm,
+                erro: 'Você não tem permissão para editar esta atleta.',
+                sucesso: null
+            });
+        }
+
+        const atualizar = `
+            UPDATE atleta
+            SET nome = ?,
+                numero_camisa = ?,
+                posicao = ?
+            WHERE id_atleta = ?
+        `;
+
+        banco.query(
+            atualizar,
+            [nome, numeroCamisa, posicao, idAtleta],
+            (erroAtualizar, resultado) => {
+                if (erroAtualizar) {
+                    console.error('Erro ao atualizar atleta:', erroAtualizar);
+                    return res.status(500).render('atletas/editar', {
+                        usuario: req.session.usuario,
+                        atleta: atletaForm,
+                        erro: 'Não foi possível salvar as alterações.',
+                        sucesso: null
+                    });
+                }
+
+                if (resultado.affectedRows === 0) {
+                    return res.status(404).render('atletas/editar', {
+                        usuario: req.session.usuario,
+                        atleta: atletaForm,
+                        erro: 'Atleta não encontrada.',
+                        sucesso: null
+                    });
+                }
+
+                return res.redirect('/atletas');
+            }
+        );
+    });
+});
+// Coloque esta rota em backend/routes/atletas.js,
+// antes de module.exports = router.
+
+router.post('/atletas/:id/remover-equipe', exigirTreinador, (req, res) => {
+    const idAtleta = Number(req.params.id);
+    const idTreinador = Number(req.session.usuario.id_treinador);
+
+    if (!idAtleta || !idTreinador) {
+        return res.status(400).send('Atleta inválida.');
+    }
+
+    const sql = `
+        UPDATE membro_equipe me
+        INNER JOIN equipe e
+            ON e.id_equipe = me.id_equipe
+        SET me.status = 'INATIVO'
+        WHERE me.id_atleta = ?
+          AND e.id_treinador = ?
+          AND me.status = 'ATIVO'
+    `;
+
+    banco.query(sql, [idAtleta, idTreinador], (erro, resultado) => {
+        if (erro) {
+            console.error('Erro ao remover atleta da equipe:', erro);
+            return res.status(500).send('Não foi possível remover a atleta da equipe.');
+        }
+
+        if (resultado.affectedRows === 0) {
+            return res.status(404).send('Atleta não encontrada na sua equipe.');
+        }
+
+        return res.redirect('/atletas');
+    });
+});
+
 module.exports = router;

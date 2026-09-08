@@ -92,6 +92,19 @@
             Associar conta
         </a>
     <% } %>
+
+<form
+    method="POST"
+    action="/atletas/<%= idAtleta %>/remover-equipe"
+    onsubmit="return confirm('Deseja remover esta atleta da equipe? O cadastro e o histórico serão preservados.');">
+
+    <button
+        type="submit"
+        class="botao perigo">
+        Remover da equipe
+    </button>
+</form>
+
 </td>
               </tr>
             <% }); %>
@@ -105,6 +118,7 @@
         <a href="/registro-atleta" class="botao principal">Cadastrar atleta</a>
       </div>
     <% } %>
+    
   </section>
 </main>
 
