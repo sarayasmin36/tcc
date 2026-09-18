@@ -1,0 +1,105 @@
+<%- include('parciais/cabecalho.ejs', { titulo: 'Perfil | VoleiStats' }) %>
+    <%- include('parciais/menu_lateral.ejs') %>
+        <% const dadosUsuario=typeof usuario !=='undefined' && usuario ? usuario : {}; const
+            nomeUsuario=dadosUsuario.nome || '' ; const emailUsuario=dadosUsuario.email || '' ; const
+            tipoUsuario=dadosUsuario.tipo_usuario || dadosUsuario.tipo || '' ; const
+            tipoUsuarioFormatado=tipoUsuario.toUpperCase()==='ATLETA' ? 'Atleta' :
+            tipoUsuario.toUpperCase()==='TREINADOR' ? 'Treinador' : 'Tipo não informado' ; const
+            iniciaisUsuario=nomeUsuario ? nomeUsuario .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map(function (parte) { return parte.charAt(0); })
+        .join('')
+        .toUpperCase()
+    : ' —'; %>
+
+            <main class="conteudo-principal">
+                <header class="barra-superior">
+                    <div>
+                        <h1>Meu perfil</h1>
+                        <p class="subtitulo">
+                            Visualize e edite suas informações pessoais.
+                        </p>
+                    </div>
+                </header>
+                <% if (typeof sucesso !=='undefined' && sucesso) { %>
+                    <div class="aviso sucesso" role="status">
+                        <%= sucesso %>
+                    </div>
+                    <% } %>
+
+                        <% if (typeof erro !=='undefined' && erro) { %>
+                            <div class="aviso erro" role="alert">
+                                <%= erro %>
+                            </div>
+                            <% } %>
+
+                                <section class="grade duas-colunas">
+                                    <article class="cartao">
+                                        <div class="perfil-superior">
+                                            <div class="avatar" id="avatar-usuario">
+                                                <%= iniciaisUsuario %>
+                                            </div>
+
+                                            <div>
+                                                <h2 id="nome-exibicao">
+                                                    <%= nomeUsuario || 'Nome não informado' %>
+                                                </h2>
+                                                <p class="texto-secundario" id="tipo-usuario">
+                                                    <%= tipoUsuarioFormatado %>
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <hr>
+
+                                        <p class="texto-secundario">
+                                            Este perfil reúne as informações da conta utilizada no VoleiStats.
+                                        </p>
+                                    </article>
+
+                                    <form class="cartao" id="formulario-perfil" action="/perfil" method="POST">
+
+                                        <div class="cabecalho-secao">
+                                            <div>
+                                                <h2>Informações pessoais</h2>
+                                                <p class="subtitulo">
+                                                    Mantenha seus dados atualizados.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div class="grade-formulario">
+                                            <div class="campo completo">
+                                                <label for="nome-usuario">Nome completo</label>
+                                                <input id="nome-usuario" name="nome" type="text"
+                                                    value="<%= nomeUsuario %>" placeholder="Digite seu nome" required>
+                                            </div>
+
+                                            <div class="campo completo">
+                                                <label for="email-usuario">E-mail</label>
+                                                <input id="email-usuario" name="email" type="email"
+                                                    value="<%= emailUsuario %>" placeholder="Digite seu e-mail"
+                                                    required>
+                                            </div>
+
+                                            <div class="campo completo">
+                                                <label for="tipo-conta">Tipo de conta</label>
+                                                <input id="tipo-conta" name="tipo_usuario" type="text"
+                                                    value="<%= tipoUsuario %>" readonly>
+                                                <span class="texto-ajuda">
+                                                    O tipo de conta é definido no cadastro e não pode ser alterado aqui.
+                                                </span>
+                                            </div>
+
+                                            <div class="acoes-formulario">
+                                                <button type="submit" class="botao principal" id="botao-salvar-perfil">
+                                                    Salvar alterações
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </section>
+            </main>
+
+            <%- include('parciais/rodape.ejs') %>

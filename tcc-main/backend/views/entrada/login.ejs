@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entrar | VoleiStats</title>
+  <link rel="stylesheet" href="/css/styles.css?v=2">
+</head>
+<body class="pagina-entrada">
+  <main class="pagina-entrada-conteudo">
+    <section class="cartao-entrada">
+      <div class="marca-entrada">
+        <div class="logo-marca">V</div>
+        <div>
+          <div class="nome-marca">VoleiStats</div>
+          <div class="subtitulo-marca">Desempenho em quadra</div>
+        </div>
+      </div>
+
+      <nav class="abas-entrada" aria-label="Acesso e cadastro">
+        <a class="ativa" href="/login">Entrar</a>
+        <a href="/registro-treinador">Treinador</a>
+        <a href="/registro-atleta">Atleta</a>
+      </nav>
+
+      <div class="cabecalho-entrada">
+        <p class="texto-pequeno">BEM-VINDO</p>
+        <h1>Entre na sua conta</h1>
+        <p class="texto-secundario">Acompanhe equipes, atletas e partidas em um só lugar.</p>
+      </div>
+
+      <% if (typeof sucesso !== 'undefined' && sucesso) { %>
+        <div class="aviso sucesso" role="status"><%= sucesso %></div>
+      <% } %>
+
+      <% if (typeof erro !== 'undefined' && erro) { %>
+        <div class="aviso erro" role="alert"><%= erro %></div>
+      <% } %>
+
+      <form class="formulario-entrada" action="/login" method="POST">
+        <div class="campo">
+          <label for="email">E-mail</label>
+          <input id="email" name="email" type="email" placeholder="seuemail@exemplo.com" autocomplete="email" required>
+        </div>
+
+        <div class="campo">
+          <label for="senha">Senha</label>
+          <input id="senha" name="senha" type="password" placeholder="Digite sua senha" autocomplete="current-password" required>
+        </div>
+
+        <button type="submit" class="botao principal">Entrar</button>
+      </form>
+
+      <p class="rodape-entrada">Ainda não tem uma conta?</p>
+
+      <div class="acoes-entrada">
+        <a class="botao secundario" href="/registro-treinador">Criar conta como treinador</a>
+        <a class="botao secundario" href="/registro-atleta">Criar conta como atleta</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

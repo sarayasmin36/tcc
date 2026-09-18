@@ -1,0 +1,92 @@
+<%- include('../parciais/cabecalho.ejs', { titulo: 'Equipes | VoleiStats' }) %>
+<%- include('../parciais/menu_lateral.ejs') %>
+
+<main class="conteudo-principal">
+  <header class="barra-superior">
+    <div>
+      <p class="texto-pequeno">ORGANIZAÇÃO DO ELENCO</p>
+      <h1>Minhas equipes</h1>
+      <p class="subtitulo">Organize seus elencos e acompanhe a evolução dos atletas.</p>
+    </div>
+
+    <div class="acoes-superiores">
+      <% if (usuario && usuario.tipo_usuario === 'TREINADOR') { %>
+    <a href="/equipes/cadastro" class="botao principal">
+        Nova equipe
+    </a>
+<% } %>
+    </div>
+  </header>
+
+  <% if (typeof mensagem !== 'undefined' && mensagem) { %>
+    <div class="aviso sucesso" role="status"><%= mensagem %></div>
+  <% } %>
+
+  <% if (typeof erro !== 'undefined' && erro) { %>
+    <div class="aviso erro" role="alert"><%= erro %></div>
+  <% } %>
+
+  <section class="secao">
+    <div class="cabecalho-secao">
+      <div>
+        <h2>Equipes cadastradas</h2>
+        <p class="subtitulo">Cada equipe terá seu próprio elenco e histórico de partidas.</p>
+      </div>
+
+      <label class="campo campo-busca" for="busca-equipes">
+        <span class="texto-oculto">Buscar equipe</span>
+        <input id="busca-equipes" type="search" placeholder="Buscar equipe..." data-filtro-equipes>
+      </label>
+    </div>
+
+    <div class="lista-equipes" id="lista-equipes">
+      <% if (Array.isArray(equipes) && equipes.length > 0) { %>
+        <% equipes.forEach(function(equipe) { %>
+          <% const nomeEquipe = equipe.nome || 'Equipe sem nome'; %>
+          <% const idEquipe = equipe.id_equipe || equipe.id || ''; %>
+
+          <article class="cartao linha-equipe" data-nome-equipe="<%= nomeEquipe %>">
+            <div class="identificador-equipe">
+              <%= nomeEquipe.trim().slice(0, 2).toUpperCase() %>
+            </div>
+
+            <div class="informacoes-equipe">
+              <h3><%= nomeEquipe %></h3>
+              <p class="texto-secundario"><%= equipe.descricao || equipe.categoria || 'Equipe cadastrada' %></p>
+            </div>
+            <p>Código para atletas: <strong><%= equipe.codigo_acesso %></strong></p>
+
+
+            <div class="resumo-equipe">
+              <span class="etiqueta verde"><%= equipe.quantidadeAtletas || equipe.quantidade_atletas || 0 %> atletas</span>
+              <span class="texto-secundario"><%= equipe.quantidadePartidas || equipe.quantidade_partidas || 0 %> partidas</span>
+            </div>
+
+            <div class="acoes-equipe">
+              <a href="/atletas?equipe=<%= idEquipe %>" class="botao secundario">Ver atletas</a>
+              <% if (usuario && usuario.tipo_usuario === 'TREINADOR') { %>
+    <a href="/equipes/<%= idEquipe %>/editar" class="botao secundario">
+        Editar
+    </a>
+<% } %>
+
+            </div>
+          </article>
+        <% }); %>
+
+        <div class="estado-vazio oculto" id="estado-vazio-equipes">
+          <h3>Nenhuma equipe encontrada</h3>
+          <p class="texto-secundario">Tente buscar por outro nome.</p>
+        </div>
+      <% } else { %>
+        <div class="estado-vazio" id="estado-vazio-equipes">
+          <h3>Nenhuma equipe cadastrada</h3>
+          <p class="texto-secundario">Quando você cadastrar uma equipe, ela aparecerá nesta lista.</p>
+          <a href="/equipes/cadastro" class="botao principal">Criar equipe</a>
+        </div>
+      <% } %>
+    </div>
+  </section>
+</main>
+
+<%- include('../parciais/rodape.ejs') %>

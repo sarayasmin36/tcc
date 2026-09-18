@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro de treinador | VoleiStats</title>
+  <link rel="stylesheet" href="/css/styles.css?v=2">
+</head>
+<body class="pagina-entrada">
+  <main class="pagina-entrada-conteudo">
+    <section class="cartao-entrada">
+      <div class="marca-entrada">
+        <div class="logo-marca">V</div>
+        <div>
+          <div class="nome-marca">VoleiStats</div>
+          <div class="subtitulo-marca">Cadastro de treinador</div>
+        </div>
+      </div>
+
+      <nav class="abas-entrada" aria-label="Acesso e cadastro">
+        <a href="/login">Entrar</a>
+        <a class="ativa" href="/registro-treinador">Treinador</a>
+        <a href="/registro-atleta">Atleta</a>
+      </nav>
+
+      <div class="cabecalho-entrada">
+        <p class="texto-pequeno">NOVA CONTA</p>
+        <h1>Cadastre-se como treinador</h1>
+        <p class="texto-secundario">Crie equipes, cadastre atletas e organize suas partidas.</p>
+      </div>
+
+      <% if (typeof sucesso !== 'undefined' && sucesso) { %>
+        <div class="aviso sucesso" role="status"><%= sucesso %></div>
+      <% } %>
+
+      <% if (typeof erro !== 'undefined' && erro) { %>
+        <div class="aviso erro" role="alert"><%= erro %></div>
+      <% } %>
+
+      <form class="formulario-entrada" action="/registro-treinador" method="POST">
+        <div class="campo">
+          <label for="nome-treinador">Nome completo</label>
+          <input id="nome-treinador" name="nome" type="text" placeholder="Digite seu nome completo" autocomplete="name" required>
+        </div>
+
+        <div class="campo">
+          <label for="email-treinador">E-mail</label>
+          <input id="email-treinador" name="email" type="email" placeholder="seuemail@exemplo.com" autocomplete="email" required>
+        </div>
+
+        <div class="campo">
+          <label for="senha-treinador">Senha</label>
+          <input id="senha-treinador" name="senha" type="password" minlength="6" placeholder="Crie uma senha com pelo menos 6 caracteres" autocomplete="new-password" required>
+        </div>
+
+        <button class="botao principal" type="submit">Criar conta de treinador</button>
+      </form>
+
+      <p class="rodape-entrada">Já possui uma conta? <a href="/login">Voltar para o login</a></p>
+    </section>
+  </main>
+</body>
+</html>
