@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro de atleta | VoleiStats</title>
+  <link rel="stylesheet" href="/css/styles.css?v=2">
+</head>
+<body class="pagina-entrada">
+  <main class="pagina-entrada-conteudo">
+    <section class="cartao-entrada">
+      <div class="marca-entrada">
+        <div class="logo-marca">V</div>
+        <div>
+          <div class="nome-marca">VoleiStats</div>
+          <div class="subtitulo-marca">Cadastro de atleta</div>
+        </div>
+      </div>
+
+      <nav class="abas-entrada" aria-label="Acesso e cadastro">
+        <a href="/login">Entrar</a>
+        <a href="/registro-treinador">Treinador</a>
+        <a class="ativa" href="/registro-atleta">Atleta</a>
+      </nav>
+
+      <div class="cabecalho-entrada">
+        <p class="texto-pequeno">NOVA CONTA</p>
+        <h1>Cadastre-se como atleta</h1>
+        <p class="texto-secundario">Entre em uma equipe usando o código fornecido pelo treinador.</p>
+      </div>
+
+      <% if (typeof sucesso !== 'undefined' && sucesso) { %>
+        <div class="aviso sucesso" role="status"><%= sucesso %></div>
+      <% } %>
+
+      <% if (typeof erro !== 'undefined' && erro) { %>
+        <div class="aviso erro" role="alert"><%= erro %></div>
+      <% } %>
+
+      <form class="formulario-entrada" action="/registro-atleta" method="POST">
+        <div class="campo">
+          <label for="nome-atleta">Nome completo</label>
+          <input id="nome-atleta" name="nome" type="text" placeholder="Digite seu nome completo" autocomplete="name" required>
+        </div>
+
+        <div class="campo">
+          <label for="email-atleta">E-mail</label>
+          <input id="email-atleta" name="email" type="email" placeholder="seuemail@exemplo.com" autocomplete="email" required>
+        </div>
+
+        <div class="campo">
+          <label for="senha-atleta">Senha</label>
+          <input id="senha-atleta" name="senha" type="password" minlength="6" placeholder="Crie uma senha com pelo menos 6 caracteres" autocomplete="new-password" required>
+        </div>
+
+        <div class="campo">
+          <label for="codigo-convite">Código da equipe</label>
+          <input id="codigo-convite" name="codigo_convite" type="text" placeholder="Ex.: VOLEI-3F8A91C2" maxlength="20" required>
+          <span class="texto-ajuda">Solicite o código ao treinador da equipe.</span>
+        </div>
+
+        <div class="grade-formulario grade-entrada-dupla">
+          <div class="campo">
+            <label for="numero-camisa">Número da camisa</label>
+            <input id="numero-camisa" name="numero_camisa" type="number" min="0" max="99" required>
+          </div>
+
+          <div class="campo">
+            <label for="posicao-atleta">Posição</label>
+            <select id="posicao-atleta" name="posicao" required>
+              <option value="">---</option>
+              <option value="Levantador">Levantador</option>
+              <option value="Ponteiro">Ponteiro</option>
+              <option value="Central">Central</option>
+              <option value="Oposto">Oposto</option>
+              <option value="Líbero">Líbero</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="botao principal" type="submit">Criar conta e entrar na equipe</button>
+      </form>
+
+      <p class="rodape-entrada">Já possui uma conta? <a href="/login">Voltar para o login</a></p>
+    </section>
+  </main>
+</body>
+</html>

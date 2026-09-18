@@ -1,0 +1,90 @@
+<%- include('../parciais/cabecalho.ejs', { titulo: 'Editar atleta | VoleiStats' }) %>
+<%- include('../parciais/menu_lateral.ejs') %>
+
+<main class="conteudo-principal">
+    <header class="barra-superior">
+        <div>
+            <p class="texto-pequeno">ORGANIZAÇÃO DO ELENCO</p>
+            <h1>Editar atleta</h1>
+            <p class="subtitulo">Atualize os dados da atleta selecionada.</p>
+        </div>
+
+        <div class="acoes-superiores">
+            <a href="/atletas" class="botao secundario">Voltar</a>
+        </div>
+    </header>
+
+    <% if (typeof erro !== 'undefined' && erro) { %>
+        <div class="aviso erro" role="alert">
+            <%= erro %>
+        </div>
+    <% } %>
+
+    <% if (typeof sucesso !== 'undefined' && sucesso) { %>
+        <div class="aviso sucesso" role="status">
+            <%= sucesso %>
+        </div>
+    <% } %>
+
+    <section class="secao">
+        <form
+            class="cartao formulario"
+            method="POST"
+            action="/atletas/<%= atleta.id_atleta %>">
+
+            <div class="campo">
+                <label for="nome">Nome da atleta</label>
+                <input
+                    id="nome"
+                    name="nome"
+                    type="text"
+                    required
+                    maxlength="100"
+                    value="<%= atleta.nome || '' %>">
+            </div>
+
+            <div class="campo">
+                <label for="numero_camisa">Número da camisa</label>
+                <input
+                    id="numero_camisa"
+                    name="numero_camisa"
+                    type="number"
+                    min="0"
+                    max="99"
+                    required
+                    value="<%= atleta.numero_camisa ?? '' %>">
+            </div>
+
+            <div class="campo">
+                <label for="posicao">Posição</label>
+                <select id="posicao" name="posicao" required>
+                    <option value="" disabled>Selecione a posição</option>
+                    <% const posicoes = ['LEVANTADORA', 'PONTEIRA', 'CENTRAL', 'OPOSTA', 'LÍBERO']; %>
+                    <% posicoes.forEach((posicao) => { %>
+                        <option
+                            value="<%= posicao %>"
+                            <%= String(atleta.posicao || '').toUpperCase() === posicao ? 'selected' : '' %>>
+                            <%= posicao %>
+                        </option>
+                    <% }); %>
+                </select>
+            </div>
+
+            <% if (atleta.nome_equipe) { %>
+                <div class="campo">
+                    <label>Equipe</label>
+                    <input type="text" value="<%= atleta.nome_equipe %>" disabled>
+                </div>
+            <% } %>
+
+            <div class="acoes-formulario">
+                <a href="/atletas" class="botao secundario">Cancelar</a>
+                <button type="submit" class="botao principal">
+                    Salvar alterações
+                </button>
+            </div>
+        </form>
+    </section>
+</main>
+
+<%- include('../parciais/rodape.ejs') %>

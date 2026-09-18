@@ -1,0 +1,79 @@
+<%- include('../parciais/cabecalho.ejs', { titulo: 'Editar equipe | VoleiStats' }) %>
+<%- include('../parciais/menu_lateral.ejs') %>
+
+<main class="conteudo-principal">
+    <header class="barra-superior">
+        <div>
+            <p class="texto-pequeno">ORGANIZAÇÃO DO ELENCO</p>
+            <h1>Editar equipe</h1>
+            <p class="subtitulo">Atualize os dados básicos da equipe.</p>
+        </div>
+
+        <div class="acoes-superiores">
+            <a href="/equipes" class="botao secundario">Voltar</a>
+        </div>
+    </header>
+
+    <% if (typeof erro !== 'undefined' && erro) { %>
+        <div class="aviso erro" role="alert">
+            <%= erro %>
+        </div>
+    <% } %>
+
+    <section class="secao">
+        <form
+            class="cartao formulario"
+            method="POST"
+            action="/equipes/<%= equipe.id_equipe %>">
+
+            <div class="campo">
+                <label for="nome">Nome da equipe</label>
+                <input
+                    id="nome"
+                    name="nome"
+                    type="text"
+                    required
+                    maxlength="100"
+                    value="<%= equipe.nome || '' %>">
+            </div>
+
+            <div class="campo">
+                <label for="categoria">Categoria</label>
+                <input
+                    id="categoria"
+                    name="categoria"
+                    type="text"
+                    maxlength="60"
+                    value="<%= equipe.categoria || '' %>">
+            </div>
+
+            <div class="campo">
+                <label for="local">Local</label>
+                <input
+                    id="local"
+                    name="local"
+                    type="text"
+                    maxlength="120"
+                    value="<%= equipe.local || '' %>">
+            </div>
+
+            <div class="campo">
+                <label for="descricao">Descrição</label>
+                <textarea
+                    id="descricao"
+                    name="descricao"
+                    rows="4"
+                    maxlength="500"><%= equipe.descricao || '' %></textarea>
+            </div>
+
+            <div class="acoes-formulario">
+                <a href="/equipes" class="botao secundario">Cancelar</a>
+                <button type="submit" class="botao principal">
+                    Salvar alterações
+                </button>
+            </div>
+        </form>
+    </section>
+</main>
+
+<%- include('../parciais/rodape.ejs') %>
