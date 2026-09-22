@@ -88,45 +88,77 @@
       <% if (typeof atletas !== 'undefined' && atletas.length > 0) { %>
         <div class="lista-escalacao-inicial">
           <% atletas.forEach(function(atleta) { %>
-            <% const idAtleta = atleta.id_atleta || atleta.id; %>
-            <article class="cartao atleta-cadastro" data-cartao-cadastro-atleta>
-              <label class="seletor-atleta">
+
+    <%
+        const idAtleta = atleta.id_atleta;
+    %>
+
+    <article
+        class="cartao atleta-cadastro"
+        data-cartao-cadastro-atleta>
+
+        <label class="seletor-atleta">
+            <input
+                type="checkbox"
+                name="escalacao[atleta_<%= idAtleta %>][participa]"
+                value="1"
+                data-atleta-partida
+                data-atleta-id="<%= idAtleta %>">
+
+            <span>
+                <strong>
+                    <%= atleta.nome %>
+                </strong>
+
+                <small class="texto-secundario">
+                    Camisa:
+                    <%= atleta.numero_camisa ||
+                        'Não informada' %>
+
+                    —
+                    <%= atleta.posicao ||
+                        'Posição não informada' %>
+                </small>
+            </span>
+        </label>
+
+        <div class="campos-escalacao">
+            <label class="campo campo-titular-cadastro">
+                <span>Titular</span>
+
                 <input
-                  type="checkbox"
-                  name="escalacao[<%= idAtleta %>][participa]"
-                  value="1"
-                  data-atleta-partida
-                  data-atleta-id="<%= idAtleta %>">
-                <span>
-                  <strong><%= atleta.nome %></strong>
-                  <small class="texto-secundario">
-                    Camisa: <%= atleta.numero_camisa || atleta.numeroCamisa || 'Não informada' %>
-                    — <%= atleta.posicao || 'Posição não informada' %>
-                  </small>
-                </span>
-              </label>
+                    type="checkbox"
+                    name="escalacao[atleta_<%= idAtleta %>][titular]"
+                    value="1"
+                    data-titular-cadastro
+                    disabled>
+            </label>
 
-              <div class="campos-escalacao">
-                <label class="campo campo-titular-cadastro">
-                  <span>Titular</span>
-                  <input type="checkbox" name="escalacao[<%= idAtleta %>][titular]" value="1" data-titular-cadastro disabled>
-                </label>
+            <label class="campo campo-posicao-cadastro">
+                <span>Posição</span>
 
-                <label class="campo campo-posicao-cadastro">
-                  <span>Posição</span>
-                  <select name="escalacao[<%= idAtleta %>][posicao]" data-posicao-cadastro disabled>
-                    <option value="">Banco</option>
+                <select
+                    name="escalacao[atleta_<%= idAtleta %>][posicao]"
+                    data-posicao-cadastro
+                    disabled>
+
+                    <option value="">
+                        Banco
+                    </option>
+
                     <option value="1">Posição 1</option>
                     <option value="2">Posição 2</option>
                     <option value="3">Posição 3</option>
                     <option value="4">Posição 4</option>
                     <option value="5">Posição 5</option>
                     <option value="6">Posição 6</option>
-                  </select>
-                </label>
-              </div>
-            </article>
-          <% }); %>
+                </select>
+            </label>
+        </div>
+    </article>
+
+<% }); %>
+
         </div>
       <% } else { %>
         <div class="estado-vazio">

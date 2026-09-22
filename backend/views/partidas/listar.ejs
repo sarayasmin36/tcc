@@ -58,6 +58,15 @@
             <span class="etiqueta etiqueta-partida"><%= situacao %></span>
 
             <div class="acoes-partida">
+              
+              <button
+    type="button"
+    class="botao perigo"
+    data-apagar-partida
+    data-id-partida="<%= partida.id_partida %>">
+    Excluir partida
+</button>
+
     <% if (situacao === 'AGENDADA' && usuario && usuario.tipo_usuario === 'TREINADOR') { %>
         <a
             href="/partidas/<%= idPartida %>/desempenho"

@@ -111,59 +111,182 @@
 
                 </section>
                 <section class="quadra-banco-lado-a-lado">
-                    <section class="quadra-partida cartao">
-                        <div class="cabecalho-secao">
-                            <div>
-                                <h2>Quadra</h2>
-                                <p class="subtitulo">Formação atual da equipe.</p>
-                            </div>
-                        </div>
-                        <div class="grade-posicoes">
-                            <% for (let posicao = 1; posicao <= 6; posicao += 1) { %>
-                                <% const atleta = listaAtletas.find((item) => String(item.posicao_inicial || item.posicaoInicial || item.posicao) === String(posicao)); %>
-                                    <div class="posicao-quadra <%= atleta ? 'posicao-ocupada' : '' %>" data-posicao="<%= posicao %>">
-                                        <% if (atleta) { %>
-                                            <strong>#<%= atleta.numero_camisa || atleta.numeroCamisa || '' %></strong>
-                                            <span><%= atleta.nome %></span>
-                                            <small><%= atleta.posicao || 'Atleta' %></small>
-                                            <% } else { %>
-                                                <span>Posição <%= posicao %></span><small>VAZIO</small>
-                                                <% } %>
-                                    </div>
-                                    <% } %>
-                        </div>
-                    </section>
 
-                    <section class="quadra-partida cartao">
-                        <div class="cabecalho-secao">
-                            <div>
-                                <h2>Banco de Reservas</h2>
-                                <p class="subtitulo">Atletas fora da formação inicial.</p>
-                            </div>
-                        </div>
-                        <div class="grade-posicoes">
-                            <% const idsEscalados = new Set();
-                             for (let p = 1; p <= 6; p += 1) {
-                                 const t = listaAtletas.find((item) => String(item.posicao_inicial || item.posicaoInicial || item.posicao) === String(p));
-                                 if (t) idsEscalados.add(String(t.id_atleta || t.id));
-                             }
-                             const listaReservas = listaAtletas.filter((item) => !idsEscalados.has(String(item.id_atleta || item.id)));
-                          %>
-                                <% for (let posicao = 1; posicao <= 6; posicao += 1) { %>
-                                    <% const atleta = listaReservas[posicao - 1]; %>
-                                        <div class="posicao-quadra <%= atleta ? 'posicao-ocupada' : '' %>" data-posicao-banco="<%= posicao %>">
-                                            <% if (atleta) { %>
-                                                <strong>#<%= atleta.numero_camisa || atleta.numeroCamisa || '' %></strong>
-                                                <span><%= atleta.nome %></span>
-                                                <small><%= atleta.posicao || 'Reserva' %></small>
-                                                <% } else { %>
-                                                    <span>Banco <%= posicao %></span><small>VAZIO</small>
-                                                    <% } %>
-                                        </div>
-                                        <% } %>
-                        </div>
-                    </section>
-                    </div>
+    <section class="quadra-partida cartao">
+        <div class="cabecalho-secao">
+            <div>
+                <h2>Quadra</h2>
+                <p class="subtitulo">
+                    Formação atual da equipe.
+                </p>
+            </div>
+        </div>
+
+        <div class="grade-posicoes">
+            <% for (let posicao = 1; posicao <= 6; posicao += 1) { %>
+
+                <% const atleta = listaAtletas.find((item) => {
+    return Number(item.titular) === 1 &&
+        Number(item.posicao_inicial) === posicao;
+}); %>
+
+
+                <div
+                    class="posicao-quadra <%= atleta ? 'posicao-ocupada' : '' %>"
+                    data-posicao="<%= posicao %>">
+
+                    <% if (atleta) { %>
+
+                        <strong>
+                            #<%= atleta.numero_camisa ||
+                                atleta.numeroCamisa ||
+                                '' %>
+                        </strong>
+
+                        <span>
+                            <%= atleta.nome %>
+                        </span>
+
+                        <small>
+                            <%= atleta.posicao || 'Atleta' %>
+                        </small>
+
+                        <% if (!somenteLeitura) { %>
+                            <button
+                                type="button"
+                                class="botao secundario botao-substituicao"
+                                data-substituir-atleta
+                                data-tipo-atleta="sai"
+                                data-id-atleta="<%= atleta.id_atleta || atleta.id %>"
+                                data-posicao="<%= posicao %>">
+                                Substituir
+                            </button>
+                        <% } %>
+
+                    <% } else { %>
+
+                        <span>
+                            Posição <%= posicao %>
+                        </span>
+
+                        <small>
+                            VAZIO
+                        </small>
+
+                    <% } %>
+                </div>
+
+            <% } %>
+        </div>
+    </section>
+
+    <section class="quadra-partida cartao">
+        <div class="cabecalho-secao">
+            <div>
+                <h2>Banco de Reservas</h2>
+
+                <p class="subtitulo">
+                    Atletas fora da formação inicial.
+                </p>
+            </div>
+        </div>
+
+        <%
+            const idsEscalados = new Set();
+
+            for (
+                let p = 1;
+                p <= 6;
+                p += 1
+            ) {
+                const titular = listaAtletas.find((item) => {
+                    return Number(item.titular) === 1 &&
+                        String(
+                            item.posicao_inicial ||
+                            item.posicaoInicial ||
+                            ''
+                        ) === String(p);
+                });
+
+                if (titular) {
+                    idsEscalados.add(
+                        String(
+                            titular.id_atleta ||
+                            titular.id
+                        )
+                    );
+                }
+            }
+
+            const listaReservas = listaAtletas.filter((item) => {
+                return !idsEscalados.has(
+                    String(
+                        item.id_atleta ||
+                        item.id
+                    )
+                );
+            });
+        %>
+
+        <div class="grade-posicoes">
+            <% for (
+                let posicao = 1;
+                posicao <= 6;
+                posicao += 1
+            ) { %>
+
+                <% const atleta = listaReservas[posicao - 1]; %>
+
+                <div
+                    class="posicao-quadra <%= atleta ? 'posicao-ocupada' : '' %>"
+                    data-posicao-banco="<%= posicao %>">
+
+                    <% if (atleta) { %>
+
+                        <strong>
+                            #<%= atleta.numero_camisa ||
+                                atleta.numeroCamisa ||
+                                '' %>
+                        </strong>
+
+                        <span>
+                            <%= atleta.nome %>
+                        </span>
+
+                        <small>
+                            <%= atleta.posicao || 'Reserva' %>
+                        </small>
+
+                        <% if (!somenteLeitura) { %>
+                            <button
+                                type="button"
+                                class="botao principal botao-substituicao"
+                                data-substituir-atleta
+                                data-tipo-atleta="entra"
+                                data-id-atleta="<%= atleta.id_atleta || atleta.id %>">
+                                Entrar na quadra
+                            </button>
+                        <% } %>
+
+                    <% } else { %>
+
+                        <span>
+                            Banco <%= posicao %>
+                        </span>
+
+                        <small>
+                            VAZIO
+                        </small>
+
+                    <% } %>
+                </div>
+
+            <% } %>
+        </div>
+    </section>
+
+</section>
+
 
                 <section class="painel-acao-set cartao">
                     <div class="cabecalho-secao">
@@ -175,14 +298,33 @@
                     </div>
 
                     <div class="seletor-atleta-acao">
-                        <% if (listaAtletas.length) { %>
-                            <% listaAtletas.forEach((atleta) => { %>
-                                <button type="button" class="botao-atleta-acao" data-selecionar-atleta-acao data-atleta-id="<%= atleta.id_atleta || atleta.id %>"><%= atleta.nome %></button>
-                                <% }); %>
-                                    <% } else { %>
-                                        <p class="texto-secundario">Nenhum atleta escalado.</p>
-                                        <% } %>
-                    </div>
+    <%
+        const atletasTitulares = listaAtletas.filter((atleta) => {
+            return Number(atleta.titular) === 1;
+        });
+    %>
+
+    <% if (atletasTitulares.length) { %>
+
+        <% atletasTitulares.forEach((atleta) => { %>
+            <button
+                type="button"
+                class="botao-atleta-acao"
+                data-selecionar-atleta-acao
+                data-atleta-id="<%= atleta.id_atleta || atleta.id %>">
+                <%= atleta.nome %>
+            </button>
+        <% }); %>
+
+    <% } else { %>
+
+        <p class="texto-secundario">
+            Nenhum atleta titular está na quadra.
+        </p>
+
+    <% } %>
+</div>
+
 
                     <div class="lista-acoes-partida">
                         <% [['passe','Passe'],['ataque','Ataque'],['defesa','Defesa'],['levantamento','Levantamento'],['saque','Saque'],['bloqueio','Bloqueio']].forEach((fundamento) => { %>
@@ -450,56 +592,285 @@
     </div>
 </section>
 
-<div class="modal-editar-acao" data-modal-editar-acao hidden>
+<div
+    class="modal-editar-acao"
+    data-modal-editar-acao
+    hidden>
+
     <div class="modal-conteudo">
+
         <h2>Editar ação</h2>
 
         <h3>Atleta</h3>
+
         <div class="grupo-botoes-edicao">
-            <% listaAtletas.forEach((atleta) => { %>
+            <% listaAtletas
+                .filter((atleta) => Number(atleta.titular) === 1)
+                .forEach((atleta) => { %>
+
                 <button
                     type="button"
                     class="botao secundario"
                     data-editar-atleta="<%= atleta.id_atleta || atleta.id %>">
+
                     <%= atleta.nome %>
                 </button>
+
             <% }); %>
         </div>
 
         <h3>Fundamento</h3>
+
         <div class="grupo-botoes-edicao">
-            <button type="button" class="botao secundario" data-editar-fundamento="passe">Passe</button>
-            <button type="button" class="botao secundario" data-editar-fundamento="ataque">Ataque</button>
-            <button type="button" class="botao secundario" data-editar-fundamento="defesa">Defesa</button>
-            <button type="button" class="botao secundario" data-editar-fundamento="levantamento">Levantamento</button>
-            <button type="button" class="botao secundario" data-editar-fundamento="saque">Saque</button>
-            <button type="button" class="botao secundario" data-editar-fundamento="bloqueio">Bloqueio</button>
+
+            <button
+                type="button"
+                class="botao secundario"
+                data-editar-fundamento="passe">
+                Passe
+            </button>
+
+            <button
+                type="button"
+                class="botao secundario"
+                data-editar-fundamento="ataque">
+                Ataque
+            </button>
+
+            <button
+                type="button"
+                class="botao secundario"
+                data-editar-fundamento="defesa">
+                Defesa
+            </button>
+
+            <button
+                type="button"
+                class="botao secundario"
+                data-editar-fundamento="levantamento">
+                Levantamento
+            </button>
+
+            <button
+                type="button"
+                class="botao secundario"
+                data-editar-fundamento="saque">
+                Saque
+            </button>
+
+            <button
+                type="button"
+                class="botao secundario"
+                data-editar-fundamento="bloqueio">
+                Bloqueio
+            </button>
+
         </div>
 
         <h3>Resultado</h3>
-        <div class="grupo-botoes-edicao" data-editar-resultados></div>
+
+        <div
+            class="grupo-botoes-edicao"
+            data-editar-resultados>
+
+            <div
+                data-resultados-fundamento="passe"
+                hidden>
+
+                <button
+                    type="button"
+                    class="botao secundario"
+                    data-editar-resultado="perfeito">
+                    Passe excelente
+                </button>
+
+                <button
+                    type="button"
+                    class="botao secundario"
+                    data-editar-resultado="bom">
+                    Passe bom
+                </button>
+
+                <button
+                    type="button"
+                    class="botao secundario"
+                    data-editar-resultado="ruim">
+                    Passe errado
+                </button>
+            </div>
+
+            <div
+                data-resultados-fundamento="ataque"
+                hidden>
+
+                <button
+                    type="button"
+                    class="botao secundario"
+                    data-editar-resultado="perfeito">
+                    Ataque excelente
+                </button>
+
+                <button
+                    type="button"
+                    class="botao secundario"
+                    data-editar-resultado="bom">
+                    Ataque bom
+                </button>
+
+                <button
+                    type="button"
+                    class="botao secundario"
+                    data-editar-resultado="ruim">
+                    Ataque errado
+                </button>
+            </div>
+
+            <div
+                data-resultados-fundamento="defesa"
+                hidden>
+
+                <button
+                    type="button"
+                    class="botao secundario"
+                    data-editar-resultado="perfeito">
+                    Recepção excelente
+                </button>
+
+                <button
+                    type="button"
+                    class="botao secundario"
+                    data-editar-resultado="bom">
+                    Recepção boa
+                </button>
+
+                <button
+                    type="button"
+                    class="botao secundario"
+                    data-editar-resultado="ruim">
+                    Recepção errada
+                </button>
+            </div>
+
+            <div
+                data-resultados-fundamento="levantamento"
+                hidden>
+
+                <button
+                    type="button"
+                    class="botao secundario"
+                    data-editar-resultado="perfeito">
+                    Levantamento excelente
+                </button>
+
+                <button
+                    type="button"
+                    class="botao secundario"
+                    data-editar-resultado="bom">
+                    Levantamento bom
+                </button>
+
+                <button
+                    type="button"
+                    class="botao secundario"
+                    data-editar-resultado="ruim">
+                    Levantamento errado
+                </button>
+            </div>
+
+            <div
+                data-resultados-fundamento="saque"
+                hidden>
+
+                <button
+                    type="button"
+                    class="botao secundario"
+                    data-editar-resultado="ace">
+                    ACE
+                </button>
+
+                <button
+                    type="button"
+                    class="botao secundario"
+                    data-editar-resultado="bom">
+                    Saque bom
+                </button>
+
+                <button
+                    type="button"
+                    class="botao secundario"
+                    data-editar-resultado="errado">
+                    Saque errado
+                </button>
+            </div>
+
+            <div
+                data-resultados-fundamento="bloqueio"
+                hidden>
+
+                <button
+                    type="button"
+                    class="botao secundario"
+                    data-editar-resultado="perfeito">
+                    Bloqueio excelente
+                </button>
+
+                <button
+                    type="button"
+                    class="botao secundario"
+                    data-editar-resultado="bom">
+                    Bloqueio bom
+                </button>
+
+                <button
+                    type="button"
+                    class="botao secundario"
+                    data-editar-resultado="ruim">
+                    Bloqueio errado
+                </button>
+            </div>
+
+        </div>
 
         <h3>Set</h3>
+
         <div class="grupo-botoes-edicao">
-            <% for (let numero = 1; numero <= quantidadeSetsPartida; numero += 1) { %>
+            <% for (
+                let numero = 1;
+                numero <= quantidadeSetsPartida;
+                numero += 1
+            ) { %>
+
                 <button
                     type="button"
                     class="botao secundario"
                     data-editar-set="<%= numero %>">
                     Set <%= numero %>
                 </button>
+
             <% } %>
         </div>
 
-        <button type="button" class="botao secundario" data-cancelar-edicao-acao>
-            Cancelar
-        </button>
+        <div class="acoes-modal-edicao">
 
-        <button type="button" class="botao principal" data-salvar-edicao-acao>
-            Salvar alteração
-        </button>
+            <button
+                type="button"
+                class="botao secundario"
+                data-cancelar-edicao-acao>
+                Cancelar
+            </button>
+
+            <button
+                type="button"
+                class="botao principal"
+                data-salvar-edicao-acao>
+                Salvar alteração
+            </button>
+
+        </div>
+
     </div>
 </div>
+
 
 
 
