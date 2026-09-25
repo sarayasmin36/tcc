@@ -2,7 +2,7 @@
    1. CONFIGURAÇÕES GERAIS
 ==================== */
 
- :root {
+:root {
     --verde: #123b5d;
     --verde-escuro: #0c2b45;
     --verde-claro: #e8f6f1;
@@ -17,6 +17,23 @@
     --vermelho-claro: #fff0ee;
     --vermelho: #b5473f;
     --sombra: 0 8px 22px rgba(18, 59, 93, 0.09);
+
+    /* Escala tipográfica única: todo font-size do site usa uma destas
+       variáveis. Antes havia dezenas de tamanhos quase-duplicados
+       (11px, 0.68rem, 0.7rem, 0.72rem, 0.75rem, 0.76rem...) fruto de
+       ajustes soltos — agora é uma escala fechada, com piso de 12px
+       para qualquer texto legível (nada de letra de 10-11px). */
+    --fs-2xs: 12px;  /* rótulos, badges, legendas, texto de apoio mínimo */
+    --fs-xs: 13px;   /* texto secundário, tabelas, avisos */
+    --fs-sm: 14px;   /* texto de formulário, h3 de card */
+    --fs-md: 16px;   /* texto padrão do corpo */
+    --fs-lg: 18px;   /* h2 de seção/card, subtítulos */
+    --fs-xl: 20px;   /* nome da marca */
+    --fs-2xl: 22px;  /* ícone da marca, números médios de placar */
+    --fs-3xl: 24px;  /* números de placar */
+    --fs-4xl: 26px;  /* números de placar em destaque */
+    --fs-5xl: 28px;  /* h1 de página */
+    --fs-6xl: 44px;  /* placar ao vivo (número principal) */
 }
 
 *,
@@ -37,8 +54,26 @@ body {
     overflow-y: auto;
     background: var(--fundo);
     color: var(--texto);
-    font-family: Arial, sans-serif;
-    font-size: 16px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: var(--fs-md);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Base tipográfica: garante que todo título, em qualquer página,
+   herde a mesma família, peso e espaçamento — regras mais específicas
+   (ex: .barra-superior h1, .secao h2) continuam podendo sobrescrever o tamanho. */
+h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+    font-family: inherit;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--texto);
+}
+
+p {
+    margin: 0;
+    line-height: 1.5;
 }
 
 a {
@@ -110,7 +145,7 @@ video {
 
 .barra-superior h1 {
     margin: 0;
-    font-size: 29px;
+    font-size: var(--fs-5xl);
 }
 
 .cabecalho-secao {
@@ -126,7 +161,7 @@ video {
 
 .subtitulo {
     margin: 7px 0 0;
-    font-size: 13px;
+    font-size: var(--fs-xs);
 }
 
 .acoes-superiores {
@@ -156,18 +191,18 @@ video {
     border-radius: 10px;
     background: var(--lima);
     color: var(--verde);
-    font-size: 22px;
+    font-size: var(--fs-2xl);
 }
 
 .nome-marca {
-    font-size: 19px;
+    font-size: var(--fs-xl);
     font-weight: bold;
 }
 
 .subtitulo-marca {
     margin-top: 3px;
     color: #bdd2c3;
-    font-size: 11px;
+    font-size: var(--fs-2xs);
 }
 
 .perfil-superior {
@@ -177,14 +212,14 @@ video {
 }
 
 .nome-perfil {
-    font-size: 13px;
+    font-size: var(--fs-xs);
     font-weight: bold;
 }
 
 .funcao-perfil {
     margin-top: 3px;
     color: #bdd2c3;
-    font-size: 11px;
+    font-size: var(--fs-2xs);
 }
 
 .avatar {
@@ -195,7 +230,7 @@ video {
     border-radius: 50%;
     background: #cfe7d4;
     color: var(--verde);
-    font-size: 12px;
+    font-size: var(--fs-2xs);
     font-weight: bold;
 }
 
@@ -208,7 +243,7 @@ video {
     padding: 11px 13px;
     border-radius: 8px;
     color: #c5d3c9;
-    font-size: 13px;
+    font-size: var(--fs-xs);
 }
 
 .navegacao a:hover,
@@ -333,6 +368,28 @@ video {
     padding: 24px;
 }
 
+/* Card de resumo do perfil (avatar + nome): centraliza o conteúdo na
+   altura toda do card (que o grid já iguala ao card do formulário ao
+   lado), em vez de deixar tudo colado no topo com um vão vazio embaixo. */
+.resumo-perfil {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 18px;
+}
+
+.resumo-perfil .perfil-superior {
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+}
+
+.resumo-perfil .avatar {
+    width: 56px;
+    height: 56px;
+    font-size: var(--fs-xl);
+}
+
 .tres-colunas {
     grid-template-columns: repeat(3, 1fr);
 }
@@ -355,13 +412,13 @@ video {
 .secao h2,
 .cartao h2 {
     margin: 0;
-    font-size: 16px;
+    font-size: var(--fs-lg);
 }
 
 .secao h3,
 .cartao h3 {
     margin: 0;
-    font-size: 14px;
+    font-size: var(--fs-sm);
 }
 
 .secao>.estado-vazio {
@@ -376,14 +433,14 @@ video {
 
 .rotulo-metrica {
     color: var(--cinza);
-    font-size: 12px;
+    font-size: var(--fs-2xs);
     font-weight: 700;
 }
 
 .valor-metrica {
     margin-top: 10px;
     color: var(--texto);
-    font-size: 28px;
+    font-size: var(--fs-5xl);
     font-weight: bold;
     line-height: 1;
 }
@@ -391,7 +448,7 @@ video {
 .observacao-metrica {
     margin-top: 8px;
     color: var(--verde);
-    font-size: 11px;
+    font-size: var(--fs-2xs);
 }
 
 
@@ -410,6 +467,30 @@ video {
 .linha-equipe:last-child,
 .linha-partida:last-child {
     border-bottom: 0;
+}
+
+/* Quando a linha também recebe a classe .cartao (como em .linha-equipe),
+   anula o visual de card avulso (borda própria, sombra, cantos arredondados)
+   para que a linha fique "no esquadro" dentro da seção que já é um card. */
+.cartao.linha-equipe,
+.cartao.linha-partida {
+    padding: 16px 4px;
+    border: 0;
+    border-radius: 0;
+    border-bottom: 1px solid var(--borda);
+    box-shadow: none;
+    background: transparent;
+    transition: background 150ms ease;
+}
+
+.cartao.linha-equipe:last-child,
+.cartao.linha-partida:last-child {
+    border-bottom: 0;
+}
+
+.cartao.linha-equipe:hover,
+.cartao.linha-partida:hover {
+    background: var(--fundo);
 }
 
 .linha-atleta {
@@ -440,7 +521,7 @@ video {
 table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 13px;
+    font-size: var(--fs-xs);
 }
 
 th,
@@ -452,7 +533,7 @@ td {
 
 th {
     color: var(--cinza);
-    font-size: 11px;
+    font-size: var(--fs-2xs);
     text-transform: uppercase;
 }
 
@@ -464,7 +545,7 @@ tbody tr:last-child td {
     display: inline-block;
     padding: 5px 9px;
     border-radius: 20px;
-    font-size: 11px;
+    font-size: var(--fs-2xs);
     font-weight: bold;
 }
 
@@ -481,6 +562,13 @@ tbody tr:last-child td {
 .etiqueta.vermelho {
     background: var(--vermelho-claro);
     color: var(--vermelho);
+}
+
+.etiqueta-partida {
+    flex-shrink: 0;
+    min-width: 96px;
+    text-align: center;
+    white-space: nowrap;
 }
 
 .identificador-equipe {
@@ -547,6 +635,16 @@ tbody tr:last-child td {
     margin: 5px 0 0;
 }
 
+.codigo-acesso {
+    color: var(--cinza);
+    font-size: var(--fs-xs);
+    white-space: nowrap;
+}
+
+.codigo-acesso strong {
+    color: var(--texto);
+}
+
 .resumo-equipe,
 .resumo-partida,
 .acoes-equipe,
@@ -563,12 +661,12 @@ tbody tr:last-child td {
 }
 
 .placar-partida {
-    font-size: 13px;
+    font-size: var(--fs-xs);
 }
 
 .resumo-partida h2 {
     margin: 0;
-    font-size: 18px;
+    font-size: var(--fs-lg);
 }
 
 .lista-escalacao {
@@ -612,7 +710,7 @@ tbody tr:last-child td {
     align-items: center;
     gap: 6px;
     color: var(--cinza);
-    font-size: 12px;
+    font-size: var(--fs-2xs);
     white-space: nowrap;
 }
 
@@ -677,7 +775,7 @@ tbody tr:last-child td {
 }
 
 .campo label {
-    font-size: 12px;
+    font-size: var(--fs-2xs);
     font-weight: bold;
 }
 
@@ -722,7 +820,7 @@ tbody tr:last-child td {
     border-radius: 8px;
     background: #f2f8df;
     color: #536c19;
-    font-size: 13px;
+    font-size: var(--fs-xs);
 }
 
 .aviso.erro {
@@ -753,7 +851,7 @@ tbody tr:last-child td {
 .formulario-grade .campo select,
 .formulario-grade .campo textarea {
     min-height: 40px;
-    font-size: 14px;
+    font-size: var(--fs-sm);
 }
 
 .formulario-grade .campo textarea {
@@ -764,7 +862,7 @@ tbody tr:last-child td {
 .formulario-grade .texto-ajuda {
     margin-top: -2px;
     color: var(--cinza);
-    font-size: 11px;
+    font-size: var(--fs-2xs);
     line-height: 1.4;
 }
 
@@ -809,7 +907,7 @@ tbody tr:last-child td {
     flex: 1;
     padding: 12px;
     color: var(--cinza);
-    font-size: 13px;
+    font-size: var(--fs-xs);
     font-weight: bold;
     text-align: center;
 }
@@ -826,7 +924,7 @@ tbody tr:last-child td {
 
 .rodape-entrada {
     color: var(--cinza);
-    font-size: 13px;
+    font-size: var(--fs-xs);
     text-align: center;
 }
 
@@ -878,13 +976,13 @@ tbody tr:last-child td {
     top: calc(100% + 10px);
     width: 100%;
     color: var(--cinza);
-    font-size: 11px;
+    font-size: var(--fs-2xs);
     text-align: center;
 }
 
 .grafico .valor-coluna {
     color: var(--cinza);
-    font-size: 11px;
+    font-size: var(--fs-2xs);
 }
 
 .grade-funcoes {
@@ -905,13 +1003,13 @@ tbody tr:last-child td {
 }
 
 .funcao strong {
-    font-size: 13px;
+    font-size: var(--fs-xs);
 }
 
 .funcao small {
     margin-top: 4px;
     color: var(--cinza);
-    font-size: 11px;
+    font-size: var(--fs-2xs);
 }
 
 
@@ -935,12 +1033,12 @@ tbody tr:last-child td {
     align-items: center;
     justify-content: space-between;
     color: var(--texto);
-    font-size: 14px;
+    font-size: var(--fs-sm);
 }
 
 .cabecalho-indicador strong {
     color: var(--cinza);
-    font-size: 13px;
+    font-size: var(--fs-xs);
 }
 
 .barra-indicador {
@@ -1016,7 +1114,7 @@ tbody tr:last-child td {
     display: block;
     margin-bottom: 11px;
     color: var(--texto);
-    font-size: 0.86rem;
+    font-size: var(--fs-sm);
 }
 
 .campos-fundamento {
@@ -1033,7 +1131,7 @@ tbody tr:last-child td {
     display: grid;
     gap: 5px;
     color: var(--cinza);
-    font-size: 0.7rem;
+    font-size: var(--fs-2xs);
 }
 
 .campos-fundamento .campo-estatistica {
@@ -1087,7 +1185,7 @@ tbody tr:last-child td {
 }
 
 .atleta-cadastro .seletor-atleta small {
-    font-size: 11px;
+    font-size: var(--fs-2xs);
 }
 
 .campos-escalacao {
@@ -1105,7 +1203,7 @@ tbody tr:last-child td {
 }
 
 .campo-titular-cadastro span {
-    font-size: 12px;
+    font-size: var(--fs-2xs);
 }
 
 .campo-posicao-cadastro {
@@ -1113,7 +1211,7 @@ tbody tr:last-child td {
 }
 
 .campo-posicao-cadastro span {
-    font-size: 11px;
+    font-size: var(--fs-2xs);
 }
 
 .campo-titular-cadastro input,
@@ -1155,7 +1253,7 @@ tbody tr:last-child td {
 .texto-contexto {
     margin: 0 0 7px;
     color: var(--cinza);
-    font-size: 14px;
+    font-size: var(--fs-sm);
 }
 
 .texto-contexto strong {
@@ -1214,13 +1312,13 @@ tbody tr:last-child td {
 
 .nome-equipe-placar {
     color: var(--cinza);
-    font-size: 14px;
+    font-size: var(--fs-sm);
 }
 
 .placar-equipe>strong {
     margin: 5px 0 9px;
     color: var(--verde-escuro);
-    font-size: 2.8rem;
+    font-size: var(--fs-6xl);
     line-height: 1;
 }
 
@@ -1233,12 +1331,12 @@ tbody tr:last-child td {
 
 .informacao-set>strong {
     color: var(--azul);
-    font-size: 0.82rem;
+    font-size: var(--fs-xs);
 }
 
 .placar-sets {
     color: var(--azul);
-    font-size: 1.6rem;
+    font-size: var(--fs-4xl);
 }
 
 .placar-sets i {
@@ -1248,7 +1346,7 @@ tbody tr:last-child td {
 
 .informacao-set small {
     color: var(--cinza);
-    font-size: 0.75rem;
+    font-size: var(--fs-2xs);
 }
 
 .seletor-set {
@@ -1256,7 +1354,7 @@ tbody tr:last-child td {
     align-items: center;
     gap: 7px;
     color: var(--cinza);
-    font-size: 0.75rem;
+    font-size: var(--fs-2xs);
     font-weight: 700;
     text-transform: uppercase;
 }
@@ -1269,7 +1367,7 @@ tbody tr:last-child td {
     background: var(--branco);
     color: var(--azul);
     cursor: pointer;
-    font-size: 0.78rem;
+    font-size: var(--fs-xs);
     font-weight: 700;
 }
 
@@ -1316,13 +1414,13 @@ tbody tr:last-child td {
 .cabecalho-quadra h2,
 .cabecalho-acao-set h2 {
     margin: 0;
-    font-size: 1.1rem;
+    font-size: var(--fs-lg);
 }
 
 .cabecalho-quadra span,
 .cabecalho-acao-set span {
     color: var(--cinza);
-    font-size: 0.84rem;
+    font-size: var(--fs-sm);
 }
 
 .grade-posicoes {
@@ -1338,12 +1436,12 @@ tbody tr:last-child td {
 
 .posicao-quadra {
     display: flex;
-    min-height: 82px;
+    min-height: 108px;
     flex-direction: column;
-    align-items: Center;
+    align-items: center;
     justify-content: center;
-    gap: 2px;
-    padding: 0 10px;
+    gap: 4px;
+    padding: 14px 10px;
     border: 1px solid #d7e5eb;
     border-radius: 12px;
     background: #f9fcfd;
@@ -1351,9 +1449,18 @@ tbody tr:last-child td {
     text-align: center;
 }
 
+.posicao-quadra .botao-substituicao {
+    width: 100%;
+    min-height: 34px;
+    margin-top: 4px;
+    padding: 6px 8px;
+    font-size: var(--fs-2xs);
+    white-space: nowrap;
+}
+
 .posicao-quadra small {
     color: #99aab4;
-    font-size: 0.68rem;
+    font-size: var(--fs-2xs);
     text-transform: uppercase;
 }
 
@@ -1382,7 +1489,7 @@ tbody tr:last-child td {
     background: var(--branco);
     color: var(--azul);
     cursor: pointer;
-    font-size: 0.82rem;
+    font-size: var(--fs-xs);
 }
 
 .botao-atleta-acao:hover,
@@ -1420,12 +1527,12 @@ tbody tr:last-child td {
 
 .acao-partida span {
     color: var(--azul);
-    font-size: 1.35rem;
+    font-size: var(--fs-2xl);
 }
 
 .acao-partida strong {
     color: var(--texto);
-    font-size: 0.82rem;
+    font-size: var(--fs-xs);
 }
 
 .painel-resultados {
@@ -1514,7 +1621,7 @@ tbody tr:last-child td {
     color: #a43d3d;
     cursor: pointer;
     font: inherit;
-    font-size: 0.76rem;
+    font-size: var(--fs-2xs);
     font-weight: 700;
     line-height: 1;
 }
@@ -1600,7 +1707,7 @@ tbody tr:last-child td {
 
 .texto-resumo-encerramento h2 {
     margin-bottom: 6px;
-    font-size: clamp(1.35rem, 2.5vw, 1.8rem);
+    font-size: clamp(var(--fs-2xl), 2.5vw, var(--fs-5xl));
 }
 
 .resumo-placar-set {
@@ -1615,23 +1722,23 @@ tbody tr:last-child td {
 
 .resumo-placar-set>strong {
     color: var(--verde-escuro);
-    font-size: 1rem;
+    font-size: var(--fs-md);
 }
 
 .resumo-placar-set>strong span {
-    font-size: 1.55rem;
+    font-size: var(--fs-3xl);
 }
 
 .resumo-placar-set>span {
     color: var(--verde-escuro);
-    font-size: 1.65rem;
+    font-size: var(--fs-4xl);
     font-weight: 800;
     line-height: 1.1;
 }
 
 .resumo-placar-set>small {
     color: var(--cinza);
-    font-size: 0.76rem;
+    font-size: var(--fs-2xs);
     text-align: center;
 }
 
@@ -1722,20 +1829,20 @@ body.pagina-entrada .marca-entrada .logo-marca {
     border-radius: 11px;
     background: #d7f36b;
     color: #0c2b45;
-    font-size: 21px;
+    font-size: var(--fs-2xl);
     font-weight: 800;
 }
 
 body.pagina-entrada .marca-entrada .nome-marca {
     color: #12263a;
-    font-size: 19px;
+    font-size: var(--fs-xl);
     font-weight: 800;
 }
 
 body.pagina-entrada .marca-entrada .subtitulo-marca {
     margin-top: 3px;
     color: #64748b;
-    font-size: 11px;
+    font-size: var(--fs-2xs);
 }
 
 body.pagina-entrada .abas-entrada {
@@ -1752,7 +1859,7 @@ body.pagina-entrada .abas-entrada a {
     padding: 9px 6px;
     border-radius: 7px;
     color: #64748b;
-    font-size: 12px;
+    font-size: var(--fs-xs);
     font-weight: 700;
     text-align: center;
 }
@@ -1772,7 +1879,7 @@ body.pagina-entrada .cabecalho-entrada {
 body.pagina-entrada .cabecalho-entrada h1 {
     margin: 5px 0 8px;
     color: #12263a;
-    font-size: 28px;
+    font-size: var(--fs-5xl);
     line-height: 1.15;
 }
 
@@ -1797,7 +1904,7 @@ body.pagina-entrada .auth-form .field {
 body.pagina-entrada .formulario-entrada .campo label,
 body.pagina-entrada .auth-form .field label {
     color: #12263a;
-    font-size: 12px;
+    font-size: var(--fs-2xs);
     font-weight: 700;
 }
 
@@ -1852,14 +1959,14 @@ body.pagina-entrada .acoes-entrada .botao.secundario {
     border-radius: 9px;
     background: #f0f4f8;
     color: #12263a;
-    font-size: 12px;
+    font-size: var(--fs-xs);
     text-align: center;
 }
 
 body.pagina-entrada .rodape-entrada {
     margin: 20px 0 11px;
     color: #64748b;
-    font-size: 12px;
+    font-size: var(--fs-xs);
     text-align: center;
 }
 
@@ -1872,7 +1979,7 @@ body.pagina-entrada .aviso {
     margin-bottom: 15px;
     padding: 11px 13px;
     border-radius: 9px;
-    font-size: 12px;
+    font-size: var(--fs-xs);
     line-height: 1.4;
 }
 
@@ -1997,7 +2104,7 @@ body.pagina-entrada .form-grid {
         justify-content: center;
         padding: 0;
         border-radius: 7px;
-        font-size: 11px;
+        font-size: var(--fs-2xs);
         font-weight: bold;
     }
     .botao-menu-mobile {
@@ -2036,7 +2143,7 @@ body.pagina-entrada .form-grid {
         align-items: center;
         padding: 7px 10px;
         border-radius: 7px;
-        font-size: 12px;
+        font-size: var(--fs-2xs);
     }
     .conteudo-principal {
         width: 100%;
@@ -2168,7 +2275,7 @@ body.pagina-entrada .form-grid {
         min-width: 62px;
         min-height: 30px;
         padding: 5px 8px;
-        font-size: 0.72rem;
+        font-size: var(--fs-2xs);
     }
 }
 
@@ -2203,7 +2310,7 @@ body.pagina-entrada .form-grid {
         grid-template-columns: 1fr;
     }
     body.pagina-entrada .cabecalho-entrada h1 {
-        font-size: 24px;
+        font-size: var(--fs-3xl);
     }
 }
 
@@ -2214,10 +2321,10 @@ body.pagina-entrada .form-grid {
         padding-right: 11px;
     }
     .nome-marca {
-        font-size: 1rem;
+        font-size: var(--fs-md);
     }
     .subtitulo-marca {
-        font-size: 0.72rem;
+        font-size: var(--fs-2xs);
     }
     .navegacao a {
         flex-basis: 100%;
@@ -2226,11 +2333,11 @@ body.pagina-entrada .form-grid {
         padding: 64px 12px 28px;
     }
     h1 {
-        font-size: 1.65rem;
+        font-size: var(--fs-4xl);
         line-height: 1.15;
     }
     h2 {
-        font-size: 1.2rem;
+        font-size: var(--fs-xl);
     }
     .secao,
     .cartao {
@@ -2274,7 +2381,7 @@ body.pagina-entrada .form-grid {
         border-radius: 14px;
     }
     .resumo-placar-set>span {
-        font-size: 1.45rem;
+        font-size: var(--fs-3xl);
     }
     .acoes-resumo-set,
     .acoes-resumo-set .botao {
@@ -2293,8 +2400,8 @@ body.pagina-entrada .form-grid {
         padding: 10px;
     }
     .posicao-quadra {
-        min-height: 70px;
-        font-size: 0.78rem;
+        min-height: 92px;
+        font-size: var(--fs-xs);
     }
     .lista-acoes-partida {
         grid-template-columns: repeat(2, minmax(0, 1fr));
