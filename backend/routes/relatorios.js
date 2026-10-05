@@ -49,7 +49,10 @@ router.get('/relatorios', exigirLogin, (req, res) => {
             COALESCE(SUM(da.bloqueios_certos), 0) AS bloqueios_certos,
             COALESCE(SUM(da.bloqueios_errados), 0) AS bloqueios_errados,
             COALESCE(SUM(da.recepcoes_certas), 0) AS recepcoes_certas,
-            COALESCE(SUM(da.recepcoes_erradas), 0) AS recepcoes_erradas
+            COALESCE(SUM(da.recepcoes_erradas), 0) AS recepcoes_erradas,
+            COALESCE(SUM(da.passes_certos), 0) AS passes_certos,
+            COALESCE(SUM(da.passes_errados), 0) AS passes_errados
+
         FROM participacao_atleta pa
         INNER JOIN atleta a
             ON a.id_atleta = pa.id_atleta
@@ -422,9 +425,9 @@ router.put('/partidas/:id/desempenho/acao/:idAcao', exigirTreinador, (req, res) 
     const idTreinador = Number(req.session.usuario.id_treinador);
 
     const colunas = {
-        passe: { perfeito: 'recepcoes_certas', bom: 'recepcoes_certas', ruim: 'recepcoes_erradas' },
+        passe: {perfeito: 'passes_certos', bom: 'passes_certos', ruim: 'passes_errados'},
         ataque: { perfeito: 'ataques_certos', bom: 'ataques_certos', ruim: 'ataques_errados' },
-        defesa: { perfeito: 'defesas_certas', bom: 'defesas_certas', ruim: 'defesas_erradas' },
+        defesa: { perfeito: 'recepcoes_certas', bom: 'recepcoes_certas',ruim: 'recepcoes_erradas' },
         levantamento: { perfeito: 'levantamentos_certos', bom: 'levantamentos_certos', ruim: 'levantamentos_errados' },
         saque: { ace: 'aces', bom: 'saques_certos', errado: 'saques_errados' },
         bloqueio: { perfeito: 'bloqueios_certos', bom: 'bloqueios_certos', ruim: 'bloqueios_errados' }
@@ -523,22 +526,23 @@ router.post('/partidas/:id/desempenho/acao', exigirTreinador, (req, res) => {
     const resultado = String(req.body.resultado || '').trim();
     const idTreinador = Number(req.session.usuario.id_treinador);
 
-    const colunas = {
-        passe: {
-            perfeito: 'recepcoes_certas',
-            bom: 'recepcoes_certas',
-            ruim: 'recepcoes_erradas'
-        },
+const colunas = {
+    passe: {
+        perfeito: 'passes_certos',
+        bom: 'passes_certos',
+        ruim: 'passes_errados'
+    },
+
         ataque: {
             perfeito: 'ataques_certos',
             bom: 'ataques_certos',
             ruim: 'ataques_errados'
         },
-        defesa: {
-            perfeito: 'defesas_certas',
-            bom: 'defesas_certas',
-            ruim: 'defesas_erradas'
-        },
+defesa: {
+    perfeito: 'recepcoes_certas',
+    bom: 'recepcoes_certas',
+    ruim: 'recepcoes_erradas'
+},
         levantamento: {
             perfeito: 'levantamentos_certos',
             bom: 'levantamentos_certos',

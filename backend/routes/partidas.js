@@ -1084,12 +1084,41 @@ router.delete('/partidas/:id', exigirTreinador, (req, res) => {
     }
 
     const comandos = [
-    `DELETE FROM acao_partida WHERE id_partida = ?`,
-    `DELETE FROM set_partida WHERE id_partida = ?`,
-    `DELETE FROM participacao_atleta WHERE id_partida = ?`,
-    `DELETE FROM participacao_partida WHERE id_partida = ?`,
-    `DELETE FROM partida WHERE id_partida = ?`
+    `
+        DELETE da
+        FROM desempenho_atleta da
+        INNER JOIN participacao_atleta pa
+            ON pa.id_participacao_atleta =
+               da.id_participacao_atleta
+        WHERE pa.id_partida = ?
+    `,
+
+    `
+        DELETE FROM acao_partida
+        WHERE id_partida = ?
+    `,
+
+    `
+        DELETE FROM set_partida
+        WHERE id_partida = ?
+    `,
+
+    `
+        DELETE FROM participacao_atleta
+        WHERE id_partida = ?
+    `,
+
+    `
+        DELETE FROM participacao_partida
+        WHERE id_partida = ?
+    `,
+
+    `
+        DELETE FROM partida
+        WHERE id_partida = ?
+    `
 ];
+
 
 
     let indice = 0;

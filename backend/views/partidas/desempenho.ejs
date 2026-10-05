@@ -109,24 +109,40 @@
                 </section>
                 <section class="quadra-banco-lado-a-lado">
 
+    <!-- QUADRA -->
     <section class="quadra-partida cartao">
+
         <div class="cabecalho-secao">
             <div>
                 <h2>Quadra</h2>
+
                 <p class="subtitulo">
                     Formação atual da equipe.
                 </p>
             </div>
         </div>
 
-        <div class="grade-posicoes">
-            <% for (let posicao = 1; posicao <= 6; posicao += 1) { %>
+        <div class="identificacao-rede">
+            REDE
+        </div>
 
-                <% const atleta = listaAtletas.find((item) => {
-    return Number(item.titular) === 1 &&
-        Number(item.posicao_inicial) === posicao;
-}); %>
+        <div class="grade-posicoes grade-quadra">
 
+            <%
+                const ordemPosicoesQuadra = [
+                    4, 3, 2,
+                    5, 6, 1
+                ];
+            %>
+
+            <% ordemPosicoesQuadra.forEach(function(posicao) { %>
+
+                <%
+                    const atleta = listaAtletas.find(function(item) {
+                        return Number(item.titular) === 1 &&
+                            Number(item.posicao_inicial) === posicao;
+                    });
+                %>
 
                 <div
                     class="posicao-quadra <%= atleta ? 'posicao-ocupada' : '' %>"
@@ -145,7 +161,7 @@
                         </span>
 
                         <small>
-                            <%= atleta.posicao || 'Atleta' %>
+                            Posição <%= posicao %>
                         </small>
 
                         <% if (!somenteLeitura) { %>
@@ -171,13 +187,18 @@
                         </small>
 
                     <% } %>
+
                 </div>
 
-            <% } %>
+            <% }); %>
+
         </div>
     </section>
 
+
+    <!-- BANCO DE RESERVAS -->
     <section class="quadra-partida cartao">
+
         <div class="cabecalho-secao">
             <div>
                 <h2>Banco de Reservas</h2>
@@ -191,18 +212,10 @@
         <%
             const idsEscalados = new Set();
 
-            for (
-                let p = 1;
-                p <= 6;
-                p += 1
-            ) {
-                const titular = listaAtletas.find((item) => {
+            for (let p = 1; p <= 6; p += 1) {
+                const titular = listaAtletas.find(function(item) {
                     return Number(item.titular) === 1 &&
-                        String(
-                            item.posicao_inicial ||
-                            item.posicaoInicial ||
-                            ''
-                        ) === String(p);
+                        Number(item.posicao_inicial) === p;
                 });
 
                 if (titular) {
@@ -215,7 +228,7 @@
                 }
             }
 
-            const listaReservas = listaAtletas.filter((item) => {
+            const listaReservas = listaAtletas.filter(function(item) {
                 return !idsEscalados.has(
                     String(
                         item.id_atleta ||
@@ -226,6 +239,7 @@
         %>
 
         <div class="grade-posicoes">
+
             <% for (
                 let posicao = 1;
                 posicao <= 6;
@@ -276,14 +290,15 @@
                         </small>
 
                     <% } %>
+
                 </div>
 
             <% } %>
+
         </div>
     </section>
 
 </section>
-
 
                 <section class="painel-acao-set cartao">
                     <div class="cabecalho-secao">
@@ -335,20 +350,41 @@
         <span data-nome-acao>ação</span>
     </h3>
 
-    <div class="lista-resultados-acao" data-fundamentos-resultados="passe" hidden>
-        <button type="button" class="resultado-acao" data-resultado-acao="perfeito">
-            <strong>PASSE EXCELENTE</strong>
-            <small>A bola chega com tranquilidade para o levantador</small>
-        </button>
-        <button type="button" class="resultado-acao" data-resultado-acao="bom">
-            <strong>PASSE BOM</strong>
-            <small>A bola chega no levantador</small>
-        </button>
-        <button type="button" class="resultado-acao" data-resultado-acao="ruim">
-            <strong>PASSE ERRADO</strong>
-            <small>A recepção dificulta a continuidade da jogada</small>
-        </button>
-    </div>
+    <div
+    class="lista-resultados-acao"
+    data-fundamentos-resultados="passe"
+    hidden>
+
+    <button
+        type="button"
+        class="resultado-acao"
+        data-resultado-acao="perfeito">
+        <strong>PASSE EXCELENTE</strong>
+        <small>
+            A bola chega com tranquilidade para o levantador
+        </small>
+    </button>
+
+    <button
+        type="button"
+        class="resultado-acao"
+        data-resultado-acao="bom">
+        <strong>PASSE BOM</strong>
+        <small>
+            A bola chega no levantador
+        </small>
+    </button>
+
+    <button
+        type="button"
+        class="resultado-acao"
+        data-resultado-acao="ruim">
+        <strong>PASSE ERRADO</strong>
+        <small>
+            O passe dificulta a continuidade da jogada
+        </small>
+    </button>
+</div>
 
     <div class="lista-resultados-acao" data-fundamentos-resultados="ataque" hidden>
         <button type="button" class="resultado-acao" data-resultado-acao="perfeito">
