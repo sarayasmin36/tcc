@@ -6,11 +6,7 @@ const { exigirAtleta, exigirTreinador, exigirLogin } = require('../middleware/au
 const router = express.Router();
 
 
-// login
-
-// ============================
 // LISTAR ATLETAS
-// ============================
 router.get('/atletas', exigirTreinador, (req, res) => {
     const idTreinador = req.session.usuario.id_treinador;
     const idEquipe = req.query.equipe;
@@ -392,7 +388,6 @@ router.get('/registro-atleta', (req, res) => {
 });
 
 router.post('/registro-atleta', (req, res) => {
-    // Os nomes correspondem aos campos do seu EJS.
     const nome = req.body.nome;
     const email = req.body.email;
     const senha = req.body.senha;
@@ -400,7 +395,6 @@ router.post('/registro-atleta', (req, res) => {
     const numeroCamisa = req.body.numero_camisa;
     const posicao = req.body.posicao;
 
-    // Verifica se os campos foram preenchidos.
     if (
         !nome ||
         !email ||
@@ -416,7 +410,6 @@ router.post('/registro-atleta', (req, res) => {
         });
     }
 
-    // Procura a equipe pelo código informado pelo atleta.
     const sqlEquipe = `
         SELECT id_equipe
         FROM equipe
@@ -424,7 +417,7 @@ router.post('/registro-atleta', (req, res) => {
         LIMIT 1
     `;
 
-    // Padroniza o código antes da busca.
+    // Padroniza o código
     const codigoFormatado = codigoConvite.trim().toUpperCase();
 
     banco.query(sqlEquipe, [codigoFormatado], (erroEquipe, equipes) => {

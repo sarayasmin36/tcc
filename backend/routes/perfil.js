@@ -4,9 +4,9 @@ const { exigirLogin } = require('../middleware/autenticado');
 
 const router = express.Router();
 
-// ============================
+
 // VISUALIZAR PERFIL
-// ============================
+
 router.get('/perfil', exigirLogin, (req, res) => {
     const idUsuario = req.session.usuario.id_usuario;
 
@@ -70,9 +70,9 @@ router.get('/perfil', exigirLogin, (req, res) => {
     });
 });
 
-// ============================
+
 // ATUALIZAR PERFIL
-// ============================
+
 router.post('/perfil', exigirLogin, (req, res) => {
     const nome = req.body.nome ? req.body.nome.trim() : '';
     const email = req.body.email ? req.body.email.trim() : '';

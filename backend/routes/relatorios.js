@@ -7,11 +7,9 @@ const {
 
 const router = express.Router();
 
-// ============================
-// LISTAR RELATÓRIOS
-// ============================
 
-// Substitua a rota GET /relatorios atual por esta rota.
+// LISTAR RELATÓRIOS
+
 router.get('/relatorios', exigirLogin, (req, res) => {
     const usuario = req.session.usuario;
     let filtroEquipe;
@@ -174,9 +172,9 @@ router.get('/relatorios', exigirLogin, (req, res) => {
     });
 });
 
-// ============================
+
 // SALVAR DESEMPENHO DA ATLETA
-// ============================
+
 // O relatório é gerado a partir destes dados de desempenho.
 router.post('/partidas/:id/desempenho', exigirTreinador, (req, res) => {
     const idPartida = req.params.id;
@@ -517,7 +515,6 @@ router.put('/partidas/:id/desempenho/acao/:idAcao', exigirTreinador, (req, res) 
     });
 });
 
-// Esta rota deve aparecer una única vez em backend/routes/relatorios.js.
 router.post('/partidas/:id/desempenho/acao', exigirTreinador, (req, res) => {
     const idPartida = Number(req.params.id);
     const idAtleta = Number(req.body.id_atleta);
@@ -569,6 +566,10 @@ defesa: {
             erro: 'Dados da ação inválidos.'
         });
     }
+
+// Quando você executa o beginTransaction, você está dizendo ao banco de dados: "Olha, vou fazer várias alterações agora 
+// (inserir, atualizar, deletar), mas não salve nada de forma definitiva ainda. 
+// Guarde tudo na memória.
 
     banco.beginTransaction((erroTransacao) => {
         if (erroTransacao) {

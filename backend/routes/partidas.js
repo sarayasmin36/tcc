@@ -7,9 +7,8 @@ const {
 
 const router = express.Router();
 
-// ============================
 // LISTAR PARTIDAS
-// ============================
+
 router.get('/partidas', exigirLogin, (req, res) => {
     const usuario = req.session.usuario;
     let filtroEquipe;
@@ -72,9 +71,8 @@ router.get('/partidas', exigirLogin, (req, res) => {
     });
 });
 
-// ============================
 // FORMULÁRIO DE CADASTRO
-// ============================
+
 router.get('/partidas/cadastro', exigirTreinador, (req, res) => {
     const idTreinador = req.session.usuario.id_treinador;
 
@@ -138,9 +136,8 @@ router.get('/partidas/cadastro', exigirTreinador, (req, res) => {
     });
 });
 
-// ============================
 // SALVAR PARTIDA
-// ============================
+
 router.post('/partidas', exigirTreinador, (req, res) => {
     const equipeCasaId = req.body.equipe_casa_id;
     const nomeEquipeAdversaria = req.body.nome_equipe_adversaria || null;

@@ -173,7 +173,7 @@ router.post('/registro-treinador', (req, res) => {
                     [idUsuario],
                     (erroTreinador) => {
 
-                        // Verifica se houve erro ao criar o treinador.
+                        // Verifica se houve erro ao criar 
                         if (erroTreinador) {
                             console.log('Erro ao cadastrar treinador:', erroTreinador);
 
@@ -183,7 +183,7 @@ router.post('/registro-treinador', (req, res) => {
                             });
                         }
 
-                        // Mostra uma mensagem de sucesso na mesma tela.
+                        // Mostra uma mensagem de sucesso na mesma 
                         res.render('entrada/registro-treinador', {
                             erro: null,
                             sucesso: 'Treinador cadastrado com sucesso! Agora você pode fazer login.'
